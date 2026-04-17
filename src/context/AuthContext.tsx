@@ -15,6 +15,11 @@ import {
 } from '../api/client';
 import type { User } from '../types';
 
+// eslint-disable-next-line no-console
+const devLog: typeof console.log = import.meta.env.DEV
+  ? console.log.bind(console)
+  : () => {};
+
 export interface AuthContextValue {
   user: User | null;
   accessToken: string | null;
@@ -46,41 +51,53 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const applyToken = useCallback((token: string | null) => {
     setClientAccessToken(token);
     setAccessTokenState(token);
+    devLog('[auth/context] applyToken:', token ? 'SET' : 'CLEARED');
   }, []);
 
   const clearSession = useCallback(() => {
+    devLog('[auth/context] clearSession() CALLED — stack:', new Error().stack);
     applyToken(null);
     setUser(null);
   }, [applyToken]);
 
-  // On app load, try to silently refresh — if the user has a valid refresh
-  // cookie we recover their session without a fresh login.
+  // On app load, try to silently refresh — best-effort rehydration of the
+  // previous session. Must NOT clear an in-memory session established by a
+  // concurrent register/login call, and must NEVER leave isBootstrapping
+  // stuck at true (which would hang every protected route behind a spinner).
+  //
+  // Known backend limitation: the refresh cookie is set with sameSite=strict,
+  // which the browser blocks on cross-origin requests (localhost:5173 →
+  // lrfap-backend.vercel.app). That's tracked as a backend fix (sameSite
+  // must be 'none' + secure in production). Until that ships, this call
+  // will 401 on page reload for most users and they'll need to re-login
+  // if their in-memory access token has expired. Within a single session
+  // (register/login → use app), the in-memory token is sufficient.
   useEffect(() => {
-    if (hasBootstrapped.current) return;
+    if (hasBootstrapped.current) {
+      devLog('[auth/context] bootstrap skipped — already ran this session');
+      return;
+    }
     hasBootstrapped.current = true;
+    devLog('[auth/context] bootstrap START — calling authApi.refresh()');
 
-    let cancelled = false;
     (async () => {
       try {
         const res = await authApi.refresh();
-        if (cancelled) return;
         applyToken(res.accessToken);
-        // Some backends return the user with /auth/refresh. If not, leave null
-        // and let consumers rely on the access token alone; they can hydrate
-        // user info via a dedicated endpoint when needed.
         const maybeUser = (res as unknown as { user?: User }).user;
         if (maybeUser) setUser(maybeUser);
+        devLog('[auth/context] bootstrap SUCCESS — session hydrated');
       } catch {
-        if (!cancelled) clearSession();
+        // Intentionally no clearSession(): if an in-memory token exists
+        // from a concurrent register/login it must survive. With no token
+        // in memory, isAuthenticated is already false — nothing to clear.
+        devLog('[auth/context] bootstrap refresh failed — leaving state as-is');
       } finally {
-        if (!cancelled) setIsBootstrapping(false);
+        setIsBootstrapping(false);
+        devLog('[auth/context] bootstrap COMPLETE — isBootstrapping = false');
       }
     })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [applyToken, clearSession]);
+  }, [applyToken]);
 
   useEffect(() => {
     registerUnauthorizedHandler(() => {

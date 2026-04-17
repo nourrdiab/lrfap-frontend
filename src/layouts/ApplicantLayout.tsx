@@ -1,31 +1,26 @@
-import { useAuth } from '../hooks/useAuth';
-import { ScaffoldShell } from './ScaffoldShell';
+import { Outlet } from 'react-router-dom';
+import { ApplicantNavBar } from '../components/applicant/ApplicantNavBar';
+import { PublicFooter } from '../components/public/PublicFooter';
 
+/**
+ * Shell wrapping every /applicant/* route. ProtectedRoute gates access to
+ * this layout (allow=['applicant']), so the navbar and footer can assume
+ * an authenticated applicant user.
+ *
+ * Chrome:
+ *   - ApplicantNavBar (white bg, navy text, 0.91 px ghost bottom border)
+ *   - <main> grows to fill available space; pages control their own
+ *     internal spacing and gradients
+ *   - PublicFooter (reused from the public site — same brand footer)
+ */
 export function ApplicantLayout() {
-  const { logout, user } = useAuth();
   return (
-    <ScaffoldShell
-      label="applicant"
-      items={[
-        { to: '/applicant', label: 'Dashboard', end: true },
-        { to: '/applicant/profile', label: 'Profile & Documents' },
-        { to: '/applicant/applications', label: 'My Applications' },
-        { to: '/applicant/notifications', label: 'Notifications' },
-      ]}
-      right={
-        <div className="flex items-center gap-3">
-          {user?.email ? (
-            <span className="hidden text-xs text-white/70 sm:inline">{user.email}</span>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="rounded-md bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
-          >
-            Sign out
-          </button>
-        </div>
-      }
-    />
+    <div className="flex min-h-screen flex-col bg-white text-slate-900">
+      <ApplicantNavBar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <PublicFooter />
+    </div>
   );
 }

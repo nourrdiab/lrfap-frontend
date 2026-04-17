@@ -23,6 +23,9 @@ import ApplicantProfileDocumentsPage from './pages/applicant/ProfileDocumentsPag
 import ApplicantMyApplicationsPage from './pages/applicant/MyApplicationsPage';
 import ApplicantApplicationDetailPage from './pages/applicant/ApplicationDetailPage';
 import ApplicantNotificationsPage from './pages/applicant/NotificationsPage';
+import ApplicationWizardPage from './pages/applicant/ApplicationWizardPage';
+import { StepPlaceholder } from './pages/applicant/wizard-steps/StepPlaceholder';
+import ProfileStep from './components/applicant/wizard/steps/ProfileStep';
 
 import UniversityDashboardPage from './pages/university/DashboardPage';
 import UniversityProgramApplicationsPage from './pages/university/ProgramApplicationsPage';
@@ -70,6 +73,35 @@ export default function App() {
               <Route index element={<ApplicantDashboardPage />} />
               <Route path="profile" element={<ApplicantProfileDocumentsPage />} />
               <Route path="applications" element={<ApplicantMyApplicationsPage />} />
+              {/* Wizard routes — more specific than :id, so ordered first */}
+              <Route
+                path="applications/:id/edit"
+                element={<ApplicationWizardPage />}
+              >
+                <Route index element={<Navigate to="profile" replace />} />
+                <Route path="profile" element={<ProfileStep />} />
+                <Route
+                  path="documents"
+                  element={<StepPlaceholder step="documents" label="Documents" />}
+                />
+                <Route
+                  path="programs"
+                  element={<StepPlaceholder step="programs" label="Programs" />}
+                />
+                <Route
+                  path="preference-ranking"
+                  element={
+                    <StepPlaceholder
+                      step="preference-ranking"
+                      label="Preference Ranking"
+                    />
+                  }
+                />
+                <Route
+                  path="review"
+                  element={<StepPlaceholder step="review" label="Review & Submit" />}
+                />
+              </Route>
               <Route
                 path="applications/:id"
                 element={<ApplicantApplicationDetailPage />}
