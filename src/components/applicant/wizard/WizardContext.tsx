@@ -11,8 +11,13 @@ import {
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { applicantProfileApi } from '../../../api/applicantProfile';
+import { documentsApi } from '../../../api/documents';
 import { universitiesApi } from '../../../api/universities';
-import type { ApplicantProfile, University } from '../../../types';
+import type {
+  ApplicantProfile,
+  ApplicationDocument,
+  University,
+} from '../../../types';
 import { STEPS, isStepSlug, type StepSlug, type StepStatus } from './types';
 
 /**
@@ -77,6 +82,11 @@ export interface WizardContextValue {
   updateProfileCache: (next: ApplicantProfile) => void;
   universities: University[];
   universitiesStatus: FetchStatus;
+  documents: ApplicationDocument[];
+  documentsStatus: FetchStatus;
+  refetchDocuments: () => Promise<void>;
+  addDocumentToCache: (doc: ApplicationDocument) => void;
+  removeDocumentFromCache: (id: string) => void;
 
   // Save coordination
   isSaving: boolean;
@@ -145,6 +155,16 @@ function deriveCurrentStep(pathname: string): StepSlug {
   return isStepSlug(slug) ? slug : 'profile';
 }
 
+/**
+ * Mongo ObjectId check. Used to skip application-scoped fetches when the
+ * URL carries a placeholder draftId (e.g. `demo123`) — the backend
+ * rejects non-ObjectId strings with a 400/500, which would otherwise
+ * trip the step's error banner on demo routes.
+ */
+function isValidObjectId(id: string): boolean {
+  return /^[0-9a-fA-F]{24}$/.test(id);
+}
+
 export function WizardProvider({ children }: WizardProviderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -160,6 +180,8 @@ export function WizardProvider({ children }: WizardProviderProps) {
   const [profileStatus, setProfileStatus] = useState<FetchStatus>('idle');
   const [universities, setUniversities] = useState<University[]>([]);
   const [universitiesStatus, setUniversitiesStatus] = useState<FetchStatus>('idle');
+  const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
+  const [documentsStatus, setDocumentsStatus] = useState<FetchStatus>('idle');
 
   const stepSaveRef = useRef<(() => Promise<void>) | null>(null);
 
@@ -202,6 +224,28 @@ export function WizardProvider({ children }: WizardProviderProps) {
     };
   }, []);
 
+  useEffect(() => {
+    // Skip the fetch on demo/placeholder draft IDs. Status stays `idle`,
+    // the step treats that as "no documents yet" and renders the empty
+    // card stack. Real draft IDs (24-hex ObjectIds) fetch normally.
+    if (!isValidObjectId(draftId)) return;
+    let cancelled = false;
+    setDocumentsStatus('loading');
+    documentsApi
+      .listForApplication(draftId)
+      .then((res) => {
+        if (cancelled) return;
+        setDocuments(res);
+        setDocumentsStatus('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setDocumentsStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [draftId]);
+
   const refetchProfile = useCallback(async () => {
     setProfileStatus('loading');
     try {
@@ -216,6 +260,31 @@ export function WizardProvider({ children }: WizardProviderProps) {
   const updateProfileCache = useCallback((next: ApplicantProfile) => {
     setProfile(next);
     setProfileStatus('loaded');
+  }, []);
+
+  const refetchDocuments = useCallback(async () => {
+    if (!isValidObjectId(draftId)) return;
+    setDocumentsStatus('loading');
+    try {
+      const res = await documentsApi.listForApplication(draftId);
+      setDocuments(res);
+      setDocumentsStatus('loaded');
+    } catch {
+      setDocumentsStatus('error');
+    }
+  }, [draftId]);
+
+  const addDocumentToCache = useCallback((doc: ApplicationDocument) => {
+    setDocuments((prev) => {
+      // Replace any existing doc of the same type — backend may keep the
+      // old record but the UI should only ever show the latest upload.
+      const withoutSameType = prev.filter((d) => d.type !== doc.type);
+      return [doc, ...withoutSameType];
+    });
+  }, []);
+
+  const removeDocumentFromCache = useCallback((id: string) => {
+    setDocuments((prev) => prev.filter((d) => d._id !== id));
   }, []);
 
   const registerStepSave = useCallback((fn: (() => Promise<void>) | null) => {
@@ -317,6 +386,11 @@ export function WizardProvider({ children }: WizardProviderProps) {
       updateProfileCache,
       universities,
       universitiesStatus,
+      documents,
+      documentsStatus,
+      refetchDocuments,
+      addDocumentToCache,
+      removeDocumentFromCache,
       isSaving,
       lastSavedAt,
       notifySaved,
@@ -340,6 +414,11 @@ export function WizardProvider({ children }: WizardProviderProps) {
       updateProfileCache,
       universities,
       universitiesStatus,
+      documents,
+      documentsStatus,
+      refetchDocuments,
+      addDocumentToCache,
+      removeDocumentFromCache,
       isSaving,
       lastSavedAt,
       notifySaved,
