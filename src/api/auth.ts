@@ -28,7 +28,7 @@ export interface ForgotPasswordPayload {
 
 export interface ResetPasswordPayload {
   token: string;
-  password: string;
+  newPassword: string;
 }
 
 export const authApi = {

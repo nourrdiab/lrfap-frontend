@@ -4,17 +4,21 @@ import { Link } from 'react-router-dom';
 /**
  * Unified public-area footer.
  *
- * Figma-locked geometry:
+ * Figma-locked where it matters, sized down for short pages:
  *   - Container: max-width 1366 px, 58 px horizontal padding
- *   - Main row height: 323.72 px (from Figma frame)
- *   - Logo: 51.93 px tall
- *   - Link text: 18.11 / 22 regular white, vertical gap 21.45 px
+ *   - Main row height: 220 px (reduced from Figma's 323.72 px — that value
+ *     was sized for the end of the long landing page and felt too heavy on
+ *     Programs / About / Auth. 220 px keeps the footer substantial without
+ *     dominating shorter pages.)
+ *   - Logo: 44 px tall (scaled down proportionally from 51.93 px)
+ *   - Link text: 18.11 / 22 regular white; vertical gap 16 px (down from
+ *     21.45 px so the columns fit the shorter row)
  *   - GET STARTED pill: 198.36 × 40.67, 0.91 px white stroke, square corners
- *   - Inter-column gap: 120 px (tuned down from Figma's 203 px so everything
- *     still fits at 1024 px viewport width)
+ *     (component-level geometry — unchanged regardless of footer height)
+ *   - Inter-column gap: 120 px — horizontal, unaffected by height change
  *
- * Copyright strip sits below the main row, same navy background, centered,
- * 14 px white at 70 % opacity.
+ * Copyright strip sits below the main row on the same navy background,
+ * centered, 14 px white at 70 % opacity.
  */
 
 const LINK_CLS =
@@ -39,7 +43,7 @@ const COLUMN_2: FooterLink[] = [
 
 function LinkColumn({ items }: { items: FooterLink[] }) {
   return (
-    <ul className="flex list-none flex-col gap-[21.45px]">
+    <ul className="flex list-none flex-col gap-[16px]">
       {items.map((item) => (
         <li key={item.label}>
           <Link to={item.href} className={LINK_CLS}>
@@ -66,7 +70,7 @@ export function PublicFooter() {
       </h2>
 
       <div
-        className="mx-auto flex w-full max-w-[1366px] flex-col items-start gap-[40px] px-6 py-[48px] md:h-[323.72px] md:flex-row md:items-center md:justify-between md:gap-0 md:px-[58px] md:py-0"
+        className="mx-auto flex w-full max-w-[1366px] flex-col items-start gap-[32px] px-6 py-[40px] md:h-[220px] md:flex-row md:items-center md:justify-between md:gap-0 md:px-[58px] md:py-0"
       >
         <Link
           to="/"
@@ -77,13 +81,13 @@ export function PublicFooter() {
             src="/logos/logo-white.png"
             alt="LRFAP"
             draggable={false}
-            className="h-[51.93px] w-auto select-none"
+            className="h-[44px] w-auto select-none"
           />
         </Link>
 
         <nav
           aria-label="Footer"
-          className="flex flex-col items-start gap-[32px] md:flex-row md:gap-[120px]"
+          className="flex flex-col items-start gap-[24px] md:flex-row md:gap-[120px]"
         >
           <LinkColumn items={COLUMN_1} />
           <LinkColumn items={COLUMN_2} />
