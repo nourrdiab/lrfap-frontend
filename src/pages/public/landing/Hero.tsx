@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { NavBar } from './NavBar';
+import { PublicNavBar } from '../../../components/public/PublicNavBar';
 
 /**
  * Hero section — full-bleed photograph + dark multiply overlay + H1 + 5
@@ -65,7 +65,7 @@ export function Hero() {
         style={OVERLAY_STYLE}
       />
 
-      <NavBar />
+      <PublicNavBar variant="transparent" />
 
       <motion.h1
         initial={{ opacity: 0, y: 24 }}
