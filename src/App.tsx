@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { PublicLayout } from './layouts/PublicLayout';
 import { AuthLayout } from './layouts/AuthLayout';
+import { CenteredAuthLayout } from './layouts/CenteredAuthLayout';
 import { ApplicantLayout } from './layouts/ApplicantLayout';
 import { UniversityLayout } from './layouts/UniversityLayout';
 import { LGCLayout } from './layouts/LGCLayout';
@@ -51,10 +52,14 @@ export default function App() {
             <Route path="about" element={<AboutPage />} />
           </Route>
 
-          {/* Auth */}
+          {/* Auth — split layout (form + photo) for multi-field flows */}
           <Route element={<AuthLayout />}>
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
+          </Route>
+
+          {/* Auth — centered layout for single-field flows */}
+          <Route element={<CenteredAuthLayout />}>
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
             <Route path="reset-password" element={<ResetPasswordPage />} />
           </Route>
