@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { PublicFooter } from '../components/public/PublicFooter';
@@ -32,6 +32,11 @@ const AUX_LINK_CLS =
   'font-sans text-[16.49px] font-normal text-lrfap-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
 
 export function AuthLayout() {
+  const { pathname } = useLocation();
+  // On /register, offer a path back to sign-in; elsewhere (login, forgot,
+  // reset) offer a path to create an account. Keeps the navbar CTA useful
+  // for someone who lands on the wrong page.
+  const isRegister = pathname === '/register';
   return (
     <div className="flex min-h-screen flex-col bg-white text-slate-900">
       <header className="w-full border-b-[0.91px] border-lrfap-ghost bg-white">
@@ -60,13 +65,22 @@ export function AuthLayout() {
               <ArrowLeft aria-hidden="true" className="h-[18px] w-[18px]" />
               <span>Back to home</span>
             </Link>
-            <Link
-              to="/register"
-              className="inline-flex shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy font-sans text-[16.49px] font-normal text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy"
-              style={{ width: '198.36px', height: '40.67px' }}
-            >
-              CREATE ACCOUNT
-            </Link>
+            {isRegister ? (
+              <Link
+                to="/login"
+                className="inline-flex h-[40.67px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy px-[22px] font-sans text-[16.49px] font-normal text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy"
+              >
+                SIGN IN
+              </Link>
+            ) : (
+              <Link
+                to="/register"
+                className="inline-flex shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy font-sans text-[16.49px] font-normal text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy"
+                style={{ width: '198.36px', height: '40.67px' }}
+              >
+                CREATE ACCOUNT
+              </Link>
+            )}
           </nav>
         </div>
       </header>
