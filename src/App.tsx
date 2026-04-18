@@ -70,6 +70,11 @@ export default function App() {
             <Route path="reset-password" element={<ResetPasswordPage />} />
           </Route>
 
+          {/* Convenience redirect: /dashboard lands role-routing at the
+              applicant dashboard. Other roles have their own landing pages
+              wired under /university and /lgc respectively. */}
+          <Route path="dashboard" element={<Navigate to="/applicant" replace />} />
+
           {/* Applicant portal */}
           <Route element={<ProtectedRoute allow={['applicant']} />}>
             <Route path="applicant" element={<ApplicantLayout />}>

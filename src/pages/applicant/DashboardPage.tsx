@@ -4,7 +4,12 @@ import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { dashboardApi } from '../../api/dashboard';
 import { notificationsApi } from '../../api/notifications';
-import type { ApplicantDashboard, Notification } from '../../types';
+import type {
+  ApplicantDashboard,
+  DashboardApplication,
+  ID,
+  Notification,
+} from '../../types';
 import { ActiveApplicationCard } from '../../components/applicant/dashboard/ActiveApplicationCard';
 import { ProfileCompletionBar } from '../../components/applicant/dashboard/ProfileCompletionBar';
 import { NotificationPreviewList } from '../../components/applicant/dashboard/NotificationPreviewList';
@@ -68,17 +73,43 @@ export default function ApplicantDashboardPage() {
     };
   }, []);
 
-  const recentNotifications = useMemo(
-    () =>
-      notifications
-        .slice()
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        )
-        .slice(0, 3),
-    [notifications],
-  );
+  // Pick the application tied to the active cycle. Backend enforces one
+  // application per cycle, so at most one match is expected; if none is
+  // tied to the active cycle but the applicant has some other app (past
+  // cycle), we still pass `null` — the "none" branch of the card uses
+  // `hasAnyApplication` to decide whether the Start CTA is enabled.
+  const currentApplication = useMemo<DashboardApplication | null>(() => {
+    if (!dashboard) return null;
+    const activeId: ID | undefined = dashboard.activeCycle?.id;
+    if (!activeId) return null;
+    const match = dashboard.applications.find((a) => {
+      const cid = typeof a.cycle === 'string' ? a.cycle : a.cycle?._id;
+      return cid === activeId;
+    });
+    return match ?? null;
+  }, [dashboard]);
+
+  const hasAnyApplication = useMemo<boolean>(() => {
+    const c = dashboard?.checklist;
+    if (!c) return false;
+    return c.hasDraft || c.hasSubmitted || c.hasMatch;
+  }, [dashboard]);
+
+  const recentNotifications = useMemo(() => {
+    // Defensive: the /notifications endpoint historically returned
+    // `{ notifications: [...] }` rather than a bare array. The API
+    // wrapper now unwraps it, but we still guard in case the wire shape
+    // shifts again — the dashboard blowing up over a notifications
+    // regression isn't worth the terseness.
+    if (!Array.isArray(notifications)) return [];
+    return notifications
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, 3);
+  }, [notifications]);
 
   const firstName = user?.firstName?.trim() || '';
 
@@ -136,8 +167,9 @@ export default function ApplicantDashboardPage() {
       </header>
 
       <ActiveApplicationCard
-        application={dashboard.application ?? null}
+        application={currentApplication}
         activeCycle={dashboard.activeCycle ?? null}
+        hasAnyApplication={hasAnyApplication}
       />
 
       {showProfileBar ? (

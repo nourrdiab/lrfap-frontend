@@ -1,25 +1,58 @@
 import type { ID, ISODateString } from './common';
+import type { Cycle, Program, Track } from './catalog';
 import type { ApplicationStatus, OfferStatus } from './application';
 
+/**
+ * Mirrors the actual `GET /api/dashboard/applicant` response
+ * (controllers/dashboardController.js → getApplicantDashboard). The
+ * outer shape hand-constructs objects with `id` fields, but populated
+ * subdocuments (cycle, matchedProgram) serialize with Mongoose's
+ * default `_id`.
+ */
+
+export interface DashboardUser {
+  id: ID;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+}
+
+export interface DashboardActiveCycle {
+  id: ID;
+  name: string;
+  year: number;
+  status: string;
+  submissionDeadline?: ISODateString;
+  rankingDeadline?: ISODateString;
+  resultPublicationDate?: ISODateString;
+}
+
+export interface DashboardChecklist {
+  profileCompleted: boolean;
+  hasDraft: boolean;
+  hasSubmitted: boolean;
+  hasMatch: boolean;
+  hasPendingOffer: boolean;
+}
+
+export interface DashboardApplication {
+  id: ID;
+  cycle: ID | Cycle;
+  track: Track;
+  status: ApplicationStatus;
+  submissionReference?: string;
+  submittedAt?: ISODateString;
+  matchedProgram?: ID | Program | null;
+  offerStatus: OfferStatus;
+  offerExpiresAt?: ISODateString;
+}
+
 export interface ApplicantDashboard {
+  user: DashboardUser;
   profileCompletion: number;
-  documentsUploaded: number;
-  documentsTotal: number;
-  activeCycle?: {
-    _id: ID;
-    name: string;
-    status: string;
-    applicationCloseDate?: ISODateString;
-  } | null;
-  application?: {
-    _id: ID;
-    status: ApplicationStatus;
-    offerStatus: OfferStatus;
-    offerExpiresAt?: ISODateString;
-    matchedProgramName?: string;
-  } | null;
-  unreadNotifications: number;
-  checklist?: Array<{ key: string; label: string; done: boolean }>;
+  checklist: DashboardChecklist;
+  applications: DashboardApplication[];
+  activeCycle: DashboardActiveCycle | null;
 }
 
 export interface LGCDashboard {

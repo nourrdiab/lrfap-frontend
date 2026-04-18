@@ -1,18 +1,34 @@
 import { ArrowRight, CheckCircle, Clock, FileText, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { ApplicantDashboard } from '../../../types';
+import type {
+  DashboardActiveCycle,
+  DashboardApplication,
+  ID,
+  Program,
+  Specialty,
+  University,
+} from '../../../types';
 
 /**
  * Dashboard widget that surfaces whatever applicant action is most
- * relevant today. Branches by application.status (including the absence
- * of an application entirely). Uses the thin `application` shape from
- * /dashboard/applicant — for fuller detail users click through to
- * /applicant/applications/:id.
+ * relevant today. Branches by the current-cycle application's status.
+ * The parent picks which app to feed us (one per cycle is enforced
+ * backend-side); we branch on `application.status` only.
+ *
+ * The thin `DashboardApplication` shape doesn't carry the submission
+ * reference in plain view — detail lookups go to /applicant/applications/:id.
  */
 
 interface ActiveApplicationCardProps {
-  application: ApplicantDashboard['application'];
-  activeCycle: ApplicantDashboard['activeCycle'];
+  application: DashboardApplication | null;
+  activeCycle: DashboardActiveCycle | null;
+  /**
+   * True when the applicant has any draft/submitted/matched application
+   * anywhere (checklist-derived). Used to disable the "Start New" CTA
+   * even on cycles where they don't yet have an app, aligning with the
+   * backend's one-per-cycle enforcement and MyApplicationsPage behavior.
+   */
+  hasAnyApplication: boolean;
 }
 
 function formatCloseDate(iso: string | null | undefined): string {
@@ -26,18 +42,42 @@ function formatCloseDate(iso: string | null | undefined): string {
   });
 }
 
+function populated<T extends { _id: ID }>(ref: ID | T | null | undefined): T | null {
+  if (!ref || typeof ref === 'string') return null;
+  return ref;
+}
+
+function trackLabel(track: 'residency' | 'fellowship'): string {
+  return track === 'fellowship' ? 'FELLOWSHIP' : 'RESIDENCY';
+}
+
+function cycleSubheading(
+  activeCycle: DashboardActiveCycle | null,
+  application: DashboardApplication,
+): string {
+  const year = activeCycle?.year ?? '';
+  return [year, trackLabel(application.track)].filter(Boolean).join(' · ');
+}
+
 export function ActiveApplicationCard({
   application,
   activeCycle,
+  hasAnyApplication,
 }: ActiveApplicationCardProps) {
-  // No application → prompt to create one.
+  // No application in the active cycle.
   if (!application) {
     const cycleOpen = !!activeCycle && activeCycle.status === 'open';
+    const buttonEnabled = cycleOpen && !hasAnyApplication;
+    const helper = !cycleOpen
+      ? 'No cycle is currently open for applications.'
+      : hasAnyApplication
+        ? 'You already have an application for this cycle.'
+        : null;
     return (
       <CardShell>
         <div className="flex flex-col gap-[14px]">
           <h2 className="font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy">
-            No active application
+            No Active Application
           </h2>
           <p className="font-sans text-[14px] text-slate-600">
             Start your first application to begin.
@@ -45,20 +85,21 @@ export function ActiveApplicationCard({
           <div className="flex flex-col gap-[6px] md:flex-row md:items-center md:gap-[14px]">
             <Link
               to="/applicant/applications"
-              aria-disabled={!cycleOpen || undefined}
+              aria-disabled={!buttonEnabled || undefined}
               onClick={(e) => {
-                if (!cycleOpen) e.preventDefault();
+                if (!buttonEnabled) e.preventDefault();
               }}
+              title={helper ?? undefined}
               className={`inline-flex h-[44px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-navy bg-lrfap-navy px-[22px] font-sans text-[14px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky ${
-                cycleOpen ? '' : 'pointer-events-none opacity-60'
+                buttonEnabled ? '' : 'pointer-events-none opacity-60'
               }`}
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
               Start New Application
             </Link>
-            {!cycleOpen ? (
+            {helper ? (
               <span className="font-sans text-[12px] text-slate-500">
-                No cycle is currently open for applications.
+                {helper}
               </span>
             ) : null}
           </div>
@@ -67,11 +108,15 @@ export function ActiveApplicationCard({
     );
   }
 
-  const heading = cycleLabelHeading(activeCycle);
+  const subheading = cycleSubheading(activeCycle, application);
   const { label: badgeLabel, cls: badgeCls } = statusBadge(application.status);
 
-  // Matched: celebrate + link to detail.
   if (application.status === 'matched') {
+    const matched = populated<Program>(application.matchedProgram ?? null);
+    const matchedName = matched
+      ? (populated<Specialty>(matched.specialty)?.name ?? 'your program')
+      : 'your program';
+    const matchedUni = matched ? populated<University>(matched.university) : null;
     return (
       <CardShell>
         <div className="flex flex-col gap-[14px]">
@@ -91,10 +136,8 @@ export function ActiveApplicationCard({
           </div>
           <p className="font-sans text-[14px] text-slate-600">
             You&apos;ve been matched to{' '}
-            <span className="font-semibold text-lrfap-navy">
-              {application.matchedProgramName ?? 'your program'}
-            </span>
-            .
+            <span className="font-semibold text-lrfap-navy">{matchedName}</span>
+            {matchedUni ? ` at ${matchedUni.name}` : ''}.
           </p>
           {application.offerStatus !== 'none' ? (
             <p className="font-sans text-[13px] text-slate-500">
@@ -103,7 +146,7 @@ export function ActiveApplicationCard({
           ) : null}
           <div>
             <Link
-              to={`/applicant/applications/${application._id}`}
+              to={`/applicant/applications/${application.id}`}
               className="inline-flex h-[40px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-sky bg-lrfap-sky px-[22px] font-sans text-[13px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-[#3a86bd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
             >
               View Match Details
@@ -115,7 +158,6 @@ export function ActiveApplicationCard({
     );
   }
 
-  // Draft: primary action is to continue editing.
   if (application.status === 'draft') {
     return (
       <CardShell>
@@ -126,7 +168,7 @@ export function ActiveApplicationCard({
               className="h-5 w-5 shrink-0 text-lrfap-navy"
             />
             <h2 className="font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy">
-              {heading}
+              Your Draft Application
             </h2>
             <span
               className={`inline-flex items-center border px-[10px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide ${badgeCls}`}
@@ -134,10 +176,15 @@ export function ActiveApplicationCard({
               {badgeLabel}
             </span>
           </div>
-          {activeCycle?.applicationCloseDate ? (
+          {subheading ? (
+            <p className="font-display text-[13px] font-bold uppercase tracking-wide text-slate-500">
+              {subheading}
+            </p>
+          ) : null}
+          {activeCycle?.submissionDeadline ? (
             <p className="flex items-center gap-[6px] font-sans text-[13px] text-slate-500">
               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-              Applications close {formatCloseDate(activeCycle.applicationCloseDate)}
+              Applications close {formatCloseDate(activeCycle.submissionDeadline)}
             </p>
           ) : null}
           <p className="font-sans text-[14px] text-slate-600">
@@ -145,7 +192,7 @@ export function ActiveApplicationCard({
           </p>
           <div className="flex flex-col gap-[10px] md:flex-row md:items-center md:gap-[14px]">
             <Link
-              to={`/applicant/applications/${application._id}/edit`}
+              to={`/applicant/applications/${application.id}/edit`}
               className="inline-flex h-[44px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-sky bg-lrfap-sky px-[22px] font-sans text-[14px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-[#3a86bd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
             >
               Continue Editing
@@ -163,16 +210,8 @@ export function ActiveApplicationCard({
     );
   }
 
-  // Submitted / under_review / withdrawn / unmatched — single CTA out.
-  const bodyText =
-    application.status === 'submitted' || application.status === 'under_review'
-      ? 'Your application is being reviewed.'
-      : application.status === 'withdrawn'
-        ? 'This application has been withdrawn.'
-        : application.status === 'unmatched'
-          ? 'Matching has completed. No match was offered for this cycle.'
-          : 'Open the detail page to see more.';
-
+  // submitted / under_review / unmatched / withdrawn — single CTA out.
+  const { title, body } = nonDraftCopy(application.status);
   return (
     <CardShell>
       <div className="flex flex-col gap-[14px]">
@@ -182,7 +221,7 @@ export function ActiveApplicationCard({
             className="h-5 w-5 shrink-0 text-lrfap-navy"
           />
           <h2 className="font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy">
-            {heading}
+            {title}
           </h2>
           <span
             className={`inline-flex items-center border px-[10px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide ${badgeCls}`}
@@ -190,10 +229,15 @@ export function ActiveApplicationCard({
             {badgeLabel}
           </span>
         </div>
-        <p className="font-sans text-[14px] text-slate-600">{bodyText}</p>
+        {subheading ? (
+          <p className="font-display text-[13px] font-bold uppercase tracking-wide text-slate-500">
+            {subheading}
+          </p>
+        ) : null}
+        <p className="font-sans text-[14px] text-slate-600">{body}</p>
         <div>
           <Link
-            to={`/applicant/applications/${application._id}`}
+            to={`/applicant/applications/${application.id}`}
             className="inline-flex h-[44px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-navy bg-lrfap-navy px-[22px] font-sans text-[14px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
           >
             View Details
@@ -205,6 +249,32 @@ export function ActiveApplicationCard({
   );
 }
 
+function nonDraftCopy(status: string): { title: string; body: string } {
+  switch (status) {
+    case 'submitted':
+    case 'under_review':
+      return {
+        title: 'Your Application',
+        body: 'Your application has been submitted and is under review.',
+      };
+    case 'unmatched':
+      return {
+        title: 'Application Not Matched',
+        body: 'Matching has completed. No match was offered for this cycle.',
+      };
+    case 'withdrawn':
+      return {
+        title: 'Application Withdrawn',
+        body: 'This application has been withdrawn.',
+      };
+    default:
+      return {
+        title: 'Your Application',
+        body: 'Open the detail page to see more.',
+      };
+  }
+}
+
 function CardShell({ children }: { children: React.ReactNode }) {
   return (
     <section
@@ -214,18 +284,6 @@ function CardShell({ children }: { children: React.ReactNode }) {
       {children}
     </section>
   );
-}
-
-function cycleLabelHeading(
-  activeCycle: ApplicantDashboard['activeCycle'],
-): string {
-  // Dashboard payload gives us only `name`; extract a 4-digit year if the
-  // name embeds one, otherwise fall back to the name itself. Track on the
-  // active-app branches isn't in the dashboard payload, so we label just
-  // by cycle here.
-  const name = activeCycle?.name ?? 'Current Cycle';
-  const yearMatch = name.match(/\b(20\d{2})\b/);
-  return (yearMatch?.[1] ?? name).toUpperCase();
 }
 
 function statusBadge(status: string): { label: string; cls: string } {
