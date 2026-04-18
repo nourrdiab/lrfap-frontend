@@ -1,23 +1,25 @@
 import type { ID, ISODateString } from './common';
 
+// Mirrors the enum on backend models/Notification.js — do not invent
+// values. Any unrecognized type falls through to a generic bell icon in
+// the UI, so drift between client and server is harmless but wasted.
 export type NotificationType =
   | 'application_submitted'
-  | 'application_reviewed'
-  | 'document_status_changed'
-  | 'cycle_status_changed'
+  | 'ranking_submitted'
   | 'match_published'
   | 'offer_received'
-  | 'offer_expiring'
-  | 'ranking_reminder'
-  | 'generic';
+  | 'offer_expiring_soon'
+  | 'system';
 
 export interface Notification {
   _id: ID;
-  userId: ID;
+  user: ID;
   type: NotificationType;
   title: string;
-  body?: string;
+  message: string;
   link?: string;
-  read: boolean;
+  isRead: boolean;
+  metadata?: Record<string, unknown>;
   createdAt: ISODateString;
+  updatedAt: ISODateString;
 }

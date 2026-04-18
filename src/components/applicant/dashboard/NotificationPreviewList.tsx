@@ -83,16 +83,16 @@ export function NotificationPreviewList({
                   <span
                     aria-hidden="true"
                     className={`mt-[8px] h-[8px] w-[8px] shrink-0 rounded-full ${
-                      n.read ? 'bg-transparent' : 'bg-lrfap-sky'
+                      n.isRead ? 'bg-transparent' : 'bg-lrfap-sky'
                     }`}
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-sans text-[13px] font-semibold text-lrfap-navy">
                       {n.title}
                     </p>
-                    {n.body ? (
+                    {n.message ? (
                       <p className="mt-[2px] truncate font-sans text-[12px] text-slate-500">
-                        {n.body}
+                        {n.message}
                       </p>
                     ) : null}
                   </div>

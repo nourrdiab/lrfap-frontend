@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotifications } from '../../hooks/useNotifications';
 
 /**
  * Authenticated navbar for the applicant portal.
@@ -62,9 +63,10 @@ export function ApplicantNavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // TODO: wire to GET /api/notifications?unread=true once the Notifications
-  // page lands. Badge is dormant (hidden) while count === 0.
-  const unreadCount = 0;
+  // Unread count is owned by the NotificationsProvider mounted at
+  // ApplicantLayout — page-level mark-read actions decrement it, and
+  // the provider fetches once on mount.
+  const { unreadCount } = useNotifications();
 
   const initials = initialsOf(user?.firstName, user?.lastName, user?.email);
   const displayName =

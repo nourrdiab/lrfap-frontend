@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { ApplicantNavBar } from '../components/applicant/ApplicantNavBar';
 import { PublicFooter } from '../components/public/PublicFooter';
+import { NotificationsProvider } from '../context/NotificationsContext';
 
 /**
  * Shell wrapping every /applicant/* route. ProtectedRoute gates access to
@@ -15,12 +16,14 @@ import { PublicFooter } from '../components/public/PublicFooter';
  */
 export function ApplicantLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900">
-      <ApplicantNavBar />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <PublicFooter />
-    </div>
+    <NotificationsProvider>
+      <div className="flex min-h-screen flex-col bg-white text-slate-900">
+        <ApplicantNavBar />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <PublicFooter />
+      </div>
+    </NotificationsProvider>
   );
 }
