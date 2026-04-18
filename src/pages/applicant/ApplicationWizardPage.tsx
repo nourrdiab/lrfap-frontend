@@ -1,6 +1,10 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { WizardProvider } from '../../components/applicant/wizard/WizardContext';
+import {
+  WizardProvider,
+  useWizard,
+} from '../../components/applicant/wizard/WizardContext';
 import { ApplicationWizardShell } from '../../components/applicant/wizard/ApplicationWizardShell';
 
 /**
@@ -13,9 +17,30 @@ export default function ApplicationWizardPage() {
   useDocumentTitle('Application');
   return (
     <WizardProvider>
-      <ApplicationWizardShell>
-        <Outlet />
-      </ApplicationWizardShell>
+      <NotFoundGuard>
+        <ApplicationWizardShell>
+          <Outlet />
+        </ApplicationWizardShell>
+      </NotFoundGuard>
     </WizardProvider>
   );
+}
+
+/**
+ * Watches the application fetch state and bounces to /applicant/applications
+ * with an `error=application-not-found` search param when the draft ID
+ * doesn't resolve. The MyApplicationsPage will read that param and
+ * surface a message once it's built (currently a stub).
+ */
+function NotFoundGuard({ children }: { children: React.ReactNode }) {
+  const { applicationNotFound } = useWizard();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (applicationNotFound) {
+      navigate('/applicant/applications?error=application-not-found', {
+        replace: true,
+      });
+    }
+  }, [applicationNotFound, navigate]);
+  return <>{children}</>;
 }

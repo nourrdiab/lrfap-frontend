@@ -1,5 +1,19 @@
 import type { ID, ISODateString } from './common';
 
+/**
+ * Mirrors backend models/{University,Specialty,Program,Cycle}.js exactly.
+ *
+ * Reference fields use `ID | Populated` so consumers can handle both
+ * raw ObjectId strings and populated documents (backend populates liberally
+ * on most read paths; see programController.getPrograms which populates
+ * university[name,code,city] + specialty[name,code] + cycle[name,year,status]).
+ *
+ * Specialty is NOT track-specific on the backend — a specialty can back
+ * residency AND fellowship programs. Track is tied to Program, not
+ * Specialty. Similarly, Cycle is NOT track-specific; a single cycle
+ * covers both residency and fellowship applications.
+ */
+
 export type Track = 'residency' | 'fellowship';
 
 export type CycleStatus =
@@ -11,37 +25,44 @@ export type CycleStatus =
   | 'published'
   | 'closed';
 
+export type LanguageRequirement = 'english' | 'french' | 'arabic' | 'none';
+
 export interface University {
   _id: ID;
   name: string;
-  shortName?: string;
-  country?: string;
+  code: string;
   city?: string;
   website?: string;
-  logoUrl?: string;
+  contactEmail?: string;
+  isActive?: boolean;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
 }
 
 export interface Specialty {
   _id: ID;
-  code: string;
   name: string;
-  track: Track;
+  code: string;
   description?: string;
+  nationalQuota?: number | null;
+  isActive?: boolean;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
 }
 
 export interface Program {
   _id: ID;
-  universityId: ID | University;
-  specialtyId: ID | Specialty;
+  university: ID | University;
+  specialty: ID | Specialty;
+  cycle: ID | Cycle;
   track: Track;
-  durationYears?: number;
-  numberOfSlots: number;
+  capacity: number;
+  availableSeats: number;
+  durationYears: number;
   description?: string;
-  requirements?: string;
+  extraRequirements?: string[];
+  languageRequirement?: LanguageRequirement;
+  isActive?: boolean;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
 }
@@ -49,15 +70,14 @@ export interface Program {
 export interface Cycle {
   _id: ID;
   name: string;
-  academicYear: string;
-  track: Track;
+  year: number;
   status: CycleStatus;
-  applicationOpenDate?: ISODateString;
-  applicationCloseDate?: ISODateString;
-  reviewDeadline?: ISODateString;
-  rankingDeadline?: ISODateString;
-  matchDate?: ISODateString;
-  publishDate?: ISODateString;
+  startDate: ISODateString;
+  endDate: ISODateString;
+  submissionDeadline: ISODateString;
+  rankingDeadline: ISODateString;
+  resultPublicationDate: ISODateString;
+  acceptanceWindowHours?: number;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
 }

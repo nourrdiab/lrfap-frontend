@@ -1,12 +1,15 @@
 import { apiDelete, apiGet, apiPost, apiPut } from './client';
 import type { ID, Program, Track } from '../types';
 
+/**
+ * Backend query param names are `cycle`, `university`, `specialty`, `track`
+ * (no `Id` suffix) — see openapi docs in routes/programRoutes.js.
+ */
 export interface ProgramListFilters {
-  cycleId?: ID;
-  universityId?: ID;
-  specialtyId?: ID;
+  cycle?: ID;
+  university?: ID;
+  specialty?: ID;
   track?: Track;
-  q?: string;
 }
 
 export const programsApi = {

@@ -1,5 +1,12 @@
 import type { ID, ISODateString } from './common';
-import type { Program } from './catalog';
+import type { Cycle, Program, Track } from './catalog';
+
+/**
+ * Mirrors backend `models/Application.js`. Field names are the Mongoose
+ * refs (`applicant`, `cycle`, `matchedProgram`), not the legacy scaffold
+ * names (`applicantId`, `cycleId`, etc.). Populated paths on read use
+ * `ID | Populated`.
+ */
 
 export type ApplicationStatus =
   | 'draft'
@@ -12,20 +19,23 @@ export type ApplicationStatus =
 export type OfferStatus = 'none' | 'pending' | 'accepted' | 'declined' | 'expired';
 
 export interface ProgramSelection {
-  programId: ID | Program;
+  program: ID | Program;
   rank: number;
+  institutionSpecificFields?: Record<string, string>;
 }
 
 export interface Application {
   _id: ID;
-  applicantId: ID;
-  cycleId: ID;
-  track: 'residency' | 'fellowship';
+  applicant: ID;
+  cycle: ID | Cycle;
+  track: Track;
   status: ApplicationStatus;
   selections: ProgramSelection[];
+  declarationAccepted?: boolean;
   submittedAt?: ISODateString;
-  withdrawnAt?: ISODateString;
-  matchedProgramId?: ID | Program;
+  submissionReference?: string;
+  lockedAt?: ISODateString;
+  matchedProgram?: ID | Program | null;
   offerStatus: OfferStatus;
   offerExpiresAt?: ISODateString;
   createdAt: ISODateString;

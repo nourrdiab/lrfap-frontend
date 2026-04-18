@@ -1,13 +1,23 @@
 import { apiDelete, apiGet, apiPost, apiPut } from './client';
-import type { Application, ID, ProgramSelection } from '../types';
+import type { Application, ID } from '../types';
 
 export interface CreateApplicationPayload {
   cycleId: ID;
   track: 'residency' | 'fellowship';
 }
 
+export interface SelectionPayload {
+  program: ID;
+  rank: number;
+  institutionSpecificFields?: Record<string, string>;
+}
+
 export interface UpdateSelectionsPayload {
-  selections: Array<Pick<ProgramSelection, 'programId' | 'rank'>>;
+  selections: SelectionPayload[];
+}
+
+export interface SubmitApplicationPayload {
+  declarationAccepted: true;
 }
 
 export const applicationsApi = {
@@ -22,7 +32,8 @@ export const applicationsApi = {
   updateSelections: (id: ID, body: UpdateSelectionsPayload) =>
     apiPut<Application>(`/applications/${id}/selections`, body),
 
-  submit: (id: ID) => apiPost<Application>(`/applications/${id}/submit`),
+  submit: (id: ID, body: SubmitApplicationPayload) =>
+    apiPost<Application>(`/applications/${id}/submit`, body),
   withdraw: (id: ID) => apiPost<Application>(`/applications/${id}/withdraw`),
 
   acceptOffer: (id: ID) => apiPost<Application>(`/applications/${id}/offer/accept`),
