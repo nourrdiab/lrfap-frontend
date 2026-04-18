@@ -266,6 +266,27 @@ function populated<T extends { _id: ID }>(ref: ID | T | null | undefined): T | n
   return ref;
 }
 
+/**
+ * Merge a freshly-returned ref with the previously-cached one: if the
+ * previous ref was populated and the new ref is a raw ObjectId string
+ * pointing at the same entity, keep the populated object.
+ *
+ * Backend controllers populate different paths depending on the endpoint
+ * (GET /applications/:id populates cycle + selections.program, but
+ * PUT .../selections only populates selections.program). Without this
+ * merge, any mutation would silently strip cycle / matchedProgram from
+ * the cache until the next full refetch.
+ */
+function mergePopulatedRef<T extends { _id: ID }>(
+  prev: ID | T | null | undefined,
+  next: ID | T | null | undefined,
+): ID | T | null | undefined {
+  if (next == null) return next;
+  if (typeof next !== 'string') return next; // next already populated
+  if (prev == null || typeof prev === 'string') return next;
+  return prev._id === next ? prev : next;
+}
+
 /** Format an ISO date as "April 20, 2026". Returns '—' for missing input. */
 function formatLongDate(iso: string | null | undefined): string {
   if (!iso) return '—';
@@ -542,11 +563,32 @@ export function WizardProvider({ children }: WizardProviderProps) {
     }
   }, [draftId]);
 
-  const updateApplicationCache = useCallback((next: Application) => {
-    setApplication(next);
+  /**
+   * Merge a partial-populated response into the cache while preserving any
+   * fields the new response didn't populate. See mergePopulatedRef.
+   */
+  const applyApplicationUpdate = useCallback((next: Application) => {
+    setApplication((prev) => {
+      if (!prev) return next;
+      return {
+        ...next,
+        cycle: mergePopulatedRef(prev.cycle, next.cycle) as Application['cycle'],
+        matchedProgram: mergePopulatedRef(
+          prev.matchedProgram,
+          next.matchedProgram,
+        ) as Application['matchedProgram'],
+      };
+    });
     committedSelectionsRef.current = next.selections;
-    setApplicationStatus('loaded');
   }, []);
+
+  const updateApplicationCache = useCallback(
+    (next: Application) => {
+      applyApplicationUpdate(next);
+      setApplicationStatus('loaded');
+    },
+    [applyApplicationUpdate],
+  );
 
   const refetchPrograms = useCallback(async () => {
     if (!isValidObjectId(draftId)) return;
@@ -567,6 +609,9 @@ export function WizardProvider({ children }: WizardProviderProps) {
   const clearSelectionsError = useCallback(() => setSelectionsError(null), []);
 
   // Commits whatever was last scheduled. Rolls back on server rejection.
+  // Goes through applyApplicationUpdate so the selectively-populated
+  // response (selections.program populated but NOT cycle) doesn't wipe
+  // our cached cycle / matchedProgram.
   const commitSelections = useCallback(
     async (pending: ProgramSelection[]) => {
       if (!isValidObjectId(draftId)) return;
@@ -578,8 +623,7 @@ export function WizardProvider({ children }: WizardProviderProps) {
             institutionSpecificFields: s.institutionSpecificFields,
           })),
         });
-        setApplication(updated);
-        committedSelectionsRef.current = updated.selections;
+        applyApplicationUpdate(updated);
         setSelectionsError(null);
       } catch (err) {
         // Revert optimistic state to the last-known-good commit.
@@ -591,7 +635,7 @@ export function WizardProvider({ children }: WizardProviderProps) {
         );
       }
     },
-    [draftId],
+    [draftId, applyApplicationUpdate],
   );
 
   // Optimistic UI update + coalesced PUT. All add/remove/replace entry
@@ -677,8 +721,15 @@ export function WizardProvider({ children }: WizardProviderProps) {
   }, []);
 
   const saveDraft = useCallback(async () => {
-    await runStepSave();
-  }, [runStepSave]);
+    const ok = await runStepSave();
+    // Always fire the "Saved just now" chip on success, even when the
+    // current step registered no save handler (Documents, Programs,
+    // Review — where mutations persist immediately on click). This makes
+    // the SAVE DRAFT button feel like it did something. Profile and
+    // Ranking steps also call notifySaved inside their own save handlers,
+    // so this just resets their chip timer — harmless.
+    if (ok) notifySaved();
+  }, [runStepSave, notifySaved]);
 
   const goToStep = useCallback(
     (step: StepSlug) => {

@@ -8,7 +8,7 @@ import {
   FileText,
   Loader2,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { applicationsApi } from '../../../../api/applications';
 import { getApiErrorMessage } from '../../../../utils/apiError';
 import type {
@@ -135,6 +135,7 @@ export default function ReviewSubmitStep() {
     goToStep,
     notifySaved,
   } = useWizard();
+  const navigate = useNavigate();
 
   const isDemoRoute = !isValidObjectId(draftId);
   const isSubmitted = application?.status === 'submitted';
@@ -187,9 +188,14 @@ export default function ReviewSubmitStep() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const submitted = await applicationsApi.submit(draftId, {
-        declarationAccepted: true,
-      });
+      // Backend returns { message, submissionReference, application }.
+      // Only `application` has the right shape for the cache; feeding the
+      // whole wrapper in previously wiped status/_id/cycle and left the
+      // Review step rendering nothing after submit.
+      const { application: submitted } = await applicationsApi.submit(
+        draftId,
+        { declarationAccepted: true },
+      );
       updateApplicationCache(submitted);
       notifySaved();
       setConfirmOpen(false);
@@ -200,10 +206,14 @@ export default function ReviewSubmitStep() {
     }
   }
 
+  // Review-only behavior: save, then leave the wizard and return to the
+  // applications list. The header SAVE DRAFT button on other steps still
+  // just fires the chip (unchanged).
   async function handleSaveDraft() {
     setIsSavingDraft(true);
     try {
       await saveDraft();
+      navigate('/applicant/applications');
     } finally {
       setIsSavingDraft(false);
     }

@@ -20,6 +20,16 @@ export interface SubmitApplicationPayload {
   declarationAccepted: true;
 }
 
+// Backend /submit wraps the application with a top-level message +
+// convenience submissionReference. Everything we actually need is on
+// `application` (including submissionReference), so callers should
+// unwrap it before feeding the cache.
+export interface SubmitApplicationResponse {
+  message: string;
+  submissionReference: string;
+  application: Application;
+}
+
 export const applicationsApi = {
   list: () => apiGet<Application[]>('/applications'),
   get: (id: ID) => apiGet<Application>(`/applications/${id}`),
@@ -27,13 +37,13 @@ export const applicationsApi = {
     apiPost<Application>('/applications', body),
   update: (id: ID, body: Partial<Application>) =>
     apiPut<Application>(`/applications/${id}`, body),
-  remove: (id: ID) => apiDelete<{ success: boolean }>(`/applications/${id}`),
+  remove: (id: ID) => apiDelete<{ message: string }>(`/applications/${id}`),
 
   updateSelections: (id: ID, body: UpdateSelectionsPayload) =>
     apiPut<Application>(`/applications/${id}/selections`, body),
 
   submit: (id: ID, body: SubmitApplicationPayload) =>
-    apiPost<Application>(`/applications/${id}/submit`, body),
+    apiPost<SubmitApplicationResponse>(`/applications/${id}/submit`, body),
   withdraw: (id: ID) => apiPost<Application>(`/applications/${id}/withdraw`),
 
   acceptOffer: (id: ID) => apiPost<Application>(`/applications/${id}/offer/accept`),
