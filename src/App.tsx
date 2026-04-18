@@ -19,7 +19,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
 
 import ApplicantDashboardPage from './pages/applicant/DashboardPage';
-import ApplicantProfileDocumentsPage from './pages/applicant/ProfileDocumentsPage';
+import ApplicantProfilePage from './pages/applicant/ProfilePage';
 import ApplicantMyApplicationsPage from './pages/applicant/MyApplicationsPage';
 import ApplicantApplicationDetailPage from './pages/applicant/ApplicationDetailPage';
 import ApplicantNotificationsPage from './pages/applicant/NotificationsPage';
@@ -79,7 +79,7 @@ export default function App() {
           <Route element={<ProtectedRoute allow={['applicant']} />}>
             <Route path="applicant" element={<ApplicantLayout />}>
               <Route index element={<ApplicantDashboardPage />} />
-              <Route path="profile" element={<ApplicantProfileDocumentsPage />} />
+              <Route path="profile" element={<ApplicantProfilePage />} />
               <Route path="applications" element={<ApplicantMyApplicationsPage />} />
               {/* Wizard routes — more specific than :id, so ordered first */}
               <Route

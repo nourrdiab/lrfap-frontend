@@ -1,134 +1,223 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useAuth } from '../../../../hooks/useAuth';
-import { applicantProfileApi } from '../../../../api/applicantProfile';
-import { getApiErrorMessage } from '../../../../utils/apiError';
-import type { LanguageLevel } from '../../../../types';
-import { FormField } from '../../../auth/FormField';
-import { FormErrorBanner } from '../../../auth/FormErrorBanner';
-import { FormTextarea } from '../../forms/FormTextarea';
-import { FormSelect } from '../../forms/FormSelect';
-import { FormSection } from '../../forms/FormSection';
-import { useWizard } from '../WizardContext';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '../../../hooks/useAuth';
+import { applicantProfileApi } from '../../../api/applicantProfile';
+import { universitiesApi } from '../../../api/universities';
+import { getApiErrorMessage } from '../../../utils/apiError';
+import type {
+  ApplicantProfile,
+  LanguageLevel,
+  University,
+} from '../../../types';
+import { FormField } from '../../auth/FormField';
+import { FormErrorBanner } from '../../auth/FormErrorBanner';
+import { FormTextarea } from '../forms/FormTextarea';
+import { FormSelect } from '../forms/FormSelect';
+import { FormSection } from '../forms/FormSection';
 import {
   DEFAULT_SECTIONS_OPEN,
   GENDER_OPTIONS,
   LANGUAGE_LEVEL_OPTIONS,
   MEDICAL_SCHOOL_OTHER,
   type ProfileSectionId,
-} from './profileSchema';
+} from '../wizard/steps/profileSchema';
 import {
   EMPTY_PROFILE_FORM,
   hydrateProfileForm,
   serializeProfileForm,
   validateProfileForm,
   type FieldErrors,
-  type ProfileForm,
-} from '../../profile/profileFormHelpers';
+  type ProfileForm as ProfileFormShape,
+} from './profileFormHelpers';
 
 /**
- * Profile step (step 1 of the application wizard).
+ * Standalone profile editor for /applicant/profile (Profile tab).
  *
- * Editing surface for the reusable ApplicantProfile — the same record is
- * also managed on the standalone /applicant/profile page. Save target is
- * `PUT /api/applicant-profile/me` with the full object; GET on mount is
- * already performed by WizardProvider and cached in context, so this
- * component reads from that cache and only hits the network on save.
+ * Owns its own fetch + save + dirty-state. Shape of the form, validation
+ * rules, and round-trip helpers live in profileFormHelpers.ts and are
+ * shared with the wizard's ProfileStep — keep both in sync there, not
+ * here.
  *
- * The backend stores languages as an array of {language, level}; we
- * flatten to three top-level form fields for the UI and rebuild the array
- * before POSTing.
+ * Dirty-guard: a beforeunload listener covers tab close / reload /
+ * typed-URL nav. Internal nav (tab switch, navbar link click) isn't
+ * interceptable without the Data API router, so we expose `onDirtyChange`
+ * to the parent — the tab switcher uses it to show a confirm dialog
+ * before changing tabs. External nav via navbar links is uncaught; the
+ * beforeunload prompt only fires at the browser level.
  */
 
-export default function ProfileStep() {
-  const { user } = useAuth();
-  const {
-    profile,
-    profileStatus,
-    updateProfileCache,
-    universities,
-    universitiesStatus,
-    registerStepSave,
-    notifySaved,
-    goNext,
-  } = useWizard();
+interface ProfileFormProps {
+  /**
+   * Parent passes true once the applicant has any non-draft application.
+   * When locked, every field becomes read-only / disabled, the Save
+   * Changes button disappears entirely, and the beforeunload / dirty
+   * plumbing goes dormant (nothing can be edited anyway). Sections can
+   * still be collapsed so applicants browse their committed data.
+   */
+  locked?: boolean;
+  /** Parent gets notified of dirty transitions. No-op when locked. */
+  onDirtyChange?: (dirty: boolean) => void;
+}
 
-  const [form, setForm] = useState<ProfileForm>(EMPTY_PROFILE_FORM);
+type FetchStatus = 'idle' | 'loading' | 'loaded' | 'error';
+
+export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps) {
+  const { user } = useAuth();
+  const [form, setForm] = useState<ProfileFormShape>(EMPTY_PROFILE_FORM);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [sectionsOpen, setSectionsOpen] = useState<Record<ProfileSectionId, boolean>>(
-    DEFAULT_SECTIONS_OPEN,
+  const [sectionsOpen, setSectionsOpen] =
+    useState<Record<ProfileSectionId, boolean>>(DEFAULT_SECTIONS_OPEN);
+
+  const [profile, setProfile] = useState<ApplicantProfile | null>(null);
+  const [profileStatus, setProfileStatus] = useState<FetchStatus>('idle');
+
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [universitiesStatus, setUniversitiesStatus] =
+    useState<FetchStatus>('idle');
+
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSavedChip, setShowSavedChip] = useState(false);
+
+  // Snapshot of the last-saved (or initially-hydrated) form. Used for
+  // dirty detection; compared via JSON.stringify since the form shape
+  // is flat primitives.
+  const savedSnapshotRef = useRef<ProfileFormShape>(EMPTY_PROFILE_FORM);
+
+  // Fetch profile on mount.
+  useEffect(() => {
+    let cancelled = false;
+    setProfileStatus('loading');
+    applicantProfileApi
+      .getMe()
+      .then((p) => {
+        if (cancelled) return;
+        setProfile(p);
+        const hydrated = hydrateProfileForm(p);
+        setForm(hydrated);
+        savedSnapshotRef.current = hydrated;
+        setProfileStatus('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setProfileStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Fetch universities in parallel.
+  useEffect(() => {
+    let cancelled = false;
+    setUniversitiesStatus('loading');
+    universitiesApi
+      .list()
+      .then((res) => {
+        if (cancelled) return;
+        setUniversities(res);
+        setUniversitiesStatus('loaded');
+      })
+      .catch(() => {
+        if (!cancelled) setUniversitiesStatus('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Dirty state derived from form vs snapshot. Forced to false when
+  // locked so the tab-switch guard and beforeunload listener stay quiet.
+  const isDirty = useMemo(
+    () =>
+      locked
+        ? false
+        : JSON.stringify(form) !== JSON.stringify(savedSnapshotRef.current),
+    [form, locked],
   );
 
-  // Hydrate form when profile cache loads.
+  // Bubble dirty changes to the parent for tab-switch guarding.
   useEffect(() => {
-    if (profile) setForm(hydrateProfileForm(profile));
-  }, [profile]);
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
-  function setField<K extends keyof ProfileForm>(name: K, value: ProfileForm[K]) {
-    setForm((prev) => ({ ...prev, [name]: value }));
-    if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
-  }
-
-  function toggleSection(id: ProfileSectionId) {
-    setSectionsOpen((prev) => ({ ...prev, [id]: !prev[id] }));
-  }
-
-  const handleSave = useMemo(() => {
-    return async () => {
-      const errors = validateProfileForm(form);
-      setFieldErrors(errors);
-      if (Object.keys(errors).length > 0) {
-        // Open any section containing an error so the user can see it.
-        setSectionsOpen((prev) => {
-          const next = { ...prev };
-          if (
-            errors.dateOfBirth ||
-            errors.gender ||
-            errors.nationality ||
-            errors.phone
-          )
-            next.personal = true;
-          if (errors.address || errors.city) next.contact = true;
-          if (
-            errors.medicalSchool ||
-            errors.medicalSchoolOther ||
-            errors.graduationYear
-          )
-            next.academic = true;
-          if (
-            errors.emergencyContactName ||
-            errors.emergencyContactPhone ||
-            errors.emergencyContactRelation
-          )
-            next.emergency = true;
-          return next;
-        });
-        setSubmitError('Please fill in the highlighted required fields.');
-        throw new Error('Validation failed');
-      }
-      try {
-        const updated = await applicantProfileApi.updateMe(serializeProfileForm(form));
-        updateProfileCache(updated);
-        notifySaved();
-        setSubmitError(null);
-      } catch (err) {
-        setSubmitError(getApiErrorMessage(err, 'Unable to save profile.'));
-        throw err;
-      }
+  // beforeunload guard for browser-level navigation / tab close / reload.
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Modern browsers ignore the returnValue string but require a set
+      // property to show the native prompt.
+      e.returnValue = '';
     };
-  }, [form, updateProfileCache, notifySaved]);
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
-  useEffect(() => {
-    registerStepSave(handleSave);
-    return () => registerStepSave(null);
-  }, [registerStepSave, handleSave]);
+  const setField = useCallback(
+    <K extends keyof ProfileFormShape>(name: K, value: ProfileFormShape[K]) => {
+      setForm((prev) => ({ ...prev, [name]: value }));
+      setFieldErrors((prev) =>
+        prev[name] ? { ...prev, [name]: undefined } : prev,
+      );
+    },
+    [],
+  );
 
-  function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    void goNext();
-  }
+  const toggleSection = useCallback(
+    (id: ProfileSectionId) =>
+      setSectionsOpen((prev) => ({ ...prev, [id]: !prev[id] })),
+    [],
+  );
 
-  if (profileStatus === 'loading') {
+  const handleSave = useCallback(async () => {
+    const errors = validateProfileForm(form);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      // Open any section with an error so the user can see it.
+      setSectionsOpen((prev) => {
+        const next = { ...prev };
+        if (errors.dateOfBirth || errors.gender || errors.nationality || errors.phone)
+          next.personal = true;
+        if (errors.address || errors.city) next.contact = true;
+        if (
+          errors.medicalSchool ||
+          errors.medicalSchoolOther ||
+          errors.graduationYear
+        )
+          next.academic = true;
+        if (
+          errors.emergencyContactName ||
+          errors.emergencyContactPhone ||
+          errors.emergencyContactRelation
+        )
+          next.emergency = true;
+        return next;
+      });
+      setSaveError('Please fill in the highlighted required fields.');
+      return;
+    }
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const updated = await applicantProfileApi.updateMe(
+        serializeProfileForm(form),
+      );
+      setProfile(updated);
+      const hydrated = hydrateProfileForm(updated);
+      setForm(hydrated);
+      savedSnapshotRef.current = hydrated;
+      setShowSavedChip(true);
+      setTimeout(() => setShowSavedChip(false), 2000);
+    } catch (err) {
+      setSaveError(getApiErrorMessage(err, 'Unable to save profile.'));
+    } finally {
+      setIsSaving(false);
+    }
+  }, [form]);
+
+  // ---- Render ----------------------------------------------------------
+
+  if (profileStatus === 'loading' || profileStatus === 'idle') {
     return (
       <div className="flex min-h-[320px] items-center justify-center text-slate-500">
         Loading profile…
@@ -144,6 +233,7 @@ export default function ProfileStep() {
   }
 
   const showOther = form.medicalSchool === MEDICAL_SCHOOL_OTHER;
+  const isProfileEmpty = !profile?.dateOfBirth;
   const fullName =
     user?.firstName && user?.lastName
       ? `${user.firstName} ${user.lastName}`
@@ -151,11 +241,26 @@ export default function ProfileStep() {
 
   return (
     <form
-      onSubmit={handleFormSubmit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void handleSave();
+      }}
       noValidate
-      className="flex flex-col gap-[20px] pt-[16px] pb-[24px]"
+      className="flex flex-col gap-[20px]"
     >
-      <FormErrorBanner message={submitError} />
+      {isProfileEmpty ? (
+        <div className="flex items-start gap-[10px] border-[0.91px] border-sky-200 bg-sky-50 px-[16px] py-[12px] font-sans text-[13px] text-sky-900">
+          <AlertCircle
+            aria-hidden="true"
+            className="mt-[2px] h-4 w-4 shrink-0 text-lrfap-sky"
+          />
+          <span>
+            Complete your profile to strengthen your application.
+          </span>
+        </div>
+      ) : null}
+
+      <FormErrorBanner message={saveError} />
 
       <FormSection
         id="section-personal"
@@ -187,6 +292,7 @@ export default function ProfileStep() {
             label="Date of Birth"
             type="date"
             required
+            readOnly={locked}
             value={form.dateOfBirth}
             onChange={(e) => setField('dateOfBirth', e.target.value)}
             error={fieldErrors.dateOfBirth}
@@ -195,9 +301,10 @@ export default function ProfileStep() {
             id="profile-gender"
             label="Gender"
             required
+            disabled={locked}
             value={form.gender}
             onChange={(e) =>
-              setField('gender', e.target.value as ProfileForm['gender'])
+              setField('gender', e.target.value as ProfileFormShape['gender'])
             }
             placeholder="Select gender"
             error={fieldErrors.gender}
@@ -212,6 +319,7 @@ export default function ProfileStep() {
             id="profile-nationality"
             label="Nationality"
             required
+            readOnly={locked}
             value={form.nationality}
             onChange={(e) => setField('nationality', e.target.value)}
             placeholder="e.g. Lebanese"
@@ -222,14 +330,13 @@ export default function ProfileStep() {
             label="Phone"
             type="tel"
             required
+            readOnly={locked}
             value={form.phone}
             onChange={(e) => setField('phone', e.target.value)}
             placeholder="+961 ..."
             error={fieldErrors.phone}
           />
         </div>
-        {/* Keep the read-only full-name string around for screen readers
-            that collapse the two disabled inputs (no harm if visible). */}
         <p className="sr-only">Signed in as {fullName}</p>
       </FormSection>
 
@@ -245,6 +352,7 @@ export default function ProfileStep() {
               id="profile-address"
               label="Address"
               required
+              readOnly={locked}
               value={form.address}
               onChange={(e) => setField('address', e.target.value)}
               error={fieldErrors.address}
@@ -254,6 +362,7 @@ export default function ProfileStep() {
             id="profile-city"
             label="City"
             required
+            readOnly={locked}
             value={form.city}
             onChange={(e) => setField('city', e.target.value)}
             error={fieldErrors.city}
@@ -261,6 +370,7 @@ export default function ProfileStep() {
           <FormField
             id="profile-nationalId"
             label="National ID"
+            readOnly={locked}
             value={form.nationalId}
             onChange={(e) => setField('nationalId', e.target.value)}
             hint="Optional"
@@ -288,7 +398,7 @@ export default function ProfileStep() {
                   ? 'Failed to load — refresh to retry'
                   : 'Select medical school'
             }
-            disabled={universitiesStatus !== 'loaded'}
+            disabled={locked || universitiesStatus !== 'loaded'}
             error={fieldErrors.medicalSchool}
           >
             {universities.map((u) => (
@@ -303,6 +413,7 @@ export default function ProfileStep() {
               id="profile-medicalSchoolOther"
               label="Medical School (other)"
               required
+              readOnly={locked}
               value={form.medicalSchoolOther}
               onChange={(e) => setField('medicalSchoolOther', e.target.value)}
               error={fieldErrors.medicalSchoolOther}
@@ -315,6 +426,7 @@ export default function ProfileStep() {
             label="Graduation Year"
             type="number"
             required
+            readOnly={locked}
             value={form.graduationYear}
             onChange={(e) => setField('graduationYear', e.target.value)}
             placeholder="2024"
@@ -325,6 +437,7 @@ export default function ProfileStep() {
             label="GPA"
             type="number"
             step="0.01"
+            readOnly={locked}
             value={form.gpa}
             onChange={(e) => setField('gpa', e.target.value)}
             placeholder="3.8"
@@ -333,6 +446,7 @@ export default function ProfileStep() {
           <FormField
             id="profile-classRank"
             label="Class Rank"
+            readOnly={locked}
             value={form.classRank}
             onChange={(e) => setField('classRank', e.target.value)}
             placeholder="e.g. Top 10%"
@@ -352,8 +466,11 @@ export default function ProfileStep() {
             id="profile-languageEnglish"
             label="English"
             required
+            disabled={locked}
             value={form.languageEnglish}
-            onChange={(e) => setField('languageEnglish', e.target.value as LanguageLevel)}
+            onChange={(e) =>
+              setField('languageEnglish', e.target.value as LanguageLevel)
+            }
           >
             {LANGUAGE_LEVEL_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -365,8 +482,11 @@ export default function ProfileStep() {
             id="profile-languageFrench"
             label="French"
             required
+            disabled={locked}
             value={form.languageFrench}
-            onChange={(e) => setField('languageFrench', e.target.value as LanguageLevel)}
+            onChange={(e) =>
+              setField('languageFrench', e.target.value as LanguageLevel)
+            }
           >
             {LANGUAGE_LEVEL_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -378,8 +498,11 @@ export default function ProfileStep() {
             id="profile-languageArabic"
             label="Arabic"
             required
+            disabled={locked}
             value={form.languageArabic}
-            onChange={(e) => setField('languageArabic', e.target.value as LanguageLevel)}
+            onChange={(e) =>
+              setField('languageArabic', e.target.value as LanguageLevel)
+            }
           >
             {LANGUAGE_LEVEL_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -402,6 +525,7 @@ export default function ProfileStep() {
             id="profile-usmleStep1"
             label="USMLE Step 1"
             type="number"
+            readOnly={locked}
             value={form.usmleStep1}
             onChange={(e) => setField('usmleStep1', e.target.value)}
             placeholder="0 – 300"
@@ -411,6 +535,7 @@ export default function ProfileStep() {
             id="profile-usmleStep2"
             label="USMLE Step 2"
             type="number"
+            readOnly={locked}
             value={form.usmleStep2}
             onChange={(e) => setField('usmleStep2', e.target.value)}
             placeholder="0 – 300"
@@ -430,6 +555,7 @@ export default function ProfileStep() {
           <FormTextarea
             id="profile-research"
             label="Research"
+            readOnly={locked}
             value={form.research}
             onChange={(e) => setField('research', e.target.value)}
             placeholder="Research projects, roles, publications-in-progress…"
@@ -437,6 +563,7 @@ export default function ProfileStep() {
           <FormTextarea
             id="profile-publications"
             label="Publications"
+            readOnly={locked}
             value={form.publications}
             onChange={(e) => setField('publications', e.target.value)}
             placeholder="Citations, journals, year…"
@@ -444,12 +571,14 @@ export default function ProfileStep() {
           <FormTextarea
             id="profile-workExperience"
             label="Work Experience"
+            readOnly={locked}
             value={form.workExperience}
             onChange={(e) => setField('workExperience', e.target.value)}
           />
           <FormTextarea
             id="profile-extracurriculars"
             label="Extracurriculars"
+            readOnly={locked}
             value={form.extracurriculars}
             onChange={(e) => setField('extracurriculars', e.target.value)}
           />
@@ -467,6 +596,7 @@ export default function ProfileStep() {
             id="profile-emergencyContactName"
             label="Name"
             required
+            readOnly={locked}
             value={form.emergencyContactName}
             onChange={(e) => setField('emergencyContactName', e.target.value)}
             error={fieldErrors.emergencyContactName}
@@ -476,6 +606,7 @@ export default function ProfileStep() {
             label="Phone"
             type="tel"
             required
+            readOnly={locked}
             value={form.emergencyContactPhone}
             onChange={(e) => setField('emergencyContactPhone', e.target.value)}
             error={fieldErrors.emergencyContactPhone}
@@ -484,6 +615,7 @@ export default function ProfileStep() {
             id="profile-emergencyContactRelation"
             label="Relation"
             required
+            readOnly={locked}
             value={form.emergencyContactRelation}
             onChange={(e) => setField('emergencyContactRelation', e.target.value)}
             placeholder="e.g. Parent, Sibling, Spouse"
@@ -492,11 +624,42 @@ export default function ProfileStep() {
         </div>
       </FormSection>
 
-      {/* Hidden submit so Enter-in-field submits the form; navigation uses
-          the shell's NEXT button which also calls goNext. */}
-      <button type="submit" className="sr-only" aria-hidden="true">
-        Save and continue
-      </button>
+      {locked ? null : (
+        <div className="mt-[8px] flex items-center gap-[14px] border-t border-lrfap-ghost pt-[20px]">
+          <button
+            type="submit"
+            disabled={!isDirty || isSaving}
+            className="inline-flex h-[44px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-sky bg-lrfap-sky px-[28px] font-sans text-[14px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-[#3a86bd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </button>
+          {showSavedChip ? (
+            <span
+              role="status"
+              aria-live="polite"
+              className="inline-flex items-center gap-[6px] font-sans text-[13px] font-medium text-green-700"
+            >
+              <CheckCircle aria-hidden="true" className="h-4 w-4" />
+              Saved
+            </span>
+          ) : !isDirty ? (
+            <span className="font-sans text-[12px] text-slate-500">
+              All changes saved.
+            </span>
+          ) : (
+            <span className="font-sans text-[12px] text-slate-500">
+              You have unsaved changes.
+            </span>
+          )}
+        </div>
+      )}
     </form>
   );
 }
