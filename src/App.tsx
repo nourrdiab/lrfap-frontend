@@ -24,10 +24,11 @@ import ApplicantMyApplicationsPage from './pages/applicant/MyApplicationsPage';
 import ApplicantApplicationDetailPage from './pages/applicant/ApplicationDetailPage';
 import ApplicantNotificationsPage from './pages/applicant/NotificationsPage';
 import ApplicationWizardPage from './pages/applicant/ApplicationWizardPage';
-import { StepPlaceholder } from './pages/applicant/wizard-steps/StepPlaceholder';
 import ProfileStep from './components/applicant/wizard/steps/ProfileStep';
 import DocumentsStep from './components/applicant/wizard/steps/DocumentsStep';
 import ProgramsStep from './components/applicant/wizard/steps/ProgramsStep';
+import PreferenceRankingStep from './components/applicant/wizard/steps/PreferenceRankingStep';
+import ReviewSubmitStep from './components/applicant/wizard/steps/ReviewSubmitStep';
 
 import UniversityDashboardPage from './pages/university/DashboardPage';
 import UniversityProgramApplicationsPage from './pages/university/ProgramApplicationsPage';
@@ -86,17 +87,9 @@ export default function App() {
                 <Route path="programs" element={<ProgramsStep />} />
                 <Route
                   path="preference-ranking"
-                  element={
-                    <StepPlaceholder
-                      step="preference-ranking"
-                      label="Preference Ranking"
-                    />
-                  }
+                  element={<PreferenceRankingStep />}
                 />
-                <Route
-                  path="review"
-                  element={<StepPlaceholder step="review" label="Review & Submit" />}
-                />
+                <Route path="review" element={<ReviewSubmitStep />} />
               </Route>
               <Route
                 path="applications/:id"

@@ -13,8 +13,14 @@ import { useWizard } from './WizardContext';
  * `lastSavedAt` changing).
  */
 export function WizardHeaderBar() {
-  const { applicationCycle, applicationDeadline, isSaving, saveDraft, lastSavedAt } =
-    useWizard();
+  const {
+    pageTitle,
+    applicationCycle,
+    applicationDeadline,
+    isSaving,
+    saveDraft,
+    lastSavedAt,
+  } = useWizard();
 
   const [showSaved, setShowSaved] = useState(false);
   useEffect(() => {
@@ -28,7 +34,7 @@ export function WizardHeaderBar() {
     <section className="mx-auto w-full max-w-[1366px] px-6 pt-[40px] md:px-[58px]">
       <div className="flex flex-col gap-[16px] md:flex-row md:items-start md:justify-between md:gap-[32px]">
         <h1 className="font-display text-[40px] font-extrabold leading-[1.1] text-lrfap-navy">
-          APPLICANT DASHBOARD
+          {pageTitle}
         </h1>
         <p className="max-w-[540px] font-sans text-[15px] leading-relaxed text-slate-600 md:pt-[12px] md:text-right">
           Manage your residency or fellowship application from one centralized

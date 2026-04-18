@@ -23,6 +23,7 @@ import type {
   Application,
   ApplicationDocument,
   Cycle,
+  DocumentType,
   ID,
   Program,
   ProgramSelection,
@@ -86,6 +87,7 @@ export interface WizardContextValue {
   currentStep: StepSlug;
 
   // Chrome data
+  pageTitle: string;
   stepStatus: Record<StepSlug, StepStatus>;
   completionPercentage: number;
   profileSummary: ProfileSummary;
@@ -150,26 +152,92 @@ interface WizardProviderProps {
   children: ReactNode;
 }
 
-// TODO [wizard: step derivation]
-// Replace this mock with derive-from-state logic once step content ships.
-// Per project_wizard_api memory, the rules are:
-//   profile    complete when required ApplicantProfile fields are filled
-//   documents  complete when every required doc type has an uploaded /
-//              verified record
-//   programs   complete when selections.length >= 1
-//   ranking    complete when every selection has a rank AND ranks are
-//              consecutive 1..N
-//   review     complete when application.status === 'submitted'
-// A step is `inProgress` when it has partial data, otherwise `pending`.
-const MOCK_STEP_STATUS: Record<StepSlug, StepStatus> = {
-  profile: 'complete',
-  documents: 'complete',
-  programs: 'inProgress',
-  'preference-ranking': 'pending',
-  review: 'pending',
-};
-
 const SELECTIONS_DEBOUNCE_MS = 400;
+
+/**
+ * Step-completion rules per project_wizard_api memory. A step is `complete`
+ * when all its requirements are met, `inProgress` when it has partial data,
+ * `pending` when it's untouched.
+ *
+ * Languages intentionally NOT required in the profile check — backend
+ * defaults all three to `'none'`, so having values is implicit once the
+ * profile record exists. Explicit language preference is optional UX.
+ */
+const REQUIRED_DOCUMENT_TYPES: DocumentType[] = [
+  'cv',
+  'personal_statement',
+  'transcript',
+  'degree_certificate',
+  'recommendation_letter',
+  'id_document',
+  'medical_license',
+  'language_test',
+  'other',
+];
+
+function deriveProfileStatus(profile: ApplicantProfile | null): StepStatus {
+  if (!profile) return 'pending';
+  const required: unknown[] = [
+    profile.dateOfBirth,
+    profile.gender,
+    profile.nationality?.trim(),
+    profile.phone?.trim(),
+    profile.address?.trim(),
+    profile.city?.trim(),
+    profile.medicalSchool || profile.medicalSchoolOther?.trim(),
+    profile.graduationYear,
+    profile.emergencyContactName?.trim(),
+    profile.emergencyContactPhone?.trim(),
+    profile.emergencyContactRelation?.trim(),
+  ];
+  const filled = required.filter(Boolean).length;
+  if (filled === required.length) return 'complete';
+  if (filled > 0) return 'inProgress';
+  return 'pending';
+}
+
+function deriveDocumentsStatus(documents: ApplicationDocument[]): StepStatus {
+  let filled = 0;
+  for (const t of REQUIRED_DOCUMENT_TYPES) {
+    const doc = documents.find(
+      (d) => d.type === t && (d.status === 'pending' || d.status === 'verified'),
+    );
+    if (doc) filled++;
+  }
+  if (filled === REQUIRED_DOCUMENT_TYPES.length) return 'complete';
+  if (filled > 0) return 'inProgress';
+  return 'pending';
+}
+
+function deriveProgramsStatus(application: Application | null): StepStatus {
+  if (!application) return 'pending';
+  return application.selections.length >= 1 ? 'complete' : 'pending';
+}
+
+function deriveRankingStatus(application: Application | null): StepStatus {
+  if (!application || application.selections.length === 0) return 'pending';
+  const sorted = application.selections.slice().sort((a, b) => a.rank - b.rank);
+  const consecutive = sorted.every((s, i) => s.rank === i + 1);
+  return consecutive ? 'complete' : 'inProgress';
+}
+
+function deriveReviewStatus(application: Application | null): StepStatus {
+  return application?.status === 'submitted' ? 'complete' : 'pending';
+}
+
+function deriveStepStatus(
+  profile: ApplicantProfile | null,
+  documents: ApplicationDocument[],
+  application: Application | null,
+): Record<StepSlug, StepStatus> {
+  return {
+    profile: deriveProfileStatus(profile),
+    documents: deriveDocumentsStatus(documents),
+    programs: deriveProgramsStatus(application),
+    'preference-ranking': deriveRankingStatus(application),
+    review: deriveReviewStatus(application),
+  };
+}
 
 function deriveCurrentStep(pathname: string): StepSlug {
   const match = pathname.match(/\/edit\/([^/?#]+)/);
@@ -657,18 +725,30 @@ export function WizardProvider({ children }: WizardProviderProps) {
   );
   const preferenceStatus = preferenceStatusLabel(application);
 
+  const stepStatus = useMemo(
+    () => deriveStepStatus(profile, documents, application),
+    [profile, documents, application],
+  );
+  const completionPercentage = useMemo(() => {
+    const complete = Object.values(stepStatus).filter(
+      (s) => s === 'complete',
+    ).length;
+    return Math.round((complete / STEPS.length) * 100);
+  }, [stepStatus]);
+
+  // Designer renamed the h1 on step 5 ("APPLICATION SUMMARY") — see Figma
+  // frame "LRFAP Application Summary". Every other step keeps the chrome
+  // default "APPLICANT DASHBOARD".
+  const pageTitle =
+    currentStep === 'review' ? 'APPLICATION SUMMARY' : 'APPLICANT DASHBOARD';
+
   const value = useMemo<WizardContextValue>(
     () => ({
       draftId,
       currentStep,
-      stepStatus: MOCK_STEP_STATUS,
-      // TODO [wizard: progress %]
-      // Replace hard-coded 72 with
-      //   Math.round(
-      //     (Object.values(stepStatus).filter(s => s === 'complete').length / STEPS.length) * 100
-      //   )
-      // once stepStatus derives from real data.
-      completionPercentage: 72,
+      pageTitle,
+      stepStatus,
+      completionPercentage,
       profileSummary: {
         fullName:
           user?.firstName && user?.lastName
@@ -766,6 +846,9 @@ export function WizardProvider({ children }: WizardProviderProps) {
       applicationDeadlineLabel,
       preferenceStatus,
       selectedProgramsSummaries,
+      pageTitle,
+      stepStatus,
+      completionPercentage,
       isSaving,
       lastSavedAt,
       notifySaved,
