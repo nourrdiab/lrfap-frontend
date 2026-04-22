@@ -23,6 +23,13 @@ interface SelectedProgramsListProps {
   programs?: Program[];
   readOnly?: boolean;
   emptyMessage?: string;
+  /**
+   * When set, the row whose program._id matches this ID is visually
+   * highlighted with a sky-blue left border and a "Your program" pill.
+   * Used by the university reviewer view to anchor the reader to where
+   * their own program sits in the applicant's preference list.
+   */
+  highlightProgramId?: ID;
 }
 
 function idOf(ref: ID | { _id: ID } | null | undefined): ID | null {
@@ -49,6 +56,7 @@ export function SelectedProgramsList({
   selections,
   programs = [],
   emptyMessage = 'No programs ranked yet.',
+  highlightProgramId,
 }: SelectedProgramsListProps) {
   const sorted = selections.slice().sort((a, b) => a.rank - b.rank);
 
@@ -68,9 +76,10 @@ export function SelectedProgramsList({
           populated<Program>(sel.program) ??
           programs.find((p) => p._id === id) ??
           null;
+        const isHighlighted = !!highlightProgramId && id === highlightProgramId;
         return (
           <li key={id || `${sel.rank}`}>
-            <RankRow rank={sel.rank} program={program} />
+            <RankRow rank={sel.rank} program={program} isHighlighted={isHighlighted} />
           </li>
         );
       })}
@@ -78,12 +87,24 @@ export function SelectedProgramsList({
   );
 }
 
-function RankRow({ rank, program }: { rank: number; program: Program | null }) {
+interface RankRowProps {
+  rank: number;
+  program: Program | null;
+  isHighlighted?: boolean;
+}
+
+function RankRow({ rank, program, isHighlighted = false }: RankRowProps) {
   const uni = program ? populated<University>(program.university) : null;
   const rankLabel = rank.toString().padStart(2, '0');
   const isRankOne = rank === 1;
   return (
-    <div className="flex items-stretch border-[0.91px] border-lrfap-ghost bg-white shadow-[0_4px_24px_-12px_rgba(38,43,102,0.08)]">
+    <div
+      className={`flex items-stretch border-[0.91px] bg-white shadow-[0_4px_24px_-12px_rgba(38,43,102,0.08)] ${
+        isHighlighted
+          ? 'border-lrfap-ghost border-l-[4px] border-l-lrfap-sky'
+          : 'border-lrfap-ghost'
+      }`}
+    >
       <div
         className={`flex w-[72px] shrink-0 items-center justify-center ${
           isRankOne
@@ -101,9 +122,16 @@ function RankRow({ rank, program }: { rank: number; program: Program | null }) {
         </span>
       </div>
       <div className="min-w-0 flex-1 px-[16px] py-[14px]">
-        <p className="truncate font-display text-[13px] font-bold uppercase tracking-wide text-lrfap-navy">
-          {headlineFor(program)}
-        </p>
+        <div className="flex flex-wrap items-center gap-[10px]">
+          <p className="truncate font-display text-[13px] font-bold uppercase tracking-wide text-lrfap-navy">
+            {headlineFor(program)}
+          </p>
+          {isHighlighted ? (
+            <span className="inline-flex shrink-0 items-center border-[0.91px] border-lrfap-sky/50 bg-lrfap-sky/10 px-[8px] py-[2px] font-sans text-[10px] font-semibold uppercase tracking-wide text-lrfap-sky">
+              Your program
+            </span>
+          ) : null}
+        </div>
         {uni?.name ? (
           <p className="mt-[2px] truncate font-sans text-[12px] text-slate-500">
             {uni.name}

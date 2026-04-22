@@ -1,5 +1,6 @@
 import type { ID, ISODateString } from './common';
 import type { Cycle, Program, Track } from './catalog';
+import type { User } from './user';
 
 /**
  * Mirrors backend `models/Application.js`. Field names are the Mongoose
@@ -26,7 +27,10 @@ export interface ProgramSelection {
 
 export interface Application {
   _id: ID;
-  applicant: ID;
+  // Populated on university-review endpoints (firstName/lastName/email);
+  // raw ObjectId elsewhere. Callers that need applicant details should
+  // narrow with a type guard before reading fields.
+  applicant: ID | User;
   cycle: ID | Cycle;
   track: Track;
   status: ApplicationStatus;

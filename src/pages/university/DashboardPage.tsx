@@ -146,7 +146,11 @@ export default function UniversityDashboardPage() {
     let pendingReview = 0;
     for (const { applications } of programs) {
       for (const a of applications) {
-        uniqueApplicants.add(String(a.applicant));
+        // Backend populates `applicant` with firstName/lastName/email on
+        // this endpoint — extract the _id regardless of shape.
+        const applicantId =
+          typeof a.applicant === 'string' ? a.applicant : a.applicant?._id;
+        if (applicantId) uniqueApplicants.add(applicantId);
         if (a.status === 'submitted' || a.status === 'under_review') {
           pendingReview += 1;
         }

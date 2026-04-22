@@ -33,6 +33,7 @@ import ReviewSubmitStep from './components/applicant/wizard/steps/ReviewSubmitSt
 import UniversityDashboardPage from './pages/university/DashboardPage';
 import UniversityProgramsListPage from './pages/university/ProgramsListPage';
 import UniversityProgramApplicationsPage from './pages/university/ProgramApplicationsPage';
+import UniversityApplicationDetailPage from './pages/university/ApplicationDetailPage';
 import UniversityRankingPage from './pages/university/RankingPage';
 
 import LGCDashboardPage from './pages/lgc/DashboardPage';
@@ -119,6 +120,10 @@ export default function App() {
               <Route
                 path="programs/:programId/ranking"
                 element={<UniversityRankingPage />}
+              />
+              <Route
+                path="applications/:applicationId"
+                element={<UniversityApplicationDetailPage />}
               />
             </Route>
           </Route>
