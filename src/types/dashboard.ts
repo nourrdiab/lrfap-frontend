@@ -1,5 +1,5 @@
 import type { ID, ISODateString } from './common';
-import type { Cycle, Program, Track } from './catalog';
+import type { Cycle, CycleStatus, Program, Track } from './catalog';
 import type { ApplicationStatus, OfferStatus } from './application';
 
 /**
@@ -55,18 +55,73 @@ export interface ApplicantDashboard {
   activeCycle: DashboardActiveCycle | null;
 }
 
+/**
+ * Mirrors `GET /api/dashboard/lgc` (controllers/dashboardController.js →
+ * getLGCDashboard). Counts are nested; activeCycle is singular; capacity
+ * is flat; applicationsBySpecialty is a pre-aggregated array; and
+ * recentActivity comes from the AuditLog stream (last 10) with the
+ * actor already flattened to a name string.
+ *
+ * The scaffold shape that existed before this rewrite
+ * (`{totalApplicants, totalPrograms, activeCycles, applicationsByStatus, fillRate, …}`)
+ * did NOT match reality. This is the real one.
+ */
+
+export interface LGCApplicationCounts {
+  total: number;
+  submitted: number;
+  matched: number;
+  unmatched: number;
+}
+
+export interface LGCCounts {
+  applicants: number;
+  universities: number;
+  specialties: number;
+  programs: number;
+  applications: LGCApplicationCounts;
+  rankingsSubmitted: number;
+}
+
+export interface LGCCapacity {
+  totalCapacity: number;
+  filledSeats: number;
+  availableSeats: number;
+  /** Percent 0–100, pre-computed by backend. */
+  fillRate: number;
+}
+
+export interface LGCActiveCycle {
+  id: ID;
+  name: string;
+  year: number;
+  status: CycleStatus;
+  submissionDeadline: ISODateString;
+  rankingDeadline: ISODateString;
+  resultPublicationDate: ISODateString;
+}
+
+export interface LGCApplicationsBySpecialty {
+  specialty: string;
+  code: string;
+  count: number;
+}
+
+export interface LGCActivityEntry {
+  id: ID;
+  action: string;
+  /** Pre-flattened "FirstName LastName" string (or "Unknown"). */
+  actor: string;
+  actorRole: string;
+  targetType?: string;
+  outcome?: 'success' | 'failure';
+  createdAt: ISODateString;
+}
+
 export interface LGCDashboard {
-  totalApplicants: number;
-  totalPrograms: number;
-  totalUniversities: number;
-  activeCycles: number;
-  applicationsBySpecialty: Array<{ specialty: string; count: number }>;
-  applicationsByStatus: Array<{ status: ApplicationStatus; count: number }>;
-  fillRate?: number;
-  recentActivity: Array<{
-    _id: ID;
-    title: string;
-    description?: string;
-    createdAt: ISODateString;
-  }>;
+  counts: LGCCounts;
+  capacity: LGCCapacity;
+  activeCycle: LGCActiveCycle | null;
+  applicationsBySpecialty: LGCApplicationsBySpecialty[];
+  recentActivity: LGCActivityEntry[];
 }
