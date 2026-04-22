@@ -1,4 +1,19 @@
 import type { ID, ISODateString } from './common';
+import type { User } from './user';
+
+/**
+ * Mirrors backend `models/ProgramRanking.js`. The original scaffold shape
+ * (entries/programId/cycleId, no status field) didn't match what the API
+ * actually returns — this rewrite aligns with the backend.
+ *
+ * The nested `applicant` ref is populated by the backend on GET and on
+ * the PUT response (`firstName lastName email`); `submittedBy` is not
+ * populated today but is typed permissively so we can do either.
+ *
+ * `ProgramApplicationSummary` is kept around as an unused but referenced
+ * legacy scaffold type — no current caller, but the shape is a reasonable
+ * reference for future thin-list endpoints.
+ */
 
 export interface ProgramApplicationSummary {
   applicationId: ID;
@@ -12,8 +27,11 @@ export interface ProgramApplicationSummary {
   reviewStatus?: 'unreviewed' | 'in_progress' | 'complete';
 }
 
-export interface RankingEntry {
-  applicationId: ID;
+export type ProgramRankingStatus = 'draft' | 'submitted';
+
+export interface RankedApplicant {
+  applicant: ID | User;
+  application: ID;
   rank: number;
   score?: number;
   notes?: string;
@@ -21,10 +39,21 @@ export interface RankingEntry {
 
 export interface ProgramRanking {
   _id: ID;
-  programId: ID;
-  cycleId: ID;
-  entries: RankingEntry[];
+  program: ID;
+  cycle: ID;
+  rankedApplicants: RankedApplicant[];
+  status: ProgramRankingStatus;
   submittedAt?: ISODateString;
+  submittedBy?: ID | User;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
+}
+
+/** Shape accepted by PUT /university-review/programs/:id/ranking. */
+export interface RankingEntryInput {
+  applicant: ID;
+  application: ID;
+  rank: number;
+  score?: number;
+  notes?: string;
 }

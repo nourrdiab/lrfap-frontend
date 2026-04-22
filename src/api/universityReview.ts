@@ -4,11 +4,20 @@ import type {
   ID,
   Program,
   ProgramRanking,
-  RankingEntry,
+  RankingEntryInput,
 } from '../types';
 
+// Backend shape for PUT /ranking: { rankedApplicants: [{applicant, application, rank, score?, notes?}] }
+// (not `entries` — that was a scaffold mismatch).
 export interface SaveRankingPayload {
-  entries: RankingEntry[];
+  rankedApplicants: RankingEntryInput[];
+}
+
+// Backend's POST /submit returns `{ message, ranking }` — unwrap so
+// callers get the same ProgramRanking shape as GET / PUT.
+interface SubmitRankingResponse {
+  message: string;
+  ranking: ProgramRanking;
 }
 
 // Backend's GET /university-review/programs/:id/applications returns
@@ -34,6 +43,10 @@ export const universityReviewApi = {
   saveRanking: (programId: ID, body: SaveRankingPayload) =>
     apiPut<ProgramRanking>(`/university-review/programs/${programId}/ranking`, body),
 
-  submitRanking: (programId: ID) =>
-    apiPost<ProgramRanking>(`/university-review/programs/${programId}/ranking/submit`),
+  submitRanking: async (programId: ID): Promise<ProgramRanking> => {
+    const res = await apiPost<SubmitRankingResponse>(
+      `/university-review/programs/${programId}/ranking/submit`,
+    );
+    return res.ranking;
+  },
 };
