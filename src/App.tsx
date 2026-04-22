@@ -31,6 +31,7 @@ import PreferenceRankingStep from './components/applicant/wizard/steps/Preferenc
 import ReviewSubmitStep from './components/applicant/wizard/steps/ReviewSubmitStep';
 
 import UniversityDashboardPage from './pages/university/DashboardPage';
+import UniversityProgramsListPage from './pages/university/ProgramsListPage';
 import UniversityProgramApplicationsPage from './pages/university/ProgramApplicationsPage';
 import UniversityRankingPage from './pages/university/RankingPage';
 
@@ -104,20 +105,21 @@ export default function App() {
             </Route>
           </Route>
 
-          {/* University portal */}
+          {/* University portal — ranking is scoped per-program, so it
+              lives under /programs/:programId/ranking rather than a
+              top-level /ranking route. */}
           <Route element={<ProtectedRoute allow={['university']} />}>
             <Route path="university" element={<UniversityLayout />}>
               <Route index element={<UniversityDashboardPage />} />
+              <Route path="programs" element={<UniversityProgramsListPage />} />
               <Route
-                path="programs"
+                path="programs/:programId"
                 element={<UniversityProgramApplicationsPage />}
               />
               <Route
-                path="programs/:id"
-                element={<UniversityProgramApplicationsPage />}
+                path="programs/:programId/ranking"
+                element={<UniversityRankingPage />}
               />
-              <Route path="ranking" element={<UniversityRankingPage />} />
-              <Route path="ranking/:id" element={<UniversityRankingPage />} />
             </Route>
           </Route>
 

@@ -1,30 +1,27 @@
-import { useAuth } from '../hooks/useAuth';
-import { ScaffoldShell } from './ScaffoldShell';
+import { Outlet } from 'react-router-dom';
+import { UniversityNavBar } from '../components/university/UniversityNavBar';
+import { PublicFooter } from '../components/public/PublicFooter';
 
+/**
+ * Shell wrapping every /university/* route. ProtectedRoute gates access
+ * (allow=['university']), so the navbar and footer can assume an
+ * authenticated university reviewer.
+ *
+ * Same chrome as ApplicantLayout — one visual system across both
+ * authenticated portals. No NotificationsProvider yet: the university
+ * navbar currently has no bell (see UniversityNavBar for the reasoning),
+ * and the Dashboard fetches its own notifications inline for the Recent
+ * Activity section. When a /university/notifications page ships, add the
+ * provider here and the bell in the navbar.
+ */
 export function UniversityLayout() {
-  const { logout, user } = useAuth();
   return (
-    <ScaffoldShell
-      label="university"
-      items={[
-        { to: '/university', label: 'Dashboard', end: true },
-        { to: '/university/programs', label: 'Applications Review' },
-        { to: '/university/ranking', label: 'Ranking' },
-      ]}
-      right={
-        <div className="flex items-center gap-3">
-          {user?.email ? (
-            <span className="hidden text-xs text-white/70 sm:inline">{user.email}</span>
-          ) : null}
-          <button
-            type="button"
-            onClick={() => void logout()}
-            className="rounded-md bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
-          >
-            Sign out
-          </button>
-        </div>
-      }
-    />
+    <div className="flex min-h-screen flex-col bg-white text-slate-900">
+      <UniversityNavBar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <PublicFooter />
+    </div>
   );
 }
