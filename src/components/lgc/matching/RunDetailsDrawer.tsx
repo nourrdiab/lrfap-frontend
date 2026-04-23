@@ -58,15 +58,17 @@ function describeProgram(
     subtitle: id ? `ID: ${id.slice(-6)}` : '',
   };
   if (!id) return fallback;
-  // Prefer the fully-populated program from the parent's catalog fetch —
-  // the backend's GET /runs/:id populates programId but not nested
-  // university/specialty.
+  // Prefer the catalog entry (from programsApi.list) — it populates
+  // specialty + university deeply. The match endpoint's populated
+  // `programId` is only shallow: the Program doc comes back but its
+  // nested `specialty` and `university` stay as raw ObjectIds, so
+  // using that as the primary source gave us "Program" / empty subtitle.
   const catalog = programsById.get(id);
-  const source: Program | null =
-    (typeof ref === 'object' && ref !== null ? ref : null) ?? catalog ?? null;
+  const refObj = typeof ref === 'object' && ref !== null ? ref : null;
+  const source: Program | null = catalog ?? refObj ?? null;
   if (!source) return fallback;
-  const spec = (source.specialty as Specialty | null | undefined);
-  const uni = (source.university as University | null | undefined);
+  const spec = source.specialty as Specialty | null | undefined;
+  const uni = source.university as University | null | undefined;
   const title = typeof spec === 'object' && spec?.name ? spec.name : 'Program';
   const subtitle = typeof uni === 'object' && uni?.name ? uni.name : '';
   return { title, subtitle };
