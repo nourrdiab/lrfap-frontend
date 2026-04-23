@@ -125,3 +125,75 @@ export interface LGCDashboard {
   applicationsBySpecialty: LGCApplicationsBySpecialty[];
   recentActivity: LGCActivityEntry[];
 }
+
+/**
+ * GET /api/dashboard/lgc/ranking-summary?cycle=<id>
+ *
+ * Aggregation response that replaces the old per-program ranking fetch
+ * loop on the LGC dashboard. Universities with zero programs in the
+ * queried cycle are omitted — the caller merges them from its own
+ * universities list.
+ */
+
+export interface LGCRankingSummaryTrackStats {
+  totalPrograms: number;
+  submittedRankings: number;
+}
+
+export interface LGCRankingSummaryUniversity {
+  _id: ID;
+  name: string;
+  code: string;
+  totalPrograms: number;
+  submittedRankings: number;
+  tracks: {
+    residency: LGCRankingSummaryTrackStats;
+    fellowship: LGCRankingSummaryTrackStats;
+  };
+  lastUpdatedAt: ISODateString | null;
+}
+
+export interface LGCRankingSummaryTotals {
+  programs: number;
+  submittedRankings: number;
+  draftRankings: number;
+}
+
+export interface LGCRankingSummary {
+  cycleId: ID;
+  totals: LGCRankingSummaryTotals;
+  tracks: {
+    residency: LGCRankingSummaryTrackStats;
+    fellowship: LGCRankingSummaryTrackStats;
+  };
+  universities: LGCRankingSummaryUniversity[];
+}
+
+/**
+ * GET /api/dashboard/university/program-counts?cycle=<id>
+ *
+ * Per-program applicant status counts for the authenticated university's
+ * programs in a specific cycle, plus the total unique applicants across
+ * those programs. Draft applications are excluded server-side.
+ */
+
+export interface UniversityProgramStatusCounts {
+  submitted: number;
+  under_review: number;
+  matched: number;
+  unmatched: number;
+  withdrawn: number;
+  total: number;
+}
+
+export interface UniversityProgramCountsEntry {
+  programId: ID;
+  counts: UniversityProgramStatusCounts;
+}
+
+export interface UniversityProgramCounts {
+  universityId: ID;
+  cycleId: ID;
+  totalUniqueApplicants: number;
+  programs: UniversityProgramCountsEntry[];
+}

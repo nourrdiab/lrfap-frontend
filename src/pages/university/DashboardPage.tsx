@@ -12,29 +12,38 @@ import {
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { universityReviewApi } from '../../api/universityReview';
+import { cyclesApi } from '../../api/cycles';
+import { dashboardApi } from '../../api/dashboard';
 import { notificationsApi } from '../../api/notifications';
 import type {
-  Application,
   ApplicationStatus,
+  Cycle,
+  CycleStatus,
+  ID,
   Notification,
   Program,
   Specialty,
+  UniversityProgramStatusCounts,
 } from '../../types';
 
 /**
- * University reviewer landing page. Pulls three parallel reads:
- *   1. GET /university-review/programs      — programs for this university
- *   2. GET /university-review/programs/:id/applications (per program) —
- *      status counts come from these, N+1 on purpose. Universities typically
- *      own <10 programs per cycle so this is acceptable; if that ever grows
- *      we'd add a /api/dashboard/university aggregate endpoint to the
- *      backend (doesn't exist yet).
- *   3. GET /notifications — last 3 for the Recent Activity section.
+ * University reviewer landing page.
+ *
+ * First wave (parallel):
+ *   1. GET /university-review/programs   — programs owned by this university
+ *   2. GET /cycles                       — used to pick the active cycle
+ *   3. GET /notifications                — last 3 for Recent Activity
+ *
+ * Second wave (after active cycle is known):
+ *   4. GET /dashboard/university/program-counts?cycle=…
+ *      Single aggregation that returns per-program status counts AND
+ *      the total unique applicants across them — scoped to the active
+ *      cycle. Replaces the old N+1 fetch that pulled one applications
+ *      list per program.
  *
  * Status categories shown are the real backend enum values only
- * (draft / submitted / under_review / matched / unmatched / withdrawn).
- * Drafts never appear here because backend getProgramApplications
- * filters them out server-side.
+ * (submitted / under_review / matched / unmatched / withdrawn). Drafts
+ * are never shown — backend aggregation already excludes them.
  *
  * There is no university name in the welcome strip: backend auth responses
  * omit the populated university on the user object and getMyPrograms
@@ -44,9 +53,9 @@ import type {
 
 type FetchStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-interface ProgramWithApplications {
+interface ProgramWithCounts {
   program: Program;
-  applications: Application[];
+  counts: UniversityProgramStatusCounts;
 }
 
 const STATUS_VISIBLE: ApplicationStatus[] = [
@@ -75,11 +84,38 @@ const STATUS_TONE: Record<ApplicationStatus, string> = {
   withdrawn: 'border-slate-200 bg-slate-50 text-slate-500',
 };
 
+// Mirror the backend's LGC dashboard picker — "non-draft, non-closed"
+// is the definition of an active cycle across the app.
+const ACTIVE_CYCLE_STATUSES: CycleStatus[] = [
+  'open',
+  'review',
+  'ranking',
+  'matching',
+  'published',
+];
+
+function emptyCounts(): UniversityProgramStatusCounts {
+  return {
+    submitted: 0,
+    under_review: 0,
+    matched: 0,
+    unmatched: 0,
+    withdrawn: 0,
+    total: 0,
+  };
+}
+
+function idOf(ref: ID | { _id: ID } | null | undefined): ID | null {
+  if (!ref) return null;
+  return typeof ref === 'string' ? ref : ref._id;
+}
+
 export default function UniversityDashboardPage() {
   useDocumentTitle('University dashboard');
   const { user } = useAuth();
 
-  const [programs, setPrograms] = useState<ProgramWithApplications[]>([]);
+  const [entries, setEntries] = useState<ProgramWithCounts[]>([]);
+  const [totalUniqueApplicants, setTotalUniqueApplicants] = useState(0);
   const [programsStatus, setProgramsStatus] = useState<FetchStatus>('idle');
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -91,26 +127,48 @@ export default function UniversityDashboardPage() {
 
     (async () => {
       try {
-        const list = await universityReviewApi.listMyPrograms();
+        // First wave: parallel fetches that don't depend on each other.
+        const [programsList, cyclesList] = await Promise.all([
+          universityReviewApi.listMyPrograms(),
+          cyclesApi.list(),
+        ]);
         if (cancelled) return;
 
-        // Fan out per-program application fetches. One program's fetch
-        // failing shouldn't blank the dashboard, so we swallow per-row
-        // and treat it as an empty list for that program.
-        const withApps = await Promise.all(
-          list.map(async (program) => {
-            try {
-              const apps = await universityReviewApi.listProgramApplications(
-                program._id,
-              );
-              return { program, applications: apps };
-            } catch {
-              return { program, applications: [] as Application[] };
-            }
-          }),
+        const activeCycle = pickActiveCycle(cyclesList);
+
+        // Scope the "My Programs" section to the active cycle — matches
+        // the new aggregation's scope and avoids cross-cycle duplicates
+        // in the counts (a program can only exist in one cycle anyway,
+        // but the old page happily rolled everything up cycle-agnostic).
+        const cycleScopedPrograms = activeCycle
+          ? programsList.filter((p) => idOf(p.cycle) === activeCycle._id)
+          : [];
+
+        if (!activeCycle || cycleScopedPrograms.length === 0) {
+          setEntries(cycleScopedPrograms.map((p) => ({ program: p, counts: emptyCounts() })));
+          setTotalUniqueApplicants(0);
+          setProgramsStatus('loaded');
+          return;
+        }
+
+        // Second wave: single aggregation replacing the old per-program
+        // applications fetch loop.
+        const summary = await dashboardApi.universityProgramCounts(
+          activeCycle._id,
         );
         if (cancelled) return;
-        setPrograms(withApps);
+
+        const countsByProgram = new Map<ID, UniversityProgramStatusCounts>();
+        for (const entry of summary.programs) {
+          countsByProgram.set(entry.programId, entry.counts);
+        }
+        setEntries(
+          cycleScopedPrograms.map((program) => ({
+            program,
+            counts: countsByProgram.get(program._id) ?? emptyCounts(),
+          })),
+        );
+        setTotalUniqueApplicants(summary.totalUniqueApplicants);
         setProgramsStatus('loaded');
       } catch {
         if (!cancelled) setProgramsStatus('error');
@@ -141,27 +199,16 @@ export default function UniversityDashboardPage() {
   }, []);
 
   const summary = useMemo(() => {
-    const totalPrograms = programs.length;
-    const uniqueApplicants = new Set<string>();
     let pendingReview = 0;
-    for (const { applications } of programs) {
-      for (const a of applications) {
-        // Backend populates `applicant` with firstName/lastName/email on
-        // this endpoint — extract the _id regardless of shape.
-        const applicantId =
-          typeof a.applicant === 'string' ? a.applicant : a.applicant?._id;
-        if (applicantId) uniqueApplicants.add(applicantId);
-        if (a.status === 'submitted' || a.status === 'under_review') {
-          pendingReview += 1;
-        }
-      }
+    for (const { counts } of entries) {
+      pendingReview += counts.submitted + counts.under_review;
     }
     return {
-      totalPrograms,
-      totalApplicants: uniqueApplicants.size,
+      totalPrograms: entries.length,
+      totalApplicants: totalUniqueApplicants,
       pendingReview,
     };
-  }, [programs]);
+  }, [entries, totalUniqueApplicants]);
 
   const recentNotifications = useMemo(() => {
     if (!Array.isArray(notifications)) return [];
@@ -224,7 +271,7 @@ export default function UniversityDashboardPage() {
         pendingReview={summary.pendingReview}
       />
 
-      <ProgramList entries={programs} />
+      <ProgramList entries={entries} />
 
       <RecentActivity
         notifications={notificationsStatus === 'error' ? [] : recentNotifications}
@@ -232,6 +279,23 @@ export default function UniversityDashboardPage() {
 
       <QuickLinks />
     </PageShell>
+  );
+}
+
+/**
+ * Pick the "active" cycle the way the backend LGC dashboard does — the
+ * most-recent cycle whose status is open/review/ranking/matching/published.
+ * Draft and closed cycles are excluded. Falls back to the most recent
+ * cycle overall when none match (so the page still has something to
+ * scope against during setup).
+ */
+function pickActiveCycle(cycles: Cycle[]): Cycle | null {
+  if (cycles.length === 0) return null;
+  const sorted = [...cycles].sort((a, b) => b.year - a.year);
+  return (
+    sorted.find((c) => ACTIVE_CYCLE_STATUSES.includes(c.status)) ??
+    sorted[0] ??
+    null
   );
 }
 
@@ -260,13 +324,13 @@ function SummaryRow({ totalPrograms, totalApplicants, pendingReview }: SummaryRo
           icon={<GraduationCap aria-hidden="true" className="h-5 w-5" />}
           label="Programs"
           value={totalPrograms}
-          hint={totalPrograms === 1 ? '1 program owned' : `${totalPrograms} programs owned`}
+          hint={totalPrograms === 1 ? '1 program in active cycle' : `${totalPrograms} programs in active cycle`}
         />
         <SummaryCard
           icon={<Users aria-hidden="true" className="h-5 w-5" />}
           label="Applicants"
           value={totalApplicants}
-          hint="Unique across all programs"
+          hint="Unique across your active-cycle programs"
         />
         <SummaryCard
           icon={<ClipboardList aria-hidden="true" className="h-5 w-5" />}
@@ -309,7 +373,7 @@ function SummaryCard({ icon, label, value, hint }: SummaryCardProps) {
 }
 
 interface ProgramListProps {
-  entries: ProgramWithApplications[];
+  entries: ProgramWithCounts[];
 }
 
 function ProgramList({ entries }: ProgramListProps) {
@@ -338,14 +402,14 @@ function ProgramList({ entries }: ProgramListProps) {
             strokeWidth={1.5}
           />
           <p className="font-sans text-[13px] text-slate-500">
-            No programs registered yet for your institution.
+            No programs in the active cycle yet.
           </p>
         </div>
       ) : (
         <ul role="list" className="mt-[16px] flex flex-col gap-[12px]">
-          {entries.map(({ program, applications }) => (
+          {entries.map(({ program, counts }) => (
             <li key={program._id}>
-              <ProgramCard program={program} applications={applications} />
+              <ProgramCard program={program} counts={counts} />
             </li>
           ))}
         </ul>
@@ -356,22 +420,14 @@ function ProgramList({ entries }: ProgramListProps) {
 
 interface ProgramCardProps {
   program: Program;
-  applications: Application[];
+  counts: UniversityProgramStatusCounts;
 }
 
-function ProgramCard({ program, applications }: ProgramCardProps) {
+function ProgramCard({ program, counts }: ProgramCardProps) {
   const specialtyName =
     typeof program.specialty === 'object' && program.specialty
       ? (program.specialty as Specialty).name
       : 'Program';
-
-  const counts = useMemo(() => {
-    const c: Partial<Record<ApplicationStatus, number>> = {};
-    for (const a of applications) {
-      c[a.status] = (c[a.status] ?? 0) + 1;
-    }
-    return c;
-  }, [applications]);
 
   return (
     <Link
@@ -383,14 +439,14 @@ function ProgramCard({ program, applications }: ProgramCardProps) {
           {specialtyName}
         </p>
         <p className="mt-[2px] font-sans text-[12px] uppercase tracking-wide text-slate-500">
-          {program.track} · {applications.length}{' '}
-          {applications.length === 1 ? 'applicant' : 'applicants'}
+          {program.track} · {counts.total}{' '}
+          {counts.total === 1 ? 'applicant' : 'applicants'}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-[6px]">
         {STATUS_VISIBLE.map((status) => {
-          const n = counts[status] ?? 0;
+          const n = counts[status as keyof UniversityProgramStatusCounts] ?? 0;
           if (n === 0) return null;
           return (
             <span
@@ -402,7 +458,7 @@ function ProgramCard({ program, applications }: ProgramCardProps) {
             </span>
           );
         })}
-        {applications.length === 0 ? (
+        {counts.total === 0 ? (
           <span className="font-sans text-[11px] text-slate-400">
             No applicants yet
           </span>

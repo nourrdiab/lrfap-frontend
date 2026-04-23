@@ -3,10 +3,8 @@ import { AlertCircle, Bell } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { dashboardApi } from '../../api/dashboard';
 import { universitiesApi } from '../../api/universities';
-import { programsApi } from '../../api/programs';
 import { cyclesApi } from '../../api/cycles';
 import { matchApi } from '../../api/match';
-import { universityReviewApi } from '../../api/universityReview';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { StatCards, type MatchStatusTone } from '../../components/lgc/dashboard/StatCards';
 import {
@@ -22,8 +20,9 @@ import type {
   CycleStatus,
   ID,
   LGCDashboard,
+  LGCRankingSummary,
+  LGCRankingSummaryUniversity,
   MatchRun,
-  Program,
   Track,
   University,
 } from '../../types';
@@ -31,16 +30,16 @@ import type {
 /**
  * LGC Committee Dashboard.
  *
- * Fetches five things in parallel on mount:
- *   - GET /dashboard/lgc      → aggregated counts, active cycle, activity
- *   - GET /universities       → full university list for the table
- *   - GET /match/runs         → all match runs (client-side filter by cycle/track)
+ * First wave (parallel):
+ *   - GET /dashboard/lgc                   → counts, active cycle, activity
+ *   - GET /universities                    → full university list (for the table)
+ *   - GET /match/runs                      → match runs, filtered client-side
  *
- * Then, once the active cycle ID is known, a second wave:
- *   - GET /programs?cycle=…   → programs in the active cycle
- *   - parallel GET /university-review/programs/:id/ranking for each program,
- *     so we can derive per-university submission status and pendingRankings.
- *     N+1 on purpose; LGC's middleware covers the ranking endpoint.
+ * Second wave (after active cycle ID known):
+ *   - GET /dashboard/lgc/ranking-summary?cycle=…
+ *     Single-shot aggregation that returns per-university ranking
+ *     totals and per-track rollups. Replaces the old N+1 fetch loop
+ *     that pulled ProgramRanking for each program individually.
  *
  * The page holds a single loading state until all required fetches land,
  * per spec ("Don't show partial data — show the whole skeleton"). After
@@ -51,14 +50,8 @@ import type {
 
 type FetchStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-interface RankingLite {
-  programId: ID;
-  status: 'draft' | 'submitted';
-  updatedAt?: string;
-}
-
 interface TrackReadiness {
-  programs: Program[];
+  totalPrograms: number;
   submittedRankings: number;
   allSubmitted: boolean;
 }
@@ -136,10 +129,8 @@ export default function LGCDashboardPage() {
   const [dashboard, setDashboard] = useState<LGCDashboard | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
   const [matchRuns, setMatchRuns] = useState<MatchRun[]>([]);
-  const [cyclePrograms, setCyclePrograms] = useState<Program[]>([]);
-  const [rankingsByProgram, setRankingsByProgram] = useState<
-    Map<ID, RankingLite>
-  >(new Map());
+  const [rankingSummary, setRankingSummary] =
+    useState<LGCRankingSummary | null>(null);
 
   const [status, setStatus] = useState<FetchStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -172,36 +163,14 @@ export default function LGCDashboardPage() {
       setUniversities(unisRes);
       setMatchRuns(runsRes);
 
-      // Second wave: programs + per-program rankings, scoped to active cycle.
+      // Second wave: one aggregation call that returns everything the
+      // Universities table and the MatchingCard's readiness checks need.
       const activeCycleId = dashRes.activeCycle?.id ?? null;
       if (activeCycleId) {
-        const programs = await programsApi.list({ cycle: activeCycleId });
-        setCyclePrograms(programs);
-        // Fan out ranking fetches. One failing shouldn't blank the page —
-        // we fall back to treating that program's ranking as 'draft'.
-        const rankingResults = await Promise.all(
-          programs.map(async (p) => {
-            try {
-              const r = await universityReviewApi.getRanking(p._id);
-              return {
-                programId: p._id,
-                status: r.status,
-                updatedAt: r.updatedAt,
-              } as RankingLite;
-            } catch {
-              return {
-                programId: p._id,
-                status: 'draft',
-              } as RankingLite;
-            }
-          }),
-        );
-        const map = new Map<ID, RankingLite>();
-        for (const r of rankingResults) map.set(r.programId, r);
-        setRankingsByProgram(map);
+        const summary = await dashboardApi.lgcRankingSummary(activeCycleId);
+        setRankingSummary(summary);
       } else {
-        setCyclePrograms([]);
-        setRankingsByProgram(new Map());
+        setRankingSummary(null);
       }
       setStatus('loaded');
     } catch (err) {
@@ -220,59 +189,50 @@ export default function LGCDashboardPage() {
 
   /** Rows for the Universities table, one per University document. */
   const universityRows = useMemo<UniversityRow[]>(() => {
-    if (!activeCycle) {
-      return universities.map((u) => ({
-        universityId: u._id,
-        name: u.name,
-        programCount: 0,
-        lastUpdated: null,
-        status: 'draft' as const,
-      }));
-    }
-    // Group cycle programs by university id.
-    const byUni = new Map<ID, Program[]>();
-    for (const p of cyclePrograms) {
-      const uniId = idOf(p.university);
-      if (!uniId) continue;
-      const list = byUni.get(uniId) ?? [];
-      list.push(p);
-      byUni.set(uniId, list);
+    // Map the aggregation response by university id for cheap lookup; when
+    // there's no active cycle we fall back to empty rows for every uni.
+    const summaryByUni = new Map<ID, LGCRankingSummaryUniversity>();
+    if (rankingSummary) {
+      for (const u of rankingSummary.universities) summaryByUni.set(u._id, u);
     }
     return universities.map((u) => {
-      const programs = byUni.get(u._id) ?? [];
-      const submittedCount = programs.filter(
-        (p) => rankingsByProgram.get(p._id)?.status === 'submitted',
-      ).length;
-      const lastUpdated = programs
-        .map((p) => p.updatedAt)
-        .filter((d): d is string => !!d)
-        .sort()
-        .pop();
+      const entry = summaryByUni.get(u._id);
+      if (!entry) {
+        return {
+          universityId: u._id,
+          name: u.name,
+          programCount: 0,
+          lastUpdated: null,
+          status: 'draft' as const,
+        };
+      }
       return {
         universityId: u._id,
         name: u.name,
-        programCount: programs.length,
-        lastUpdated: lastUpdated ?? null,
-        status: deriveUniversityStatus(programs.length, submittedCount),
+        programCount: entry.totalPrograms,
+        lastUpdated: entry.lastUpdatedAt ?? null,
+        status: deriveUniversityStatus(
+          entry.totalPrograms,
+          entry.submittedRankings,
+        ),
       };
     });
-  }, [activeCycle, universities, cyclePrograms, rankingsByProgram]);
+  }, [universities, rankingSummary]);
 
-  /** Readiness per track. */
+  /** Readiness per track — comes straight from the aggregation endpoint. */
   const trackReadiness = useMemo<{ residency: TrackReadiness; fellowship: TrackReadiness }>(() => {
     const build = (track: Track): TrackReadiness => {
-      const programs = cyclePrograms.filter((p) => p.track === track);
-      const submitted = programs.filter(
-        (p) => rankingsByProgram.get(p._id)?.status === 'submitted',
-      ).length;
+      const stats = rankingSummary?.tracks[track];
+      const total = stats?.totalPrograms ?? 0;
+      const submitted = stats?.submittedRankings ?? 0;
       return {
-        programs,
+        totalPrograms: total,
         submittedRankings: submitted,
-        allSubmitted: programs.length > 0 && submitted === programs.length,
+        allSubmitted: total > 0 && submitted === total,
       };
     };
     return { residency: build('residency'), fellowship: build('fellowship') };
-  }, [cyclePrograms, rankingsByProgram]);
+  }, [rankingSummary]);
 
   /** Per-track state for the MatchingCard buttons. */
   const matchingState = useMemo(() => {
@@ -313,9 +273,9 @@ export default function LGCDashboardPage() {
       (r) => r.status === 'all_submitted',
     ).length;
 
-    const pendingRankings = cyclePrograms.filter(
-      (p) => rankingsByProgram.get(p._id)?.status !== 'submitted',
-    ).length;
+    const pendingRankings = rankingSummary
+      ? rankingSummary.totals.draftRankings
+      : 0;
 
     const apps = dashboard?.counts.applications;
     const preferencesLocked = apps
@@ -330,18 +290,17 @@ export default function LGCDashboardPage() {
       preferencesLocked,
       applicationsTotal,
     };
-  }, [universityRows, cyclePrograms, rankingsByProgram, dashboard]);
+  }, [universityRows, rankingSummary, dashboard]);
 
   const auditAlerts = useMemo(() => {
     if (!dashboard) return 0;
     return dashboard.recentActivity.filter((a) => a.outcome === 'failure').length;
   }, [dashboard]);
 
-  const allProgramRankingsSubmitted =
-    cyclePrograms.length > 0 &&
-    cyclePrograms.every(
-      (p) => rankingsByProgram.get(p._id)?.status === 'submitted',
-    );
+  const allProgramRankingsSubmitted = rankingSummary
+    ? rankingSummary.totals.programs > 0 &&
+      rankingSummary.totals.programs === rankingSummary.totals.submittedRankings
+    : false;
 
   // ---- Action handlers -------------------------------------------------
 
