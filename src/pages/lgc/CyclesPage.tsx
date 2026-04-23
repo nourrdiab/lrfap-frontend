@@ -7,6 +7,7 @@ import {
   Loader2,
   Pencil,
   Plus,
+  X,
 } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { cyclesApi } from '../../api/cycles';
@@ -105,10 +106,12 @@ export default function LGCCyclesPage() {
   const [bulkSubmitError, setBulkSubmitError] = useState<string | null>(null);
 
   // Auto-dismissing success chip (used by the reset flow for now).
+  // Reset/Submit-All toasts carry detailed counts that take a beat to
+  // read — 15s auto-dismiss, plus a manual X for users done reading.
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   useEffect(() => {
     if (!successMessage) return;
-    const t = setTimeout(() => setSuccessMessage(null), 4000);
+    const t = setTimeout(() => setSuccessMessage(null), 15000);
     return () => clearTimeout(t);
   }, [successMessage]);
 
@@ -301,10 +304,18 @@ export default function LGCCyclesPage() {
         {successMessage ? (
           <div
             role="status"
-            className="inline-flex max-w-fit items-center gap-[8px] border-[0.91px] border-emerald-200 bg-emerald-50 px-[12px] py-[8px] font-sans text-[12px] font-medium text-emerald-800"
+            className="inline-flex max-w-fit items-center gap-[10px] border-[0.91px] border-emerald-200 bg-emerald-50 py-[8px] pl-[12px] pr-[8px] font-sans text-[12px] font-medium text-emerald-800"
           >
-            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
-            {successMessage}
+            <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
+            <span>{successMessage}</span>
+            <button
+              type="button"
+              onClick={() => setSuccessMessage(null)}
+              aria-label="Dismiss notification"
+              className="inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center rounded-sm text-emerald-700 transition-colors hover:bg-emerald-100 hover:text-emerald-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+            >
+              <X aria-hidden="true" className="h-3.5 w-3.5" />
+            </button>
           </div>
         ) : null}
 
