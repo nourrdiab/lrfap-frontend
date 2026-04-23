@@ -138,6 +138,18 @@ export interface LGCDashboard {
 export interface LGCRankingSummaryTrackStats {
   totalPrograms: number;
   submittedRankings: number;
+  /**
+   * Programs in this track that have ≥ 1 submitted application. Matching
+   * only uses submitted applications, so programs without applicants
+   * can't match anyone regardless of their ranking state — these are
+   * the programs whose rankings actually matter for readiness.
+   */
+  programsWithApplicants: number;
+  /**
+   * Of the programs-with-applicants, how many have a submitted ranking.
+   * Readiness is green when this equals `programsWithApplicants`.
+   */
+  programsWithApplicantsAndSubmittedRanking: number;
 }
 
 export interface LGCRankingSummaryUniversity {

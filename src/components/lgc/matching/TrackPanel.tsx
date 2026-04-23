@@ -231,8 +231,11 @@ function dryRunDisabledReason(
   if (!readiness.cycleActionable) {
     return `Cycle is ${readiness.cycleStatus} — matching can no longer run.`;
   }
+  if (readiness.programsWithApplicants === 0) {
+    return 'No programs have applicants yet for this track.';
+  }
   if (!readiness.allProgramsRanked) {
-    return `All programs must have submitted rankings first. Currently ${readiness.submittedRankings} of ${readiness.totalPrograms}.`;
+    return `All programs with applicants must have submitted rankings first. Currently ${readiness.programsWithApplicantsAndSubmittedRanking} of ${readiness.programsWithApplicants}.`;
   }
   return undefined;
 }

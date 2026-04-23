@@ -5,19 +5,23 @@ import { Check, X } from 'lucide-react';
  * invariants on each action; this is advisory so buttons can disable
  * with a hint instead of failing on click.
  *
- * Item 1 — every program in (track, cycle) has a submitted ProgramRanking.
+ * Item 1 — every program in (track, cycle) that has applicants has a
+ *   submitted ProgramRanking. Programs without applicants are ignored
+ *   because matching silently excludes them regardless of ranking state
+ *   (see matchController.gatherInputs).
  * Item 2 — cycle is not yet published or closed.
  *
- * "At least one submitted application" is intentionally omitted: no
- * per-track/cycle applicant-count endpoint exists yet, and the backend
- * returns a clear 400 if you try to run against an empty set. We
- * surface that error in the action-confirm dialog instead.
+ * "At least one submitted application" is not a separate item because
+ * it's captured by `programsWithApplicants === 0`: if zero programs
+ * have applicants, there's nothing to match.
  */
 
 export interface ReadinessState {
   allProgramsRanked: boolean;
   totalPrograms: number;
   submittedRankings: number;
+  programsWithApplicants: number;
+  programsWithApplicantsAndSubmittedRanking: number;
   cycleActionable: boolean;
   cycleStatus: string;
 }
@@ -31,16 +35,8 @@ export function MatchingReadiness({ state }: MatchingReadinessProps) {
     <ul role="list" className="flex flex-col gap-[6px]">
       <ChecklistItem
         passed={state.allProgramsRanked}
-        label={
-          state.totalPrograms === 0
-            ? 'Programs for this track'
-            : 'All programs have submitted rankings'
-        }
-        detail={
-          state.totalPrograms === 0
-            ? 'No programs in this track for the selected cycle.'
-            : `${state.submittedRankings} of ${state.totalPrograms} ranked`
-        }
+        label={rankingLabel(state)}
+        detail={rankingDetail(state)}
       />
       <ChecklistItem
         passed={state.cycleActionable}
@@ -53,6 +49,22 @@ export function MatchingReadiness({ state }: MatchingReadinessProps) {
       />
     </ul>
   );
+}
+
+function rankingLabel(state: ReadinessState): string {
+  if (state.totalPrograms === 0) return 'Programs for this track';
+  if (state.programsWithApplicants === 0) return 'Applicants for this track';
+  return 'All programs with applicants have submitted rankings';
+}
+
+function rankingDetail(state: ReadinessState): string {
+  if (state.totalPrograms === 0) {
+    return 'No programs in this track for the selected cycle.';
+  }
+  if (state.programsWithApplicants === 0) {
+    return 'No programs have applicants yet for this track.';
+  }
+  return `${state.programsWithApplicantsAndSubmittedRanking} of ${state.programsWithApplicants} programs with applicants are ranked`;
 }
 
 function ChecklistItem({

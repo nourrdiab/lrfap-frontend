@@ -227,8 +227,15 @@ export default function LGCMatchingPage() {
       const stats = rankingSummary?.tracks[track];
       const totalPrograms = stats?.totalPrograms ?? 0;
       const submittedRankings = stats?.submittedRankings ?? 0;
+      const programsWithApplicants = stats?.programsWithApplicants ?? 0;
+      const programsWithApplicantsAndSubmittedRanking =
+        stats?.programsWithApplicantsAndSubmittedRanking ?? 0;
+      // Readiness green = every program that actually has applicants
+      // is ranked. Programs without applicants don't need rankings —
+      // matching silently excludes them anyway.
       const allProgramsRanked =
-        totalPrograms > 0 && submittedRankings === totalPrograms;
+        programsWithApplicants > 0 &&
+        programsWithApplicantsAndSubmittedRanking === programsWithApplicants;
       const cycleStatus = selectedCycle?.status ?? 'draft';
       const cycleActionable =
         cycleStatus !== 'published' && cycleStatus !== 'closed';
@@ -236,6 +243,8 @@ export default function LGCMatchingPage() {
         allProgramsRanked,
         totalPrograms,
         submittedRankings,
+        programsWithApplicants,
+        programsWithApplicantsAndSubmittedRanking,
         cycleActionable,
         cycleStatus,
       };
