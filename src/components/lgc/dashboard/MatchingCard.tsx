@@ -1,5 +1,6 @@
 import { Check, Loader2, Play, Send, X } from 'lucide-react';
 import type { CycleStatus, ISODateString, Track } from '../../../types';
+import { formatRelativeShort } from '../../../utils/relativeTime';
 
 /**
  * Matching card — right column, middle. Consolidates the Figma's
@@ -39,20 +40,6 @@ export interface MatchingCardProps {
   workingKind: 'run' | 'publish' | null;
   onRunMatch: (track: Track) => void;
   onPublishResults: (track: Track) => void;
-}
-
-function formatRelativeShort(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const diffMs = Date.now() - d.getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return 'just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 export function MatchingCard({
