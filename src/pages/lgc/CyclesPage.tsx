@@ -3,12 +3,14 @@ import {
   AlertCircle,
   ArrowRight,
   Calendar,
+  CheckCircle2,
   Loader2,
   Pencil,
   Plus,
 } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { cyclesApi } from '../../api/cycles';
+import { adminApi } from '../../api/admin';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { formatCountdown, pickNextDeadline } from '../../utils/cycleCountdown';
 import { ConfirmActionDialog } from '../../components/lgc/ConfirmActionDialog';
@@ -90,6 +92,20 @@ export default function LGCCyclesPage() {
   );
   const [advanceWorking, setAdvanceWorking] = useState(false);
   const [advanceError, setAdvanceError] = useState<string | null>(null);
+
+  // TODO: Remove reset state + dialog before production deployment.
+  // Dev/demo reset only.
+  const [resetTarget, setResetTarget] = useState<Cycle | null>(null);
+  const [resetWorking, setResetWorking] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  // Auto-dismissing success chip (used by the reset flow for now).
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  useEffect(() => {
+    if (!successMessage) return;
+    const t = setTimeout(() => setSuccessMessage(null), 4000);
+    return () => clearTimeout(t);
+  }, [successMessage]);
 
   const loadAll = useCallback(async () => {
     setStatus('loading');
@@ -189,6 +205,36 @@ export default function LGCCyclesPage() {
     }
   }, [advancePending, loadAll]);
 
+  // TODO: Remove the reset handlers below before production deployment.
+  function requestReset(cycle: Cycle) {
+    setResetError(null);
+    setResetTarget(cycle);
+  }
+
+  function cancelReset() {
+    if (resetWorking) return;
+    setResetTarget(null);
+    setResetError(null);
+  }
+
+  const confirmReset = useCallback(async () => {
+    if (!resetTarget) return;
+    setResetWorking(true);
+    setResetError(null);
+    try {
+      const result = await adminApi.resetCycle(resetTarget._id);
+      setResetTarget(null);
+      setSuccessMessage(
+        `Cycle reset successfully — ${result.applicationsReset} applications reset, ${result.matchRunsDeleted} match runs deleted`,
+      );
+      await loadAll();
+    } catch (err) {
+      setResetError(getApiErrorMessage(err, 'Couldn’t reset this cycle.'));
+    } finally {
+      setResetWorking(false);
+    }
+  }, [resetTarget, loadAll]);
+
   // ---- Render branches -------------------------------------------------
 
   return (
@@ -215,6 +261,16 @@ export default function LGCCyclesPage() {
             New cycle
           </button>
         </header>
+
+        {successMessage ? (
+          <div
+            role="status"
+            className="inline-flex max-w-fit items-center gap-[8px] border-[0.91px] border-emerald-200 bg-emerald-50 px-[12px] py-[8px] font-sans text-[12px] font-medium text-emerald-800"
+          >
+            <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+            {successMessage}
+          </div>
+        ) : null}
 
         {status === 'error' ? (
           <div
@@ -251,6 +307,10 @@ export default function LGCCyclesPage() {
                   onRequestAdvance={() => requestAdvance(cycle)}
                   isAdvancing={
                     advanceWorking && advancePending?.cycleId === cycle._id
+                  }
+                  onRequestReset={() => requestReset(cycle)}
+                  isResetting={
+                    resetWorking && resetTarget?._id === cycle._id
                   }
                 />
               </li>
@@ -291,6 +351,29 @@ export default function LGCCyclesPage() {
         onCancel={cancelAdvance}
         onConfirm={() => void confirmAdvance()}
       />
+
+      {/* TODO: Remove this reset dialog before production deployment. */}
+      <ConfirmActionDialog
+        open={!!resetTarget}
+        title="Reset cycle data?"
+        body={
+          resetTarget ? (
+            <>
+              This will reset all applications in{' '}
+              <strong>{resetTarget.name}</strong> to <strong>submitted</strong>{' '}
+              status, clear all match results, reset program available seats
+              to capacity, and set cycle status back to <strong>ranking</strong>.
+              Use for demo/testing only. Continue?
+            </>
+          ) : null
+        }
+        confirmLabel="Reset cycle"
+        tone="danger"
+        isWorking={resetWorking}
+        errorMessage={resetError}
+        onCancel={cancelReset}
+        onConfirm={() => void confirmReset()}
+      />
     </div>
   );
 }
@@ -302,6 +385,9 @@ interface CycleCardProps {
   onEdit: () => void;
   onRequestAdvance: () => void;
   isAdvancing: boolean;
+  // TODO: Remove reset props before production deployment. Dev/demo only.
+  onRequestReset: () => void;
+  isResetting: boolean;
 }
 
 function CycleCard({
@@ -309,6 +395,8 @@ function CycleCard({
   onEdit,
   onRequestAdvance,
   isAdvancing,
+  onRequestReset,
+  isResetting,
 }: CycleCardProps) {
   const pill = STATUS_PILL[cycle.status];
   const next = nextStatusFor(cycle.status);
@@ -413,6 +501,25 @@ function CycleCard({
               Advance to {STATUS_PILL[next as CycleStatus].label}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </>
+          )}
+        </button>
+      </div>
+
+      {/* TODO: Remove this reset control before production deployment. */}
+      <div className="mt-[12px]">
+        <button
+          type="button"
+          onClick={onRequestReset}
+          disabled={isResetting}
+          className="inline-flex items-center gap-[6px] font-sans text-[11px] font-medium text-red-600 underline-offset-4 transition-colors hover:text-red-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isResetting ? (
+            <>
+              <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
+              Resetting…
+            </>
+          ) : (
+            'Reset Cycle Data (Dev Only)'
           )}
         </button>
       </div>
