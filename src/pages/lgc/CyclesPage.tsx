@@ -99,6 +99,11 @@ export default function LGCCyclesPage() {
   const [resetWorking, setResetWorking] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
 
+  // TODO: Remove bulk-submit state + dialog before production deployment.
+  const [bulkSubmitTarget, setBulkSubmitTarget] = useState<Cycle | null>(null);
+  const [bulkSubmitWorking, setBulkSubmitWorking] = useState(false);
+  const [bulkSubmitError, setBulkSubmitError] = useState<string | null>(null);
+
   // Auto-dismissing success chip (used by the reset flow for now).
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   useEffect(() => {
@@ -235,6 +240,37 @@ export default function LGCCyclesPage() {
     }
   }, [resetTarget, loadAll]);
 
+  // TODO: Remove bulk-submit handlers before production deployment.
+  function requestBulkSubmit(cycle: Cycle) {
+    setBulkSubmitError(null);
+    setBulkSubmitTarget(cycle);
+  }
+
+  function cancelBulkSubmit() {
+    if (bulkSubmitWorking) return;
+    setBulkSubmitTarget(null);
+    setBulkSubmitError(null);
+  }
+
+  const confirmBulkSubmit = useCallback(async () => {
+    if (!bulkSubmitTarget) return;
+    setBulkSubmitWorking(true);
+    setBulkSubmitError(null);
+    try {
+      const result = await adminApi.bulkSubmitRankings(bulkSubmitTarget._id);
+      setBulkSubmitTarget(null);
+      setSuccessMessage(
+        `Bulk-submitted ${result.rankingsSubmitted}/${result.programsProcessed} program rankings (${result.rankingsCreated} newly created).`,
+      );
+    } catch (err) {
+      setBulkSubmitError(
+        getApiErrorMessage(err, 'Couldn’t bulk-submit rankings.'),
+      );
+    } finally {
+      setBulkSubmitWorking(false);
+    }
+  }, [bulkSubmitTarget]);
+
   // ---- Render branches -------------------------------------------------
 
   return (
@@ -312,6 +348,10 @@ export default function LGCCyclesPage() {
                   isResetting={
                     resetWorking && resetTarget?._id === cycle._id
                   }
+                  onRequestBulkSubmit={() => requestBulkSubmit(cycle)}
+                  isBulkSubmitting={
+                    bulkSubmitWorking && bulkSubmitTarget?._id === cycle._id
+                  }
                 />
               </li>
             ))}
@@ -374,6 +414,29 @@ export default function LGCCyclesPage() {
         onCancel={cancelReset}
         onConfirm={() => void confirmReset()}
       />
+
+      {/* TODO: Remove this bulk-submit dialog before production deployment. */}
+      <ConfirmActionDialog
+        open={!!bulkSubmitTarget}
+        title="Submit all rankings?"
+        body={
+          bulkSubmitTarget ? (
+            <>
+              This will create <strong>submitted</strong> rankings for every
+              program in <strong>{bulkSubmitTarget.name}</strong> that
+              doesn&apos;t already have one. Applicants are ordered by
+              submission time (earliest first). Existing rankings are
+              untouched. Use for demo/testing only. Continue?
+            </>
+          ) : null
+        }
+        confirmLabel="Submit all rankings"
+        tone="danger"
+        isWorking={bulkSubmitWorking}
+        errorMessage={bulkSubmitError}
+        onCancel={cancelBulkSubmit}
+        onConfirm={() => void confirmBulkSubmit()}
+      />
     </div>
   );
 }
@@ -385,9 +448,11 @@ interface CycleCardProps {
   onEdit: () => void;
   onRequestAdvance: () => void;
   isAdvancing: boolean;
-  // TODO: Remove reset props before production deployment. Dev/demo only.
+  // TODO: Remove dev-only props before production deployment.
   onRequestReset: () => void;
   isResetting: boolean;
+  onRequestBulkSubmit: () => void;
+  isBulkSubmitting: boolean;
 }
 
 function CycleCard({
@@ -397,6 +462,8 @@ function CycleCard({
   isAdvancing,
   onRequestReset,
   isResetting,
+  onRequestBulkSubmit,
+  isBulkSubmitting,
 }: CycleCardProps) {
   const pill = STATUS_PILL[cycle.status];
   const next = nextStatusFor(cycle.status);
@@ -505,12 +572,12 @@ function CycleCard({
         </button>
       </div>
 
-      {/* TODO: Remove this reset control before production deployment. */}
-      <div className="mt-[12px]">
+      {/* TODO: Remove this dev-only control row before production deployment. */}
+      <div className="mt-[12px] flex flex-wrap items-center gap-x-[16px] gap-y-[6px]">
         <button
           type="button"
           onClick={onRequestReset}
-          disabled={isResetting}
+          disabled={isResetting || isBulkSubmitting}
           className="inline-flex items-center gap-[6px] font-sans text-[11px] font-medium text-red-600 underline-offset-4 transition-colors hover:text-red-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isResetting ? (
@@ -520,6 +587,21 @@ function CycleCard({
             </>
           ) : (
             'Reset Cycle Data (Dev Only)'
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={onRequestBulkSubmit}
+          disabled={isResetting || isBulkSubmitting}
+          className="inline-flex items-center gap-[6px] font-sans text-[11px] font-medium text-red-600 underline-offset-4 transition-colors hover:text-red-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isBulkSubmitting ? (
+            <>
+              <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
+              Submitting…
+            </>
+          ) : (
+            'Submit All Rankings (Dev Only)'
           )}
         </button>
       </div>
