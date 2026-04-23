@@ -39,6 +39,9 @@ import UniversityRankingPage from './pages/university/RankingPage';
 import LGCDashboardPage from './pages/lgc/DashboardPage';
 import LGCCyclesPage from './pages/lgc/CyclesPage';
 import LGCCatalogPage from './pages/lgc/CatalogPage';
+import LGCCatalogUniversitiesTab from './pages/lgc/catalog/UniversitiesTab';
+import LGCCatalogSpecialtiesTab from './pages/lgc/catalog/SpecialtiesTab';
+import LGCCatalogProgramsTab from './pages/lgc/catalog/ProgramsTab';
 import LGCMatchingPage from './pages/lgc/MatchingPage';
 import LGCUsersAuditPage from './pages/lgc/UsersAuditPage';
 
@@ -133,7 +136,12 @@ export default function App() {
             <Route path="lgc" element={<LGCLayout />}>
               <Route index element={<LGCDashboardPage />} />
               <Route path="cycles" element={<LGCCyclesPage />} />
-              <Route path="catalog" element={<LGCCatalogPage />} />
+              <Route path="catalog" element={<LGCCatalogPage />}>
+                <Route index element={<Navigate to="universities" replace />} />
+                <Route path="universities" element={<LGCCatalogUniversitiesTab />} />
+                <Route path="specialties" element={<LGCCatalogSpecialtiesTab />} />
+                <Route path="programs" element={<LGCCatalogProgramsTab />} />
+              </Route>
               <Route path="matching" element={<LGCMatchingPage />} />
               <Route path="users" element={<LGCUsersAuditPage />} />
             </Route>
