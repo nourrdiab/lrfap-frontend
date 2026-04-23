@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from './client';
 import type { Cycle, CycleStatus, ID } from '../types';
 
 export const cyclesApi = {
@@ -7,6 +7,6 @@ export const cyclesApi = {
   create: (body: Omit<Cycle, '_id'>) => apiPost<Cycle>('/cycles', body),
   update: (id: ID, body: Partial<Cycle>) => apiPut<Cycle>(`/cycles/${id}`, body),
   setStatus: (id: ID, status: CycleStatus) =>
-    apiPut<Cycle>(`/cycles/${id}/status`, { status }),
+    apiPatch<Cycle>(`/cycles/${id}/status`, { status }),
   remove: (id: ID) => apiDelete<{ success: boolean }>(`/cycles/${id}`),
 };

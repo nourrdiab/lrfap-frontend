@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, Calendar, Loader2 } from 'lucide-react';
 import type { CycleStatus, LGCActiveCycle } from '../../../types';
+import { formatCountdown, pickNextDeadline } from '../../../utils/cycleCountdown';
 
 /**
  * Active Cycle card — right column, top. Shows the current cycle name,
@@ -54,52 +55,6 @@ interface ActiveCycleCardProps {
   cycle: LGCActiveCycle | null;
   isAdvancing: boolean;
   onRequestAdvance: () => void;
-}
-
-interface Countdown {
-  kind: 'submission' | 'ranking' | 'results';
-  label: string;
-  targetIso: string;
-  remainingMs: number;
-}
-
-function pickNextDeadline(cycle: LGCActiveCycle): Countdown | null {
-  const now = Date.now();
-  const candidates: Countdown[] = [
-    {
-      kind: 'submission',
-      label: 'Submission deadline',
-      targetIso: cycle.submissionDeadline,
-      remainingMs: new Date(cycle.submissionDeadline).getTime() - now,
-    },
-    {
-      kind: 'ranking',
-      label: 'Ranking deadline',
-      targetIso: cycle.rankingDeadline,
-      remainingMs: new Date(cycle.rankingDeadline).getTime() - now,
-    },
-    {
-      kind: 'results',
-      label: 'Results publication',
-      targetIso: cycle.resultPublicationDate,
-      remainingMs: new Date(cycle.resultPublicationDate).getTime() - now,
-    },
-  ].filter((c) => !Number.isNaN(c.remainingMs) && c.remainingMs > 0);
-  if (candidates.length === 0) return null;
-  // Earliest future deadline wins.
-  candidates.sort((a, b) => a.remainingMs - b.remainingMs);
-  return candidates[0];
-}
-
-function formatCountdown(ms: number): string {
-  if (ms <= 0) return '00 : 00 : 00 : 00';
-  const totalSeconds = Math.floor(ms / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${pad(days)} : ${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
 }
 
 function formatDeadlineDate(iso: string): string {
