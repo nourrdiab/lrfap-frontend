@@ -9,6 +9,7 @@ import type { ID } from '../types';
 export interface ResetCycleResponse {
   applicationsReset: number;
   matchRunsDeleted: number;
+  rankingsDeleted: number;
   programsReset: number;
   cycleStatusReset: boolean;
   message: string;

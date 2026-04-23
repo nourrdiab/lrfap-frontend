@@ -38,7 +38,13 @@ export interface RankedApplicant {
 }
 
 export interface ProgramRanking {
-  _id: ID;
+  /**
+   * Missing when the backend hasn't persisted a document yet — see
+   * `getProgramRanking`, which returns a synthetic empty draft on
+   * first read instead of auto-creating a row. Populated once any PUT
+   * creates the real row.
+   */
+  _id?: ID;
   program: ID;
   cycle: ID;
   rankedApplicants: RankedApplicant[];

@@ -230,7 +230,7 @@ export default function LGCCyclesPage() {
       const result = await adminApi.resetCycle(resetTarget._id);
       setResetTarget(null);
       setSuccessMessage(
-        `Cycle reset successfully — ${result.applicationsReset} applications reset, ${result.matchRunsDeleted} match runs deleted`,
+        `Cycle reset successfully — ${result.applicationsReset} applications reset, ${result.rankingsDeleted} rankings deleted, ${result.matchRunsDeleted} match runs deleted`,
       );
       await loadAll();
     } catch (err) {
