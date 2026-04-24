@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { PublicNavBar } from '../../../components/public/PublicNavBar';
 
 /**
@@ -47,6 +47,7 @@ const FEATURES: Feature[] = [
 ];
 
 export function Hero() {
+  const shouldReduceMotion = useReducedMotion();
   return (
     <section
       aria-label="LRFAP — Lebanese Residency and Fellowship Application Program"
@@ -94,7 +95,9 @@ export function Hero() {
         variants={{
           hidden: {},
           visible: {
-            transition: { staggerChildren: 0.08, delayChildren: 0.35 },
+            transition: shouldReduceMotion
+              ? { duration: 0 }
+              : { staggerChildren: 0.07, delayChildren: 0.3 },
           },
         }}
         className="relative mx-auto mt-auto mb-[42.4px] flex w-full max-w-[1366px] items-start justify-between px-[58px]"
@@ -103,10 +106,14 @@ export function Hero() {
           <motion.li
             key={feature.number}
             variants={{
-              hidden: { opacity: 0, y: 14 },
+              hidden: shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
               visible: { opacity: 1, y: 0 },
             }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.45, ease: 'easeOut' }
+            }
             className="flex items-start gap-[15px] text-white"
           >
             <span
