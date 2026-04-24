@@ -50,14 +50,14 @@ export function Hero() {
   return (
     <section
       aria-label="LRFAP — Lebanese Residency and Fellowship Application Program"
-      className="relative isolate flex min-h-[735px] w-full flex-col overflow-hidden bg-[#1a1d2e]"
+      className="relative isolate flex min-h-[660px] w-full flex-col overflow-hidden bg-[#1a1d2e]"
     >
       <img
         src="/images/homepage-1.jpg"
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+        className="absolute inset-y-0 left-1/2 -z-20 h-full w-[114%] -translate-x-1/2 object-cover object-[center_40%]"
       />
       <div
         aria-hidden="true"
