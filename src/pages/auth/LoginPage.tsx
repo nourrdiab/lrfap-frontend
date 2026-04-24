@@ -72,7 +72,7 @@ export default function LoginPage() {
             to="/register"
             className="font-medium text-lrfap-sky underline-offset-4 hover:underline"
           >
-            Create an applicant account
+            Create an account
           </Link>
         </span>
       }
