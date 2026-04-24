@@ -1,17 +1,15 @@
 import { apiGet } from './client';
-import type { AuditLog, ID } from '../types';
+import type { AuditActorRole, AuditLogListResponse } from '../types';
 
 export interface AuditFilters {
-  actorId?: ID;
-  resourceType?: string;
-  resourceId?: ID;
-  from?: string;
-  to?: string;
+  action?: string;
+  actorRole?: AuditActorRole;
+  targetType?: string;
   limit?: number;
-  page?: number;
+  skip?: number;
 }
 
 export const auditApi = {
   list: (filters?: AuditFilters) =>
-    apiGet<AuditLog[]>('/audit', { params: filters }),
+    apiGet<AuditLogListResponse>('/audit', { params: filters }),
 };

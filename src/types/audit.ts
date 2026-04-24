@@ -1,15 +1,26 @@
 import type { ID, ISODateString } from './common';
+import type { User } from './user';
+
+export type AuditOutcome = 'success' | 'failure';
+
+export type AuditActorRole = 'applicant' | 'university' | 'lgc' | 'system';
 
 export interface AuditLog {
   _id: ID;
-  actorId?: ID;
-  actorEmail?: string;
-  actorRole?: 'applicant' | 'university' | 'lgc' | 'system';
+  actor: ID | User;
+  actorRole: AuditActorRole;
   action: string;
-  resourceType?: string;
-  resourceId?: ID;
+  targetType?: string;
+  targetId?: ID;
+  outcome: AuditOutcome;
   metadata?: Record<string, unknown>;
-  ip?: string;
-  userAgent?: string;
+  ipAddress?: string;
   createdAt: ISODateString;
+  updatedAt?: ISODateString;
+}
+
+export interface AuditLogListResponse {
+  total: number;
+  count: number;
+  logs: AuditLog[];
 }

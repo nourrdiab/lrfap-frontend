@@ -19,7 +19,7 @@ export interface CreateUserPayload {
   role: Exclude<UserRole, 'applicant'>;
   firstName?: string;
   lastName?: string;
-  universityId?: string;
+  university?: string;
 }
 
 export interface ForgotPasswordPayload {

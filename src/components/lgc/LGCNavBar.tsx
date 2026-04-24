@@ -15,7 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
  * Applicant navbar visual system so all three authenticated portals
  * feel like the same app.
  *
- * Links (5): Dashboard · Cycles · Catalog · Matching · Users.
+ * Links (5): Dashboard · Cycles · Catalog · Matching · Audit.
  * The Figma for LGC shows the public navbar on authenticated pages
  * (designer oversight — same issue as the other two portals), so we
  * diverge and build a proper authenticated bar.
@@ -36,7 +36,7 @@ const NAV_LINKS: NavLinkDef[] = [
   { to: '/lgc/cycles', label: 'Cycles' },
   { to: '/lgc/catalog', label: 'Catalog' },
   { to: '/lgc/matching', label: 'Matching' },
-  { to: '/lgc/users', label: 'Users' },
+  { to: '/lgc/users', label: 'Audit' },
 ];
 
 const DESKTOP_LINK_CLS =
