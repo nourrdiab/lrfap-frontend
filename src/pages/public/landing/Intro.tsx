@@ -45,7 +45,7 @@ export function Intro() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
           className="absolute font-display text-[40.3px] leading-[43.7px] font-extrabold text-lrfap-navy"
-          style={{ top: '62.69px', left: '58px' }}
+          style={{ top: '62.69px', left: '28px' }}
         >
           <span className="block">BUILT FOR TRANSPARENCY</span>
           <span className="block pl-[238.28px]">FAIRNESS</span>
@@ -58,7 +58,7 @@ export function Intro() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut', delay: 0.15 }}
           className="absolute font-sans text-[18.11px] leading-[21.73px] font-normal text-lrfap-navy"
-          style={{ top: '62.69px', left: '683.27px', width: '594px' }}
+          style={{ top: '62.69px', left: '653.27px', width: '594px' }}
         >
           Submit one verified application, rank your preferred programs, and
           access a secure, transparent, and standardized matching process.
