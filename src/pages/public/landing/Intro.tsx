@@ -58,7 +58,7 @@ export function Intro() {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut', delay: 0.15 }}
           className="absolute font-sans text-[18.11px] leading-[21.73px] font-normal text-lrfap-navy"
-          style={{ top: '62.69px', left: '600px', width: '594px' }}
+          style={{ top: '62.69px', left: '683.27px', width: '594px' }}
         >
           Submit one verified application, rank your preferred programs, and
           access a secure, transparent, and standardized matching process.
