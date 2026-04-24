@@ -51,8 +51,15 @@ import type {
 type FetchStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 interface TrackReadiness {
-  totalPrograms: number;
-  submittedRankings: number;
+  /** Programs in this track that have at least one submitted application. */
+  programsWithApplicants: number;
+  /** Subset of above that also have a submitted ProgramRanking. */
+  programsWithApplicantsAndSubmittedRanking: number;
+  /**
+   * True when every program with applicants has a submitted ranking.
+   * Matches MatchingEngine's denominator — programs without applicants
+   * are excluded by the matcher regardless, so they don't need rankings.
+   */
   allSubmitted: boolean;
 }
 
@@ -219,16 +226,24 @@ export default function LGCDashboardPage() {
     });
   }, [universities, rankingSummary]);
 
-  /** Readiness per track — comes straight from the aggregation endpoint. */
+  /**
+   * Readiness per track — comes straight from the aggregation endpoint.
+   * Denominator is programs-with-applicants (not total programs), so
+   * a program without any submitted applications doesn't block the
+   * "ready" state. Matches the MatchingEngine page's checklist exactly.
+   */
   const trackReadiness = useMemo<{ residency: TrackReadiness; fellowship: TrackReadiness }>(() => {
     const build = (track: Track): TrackReadiness => {
       const stats = rankingSummary?.tracks[track];
-      const total = stats?.totalPrograms ?? 0;
-      const submitted = stats?.submittedRankings ?? 0;
+      const programsWithApplicants = stats?.programsWithApplicants ?? 0;
+      const programsWithApplicantsAndSubmittedRanking =
+        stats?.programsWithApplicantsAndSubmittedRanking ?? 0;
       return {
-        totalPrograms: total,
-        submittedRankings: submitted,
-        allSubmitted: total > 0 && submitted === total,
+        programsWithApplicants,
+        programsWithApplicantsAndSubmittedRanking,
+        allSubmitted:
+          programsWithApplicants > 0 &&
+          programsWithApplicantsAndSubmittedRanking === programsWithApplicants,
       };
     };
     return { residency: build('residency'), fellowship: build('fellowship') };
@@ -297,10 +312,20 @@ export default function LGCDashboardPage() {
     return dashboard.recentActivity.filter((a) => a.outcome === 'failure').length;
   }, [dashboard]);
 
-  const allProgramRankingsSubmitted = rankingSummary
-    ? rankingSummary.totals.programs > 0 &&
-      rankingSummary.totals.programs === rankingSummary.totals.submittedRankings
-    : false;
+  // Combined readiness for the MatchingCard checklist on the dashboard:
+  // both tracks are considered "ready" if every track that has any
+  // programs-with-applicants has all of them ranked. At least one track
+  // must have applicants overall — otherwise there's nothing to match.
+  const allProgramRankingsSubmitted = (() => {
+    const r = trackReadiness.residency;
+    const f = trackReadiness.fellowship;
+    const anyHasApplicants =
+      r.programsWithApplicants > 0 || f.programsWithApplicants > 0;
+    if (!anyHasApplicants) return false;
+    const rReady = r.programsWithApplicants === 0 || r.allSubmitted;
+    const fReady = f.programsWithApplicants === 0 || f.allSubmitted;
+    return rReady && fReady;
+  })();
 
   // ---- Action handlers -------------------------------------------------
 
