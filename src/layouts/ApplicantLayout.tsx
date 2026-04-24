@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { ApplicantNavBar } from '../components/applicant/ApplicantNavBar';
 import { PublicFooter } from '../components/public/PublicFooter';
 import { NotificationsProvider } from '../context/NotificationsContext';
+import { ChatbotWidget } from '../components/chatbot/ChatbotWidget';
 
 /**
  * Shell wrapping every /applicant/* route. ProtectedRoute gates access to
@@ -23,6 +24,7 @@ export function ApplicantLayout() {
           <Outlet />
         </main>
         <PublicFooter />
+        <ChatbotWidget />
       </div>
     </NotificationsProvider>
   );

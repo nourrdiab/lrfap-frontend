@@ -5,6 +5,7 @@ import { Intro } from './landing/Intro';
 import { Portals } from './landing/Portals';
 import { Steps } from './landing/Steps';
 import { Footer } from './landing/Footer';
+import { ChatbotWidget } from '../../components/chatbot/ChatbotWidget';
 
 export default function LandingPage() {
   useDocumentTitle('Home');
@@ -17,6 +18,7 @@ export default function LandingPage() {
         <Portals />
         <Steps />
         <Footer />
+        <ChatbotWidget />
       </div>
     </MotionConfig>
   );
