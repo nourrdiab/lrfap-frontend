@@ -22,10 +22,14 @@ interface FormFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'id
   error?: string;
   hint?: string;
   icon?: ReactNode;
+  hideRequiredMarker?: boolean;
 }
 
 export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
-  function FormField({ id, label, error, hint, required, icon, className, ...rest }, ref) {
+  function FormField(
+    { id, label, error, hint, required, icon, className, hideRequiredMarker, ...rest },
+    ref,
+  ) {
     const errorId = `${id}-error`;
     const hintId = `${id}-hint`;
     const describedBy =
@@ -43,7 +47,9 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
           className="font-sans text-[13px] font-medium uppercase tracking-wide text-lrfap-navy"
         >
           {label}
-          {required ? <span aria-hidden="true" className="ml-1 text-lrfap-sky">*</span> : null}
+          {required && !hideRequiredMarker ? (
+            <span aria-hidden="true" className="ml-1 text-lrfap-sky">*</span>
+          ) : null}
         </label>
         <div className="relative">
           <input

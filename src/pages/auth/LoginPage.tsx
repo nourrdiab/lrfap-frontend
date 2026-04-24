@@ -99,6 +99,7 @@ export default function LoginPage() {
             type="email"
             autoComplete="email"
             required
+            hideRequiredMarker
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -114,6 +115,7 @@ export default function LoginPage() {
             label="Password"
             autoComplete="current-password"
             required
+            hideRequiredMarker
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"

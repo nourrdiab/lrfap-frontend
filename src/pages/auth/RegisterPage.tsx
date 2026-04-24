@@ -112,7 +112,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create account"
-      subtitle="Applicants only. Fill in your details to get started."
+      subtitle="Fill in your details to get started."
       footer={
         <span>
           Already have an account?{' '}
@@ -147,6 +147,7 @@ export default function RegisterPage() {
             type="text"
             autoComplete="given-name"
             required
+            hideRequiredMarker
             autoFocus
             value={form.firstName}
             onChange={(e) => setField('firstName', e.target.value)}
@@ -164,6 +165,7 @@ export default function RegisterPage() {
             type="text"
             autoComplete="family-name"
             required
+            hideRequiredMarker
             value={form.lastName}
             onChange={(e) => setField('lastName', e.target.value)}
             placeholder="Enter your last name"
@@ -180,6 +182,7 @@ export default function RegisterPage() {
             type="email"
             autoComplete="email"
             required
+            hideRequiredMarker
             value={form.email}
             onChange={(e) => setField('email', e.target.value)}
             placeholder="Enter your email"
@@ -195,6 +198,7 @@ export default function RegisterPage() {
             label="Password"
             autoComplete="new-password"
             required
+            hideRequiredMarker
             value={form.password}
             onChange={(e) => setField('password', e.target.value)}
             placeholder="Create a password"
@@ -210,6 +214,7 @@ export default function RegisterPage() {
             label="Confirm Password"
             autoComplete="new-password"
             required
+            hideRequiredMarker
             value={form.confirmPassword}
             onChange={(e) => setField('confirmPassword', e.target.value)}
             placeholder="Re-enter your password"
@@ -223,14 +228,6 @@ export default function RegisterPage() {
             Create account
           </PrimaryButton>
         </motion.div>
-
-        <motion.p
-          variants={CHILD_VARIANTS}
-          className="mt-[4px] font-sans text-[12px] leading-relaxed text-slate-500"
-        >
-          Registration is for applicants only. University staff and LGC
-          committee members receive account credentials from the LGC.
-        </motion.p>
       </motion.form>
     </AuthCard>
   );

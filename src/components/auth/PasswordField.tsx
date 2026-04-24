@@ -20,10 +20,14 @@ interface PasswordFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
   error?: string;
   hint?: string;
   icon?: ReactNode;
+  hideRequiredMarker?: boolean;
 }
 
 export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
-  function PasswordField({ id, label, error, hint, required, icon, className, ...rest }, ref) {
+  function PasswordField(
+    { id, label, error, hint, required, icon, className, hideRequiredMarker, ...rest },
+    ref,
+  ) {
     const [visible, setVisible] = useState(false);
     const errorId = `${id}-error`;
     const hintId = `${id}-hint`;
@@ -42,7 +46,9 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
           className="font-sans text-[13px] font-medium uppercase tracking-wide text-lrfap-navy"
         >
           {label}
-          {required ? <span aria-hidden="true" className="ml-1 text-lrfap-sky">*</span> : null}
+          {required && !hideRequiredMarker ? (
+            <span aria-hidden="true" className="ml-1 text-lrfap-sky">*</span>
+          ) : null}
         </label>
         <div
           className={`relative flex h-[40.67px] w-full items-center border-2 bg-white transition-colors duration-150 ${borderClasses}`}
