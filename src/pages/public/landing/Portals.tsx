@@ -37,6 +37,7 @@ interface CardLayout {
 
 const APPLICANT: CardLayout = {
   photo: '/images/homepage-2.jpg',
+  photoObjectPosition: 'center 10%',
   title: 'APPLICANT PORTAL',
   subtitle: 'For residency & fellowship applications',
   body: 'Build your profile, upload required documents, browse programs, rank preferences, submit applications and view and confirm offers.',
