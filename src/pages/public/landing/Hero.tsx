@@ -49,7 +49,7 @@ const FEATURES: Feature[] = [
 export function Hero() {
   return (
     <section
-      aria-label="LRFAP — Lebanese Residency and Fellowship Application Platform"
+      aria-label="LRFAP — Lebanese Residency and Fellowship Application Program"
       className="relative isolate flex min-h-[735px] w-full flex-col overflow-hidden bg-[#1a1d2e]"
     >
       <img
@@ -85,7 +85,7 @@ export function Hero() {
           />
           <span className="relative">FELLOWSHIP APPLICATION</span>
         </span>
-        <span className="block">PLATFORM</span>
+        <span className="block">PROGRAM</span>
       </motion.h1>
 
       <motion.ul
