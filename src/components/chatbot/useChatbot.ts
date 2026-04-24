@@ -228,11 +228,12 @@ export function useChatbot({ welcomeText }: UseChatbotOptions) {
               : m,
           ),
         );
-        if (mapped.blockSeconds && mapped.blockSeconds > 0) {
+        const blockSeconds = mapped.blockSeconds;
+        if (blockSeconds && blockSeconds > 0) {
           setRate((r) => ({
             limit: mapped.rateLimit?.limit ?? r.limit,
             remaining: mapped.rateLimit?.remaining ?? 0,
-            blockedUntilMs: Date.now() + mapped.blockSeconds * 1000,
+            blockedUntilMs: Date.now() + blockSeconds * 1000,
           }));
         } else if (mapped.rateLimit) {
           setRate((r) => ({

@@ -12,7 +12,6 @@ import type {
   Application,
   ApplicationDocument,
   ApplicationStatus,
-  ID,
 } from '../../types';
 import { STEPS, type StepSlug } from '../../components/applicant/wizard/types';
 

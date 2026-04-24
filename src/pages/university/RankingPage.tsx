@@ -23,7 +23,6 @@ import { UnrankedList } from '../../components/university/ranking/UnrankedList';
 import { SubmitConfirmDialog } from '../../components/university/ranking/SubmitConfirmDialog';
 import type {
   Application,
-  ApplicationStatus,
   Cycle,
   ID,
   Program,
@@ -518,24 +517,12 @@ export default function UniversityRankingPage() {
     );
   }
 
-  if (
-    !allReady ||
-    programStatus === 'idle' ||
-    programStatus === 'loading' ||
-    appsStatus === 'idle' ||
-    appsStatus === 'loading' ||
-    rankingStatus === 'idle' ||
-    rankingStatus === 'loading'
-  ) {
-    return (
-      <PageShell>
-        <div className="h-[28px] w-[180px] animate-pulse bg-slate-100" />
-        <div className="h-[48px] w-[360px] max-w-full animate-pulse bg-slate-100" />
-        <div className="h-[320px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
-      </PageShell>
-    );
-  }
-
+  // Check load errors before the loading skeleton — otherwise the
+  // `!allReady` short-circuit narrows the status unions to 'loaded' for
+  // the type checker, making the subsequent `=== 'error'` branch a
+  // type-error AND (worse) making it unreachable dead code, so apps /
+  // ranking load failures would have silently shown the skeleton
+  // forever.
   if (appsStatus === 'error' || rankingStatus === 'error') {
     return (
       <PageShell>
@@ -549,6 +536,16 @@ export default function UniversityRankingPage() {
             Couldn&apos;t load the ranking. Refresh the page to try again.
           </span>
         </div>
+      </PageShell>
+    );
+  }
+
+  if (!allReady) {
+    return (
+      <PageShell>
+        <div className="h-[28px] w-[180px] animate-pulse bg-slate-100" />
+        <div className="h-[48px] w-[360px] max-w-full animate-pulse bg-slate-100" />
+        <div className="h-[320px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
       </PageShell>
     );
   }
