@@ -8,7 +8,7 @@ import { PublicFooter } from '../components/public/PublicFooter';
  * has enough structure (multi-field forms, choice of paths) to deserve the
  * grounding of a full-bleed photograph on the right.
  *
- *   Body (md and up, 56 / 44 split):
+ *   Body (md and up, 50 / 50 split):
  *     - Left: form column with subtle white → cool-gray gradient and
  *       60 px vertical padding. Card is centered both axes.
  *     - Right: full-bleed photograph, touches navbar at top and footer
@@ -23,11 +23,11 @@ import { PublicFooter } from '../components/public/PublicFooter';
  */
 export function AuthLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900">
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 md:min-h-[1300px]">
       <AuthNavbar />
 
       <main className="flex flex-1 flex-col md:flex-row">
-        <section className="flex flex-1 items-center justify-center bg-gradient-to-b from-white via-[#f7f9fc] to-[#ebeef5] px-6 py-[60px] md:w-[56%] md:flex-none lg:px-[48px]">
+        <section className="flex flex-1 items-center justify-center bg-gradient-to-b from-white via-[#f7f9fc] to-[#ebeef5] px-6 py-[60px] md:w-1/2 md:flex-none lg:px-[48px]">
           <Outlet />
         </section>
 
@@ -36,10 +36,10 @@ export function AuthLayout() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
-          className="relative hidden md:block md:w-[44%] md:flex-none"
+          className="relative hidden md:block md:w-1/2 md:flex-none"
         >
           <img
-            src="/images/auth-background.jpg"
+            src="/images/auth-background2.jpg"
             alt=""
             draggable={false}
             className="absolute inset-0 h-full w-full object-cover object-center"
