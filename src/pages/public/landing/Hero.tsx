@@ -58,7 +58,7 @@ export function Hero() {
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="absolute inset-y-0 left-1/2 -z-20 h-full w-[135%] -translate-x-1/2 object-cover object-[center_15%]"
+        className="absolute inset-y-0 left-1/2 -z-20 h-full w-[160%] -translate-x-1/2 object-cover object-[center_0%]"
       />
       <div
         aria-hidden="true"
