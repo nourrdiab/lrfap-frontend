@@ -23,7 +23,7 @@ import { PublicFooter } from '../components/public/PublicFooter';
  */
 export function AuthLayout() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900 md:min-h-[1300px]">
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 md:min-h-[1180px]">
       <AuthNavbar />
 
       <main className="flex flex-1 flex-col md:flex-row">
