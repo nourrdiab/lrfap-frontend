@@ -191,7 +191,7 @@ export function ChatbotWidget() {
             onClick={handleOpen}
             aria-label="Open LRFAP assistant"
             aria-expanded={open}
-            className="relative inline-flex h-[56px] w-[56px] items-center justify-center rounded-full bg-lrfap-navy text-white shadow-[0_10px_24px_-8px_rgba(38,43,102,0.45)] ring-2 ring-white/40 transition-transform hover:scale-[1.04] hover:bg-lrfap-navy/95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-sky"
+            className="relative inline-flex h-[56px] w-[56px] items-center justify-center rounded-full bg-lrfap-navy text-white shadow-[0_10px_24px_-8px_rgba(38,43,102,0.45),0_0_12px_2px_rgba(255,255,255,0.35)] transition-transform hover:scale-[1.04] hover:bg-lrfap-navy/95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-sky"
           >
             <MessageCircle
               aria-hidden="true"
