@@ -333,7 +333,7 @@ export default function ProgramCatalogPage() {
             hidden: {},
             visible: { transition: { staggerChildren: reduceMotion ? 0 : 0.1 } },
           }}
-          className="flex flex-col gap-[12px] md:flex-row md:items-end md:gap-8"
+          className="flex flex-col gap-[12px] md:flex-row md:items-start md:gap-8"
         >
           <motion.h1
             variants={headingVariants}
@@ -345,7 +345,7 @@ export default function ProgramCatalogPage() {
           <motion.p
             variants={headingVariants}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="max-w-[480px] font-sans text-[14px] text-lrfap-navy md:text-[15px]"
+            className="font-sans text-[14px] text-lrfap-navy md:flex-1 md:text-[15px]"
           >
             Browse residency and fellowship programs offered across
             participating Lebanese universities. Use the filters to narrow

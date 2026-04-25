@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { Search, X } from 'lucide-react';
 import type { Cycle, ID, Specialty, Track, University } from '../../../types';
 
@@ -91,7 +92,7 @@ export function CatalogFilterBar({
         <div className="flex flex-[2] flex-col gap-[4px] min-w-[280px]">
           <label
             htmlFor="catalog-filter-cycle"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70"
+            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Cycle
           </label>
@@ -114,33 +115,40 @@ export function CatalogFilterBar({
         <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
           <span
             id="catalog-filter-track-label"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70"
+            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Track
           </span>
           <div
             role="radiogroup"
             aria-labelledby="catalog-filter-track-label"
-            className="flex gap-[8px]"
+            className="flex h-[40px] items-stretch overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-lrfap-navy/40"
           >
-            {(['all', 'residency', 'fellowship'] as TrackFilter[]).map((t) => {
+            {(['all', 'residency', 'fellowship'] as TrackFilter[]).map((t, i) => {
               const selected = values.track === t;
               return (
-                <button
-                  key={t}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => patch('track', t)}
-                  disabled={isBusy}
-                  className={`inline-flex h-[40px] flex-1 items-center justify-center rounded-lg font-sans text-[12px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
-                    selected
-                      ? 'bg-lrfap-navy text-white'
-                      : 'bg-white text-lrfap-navy ring-1 ring-inset ring-lrfap-navy/40 hover:bg-lrfap-navy/5'
-                  }`}
-                >
-                  {t === 'all' ? 'All' : t}
-                </button>
+                <Fragment key={t}>
+                  {i > 0 ? (
+                    <span
+                      aria-hidden="true"
+                      className="my-[8px] w-px bg-lrfap-navy/15"
+                    />
+                  ) : null}
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => patch('track', t)}
+                    disabled={isBusy}
+                    className={`flex-1 font-sans text-[12px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
+                      selected
+                        ? 'bg-lrfap-navy text-white'
+                        : 'bg-transparent text-lrfap-navy hover:bg-lrfap-navy/5'
+                    }`}
+                  >
+                    {t === 'all' ? 'All' : t}
+                  </button>
+                </Fragment>
               );
             })}
           </div>
@@ -149,7 +157,7 @@ export function CatalogFilterBar({
         <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
           <label
             htmlFor="catalog-filter-university"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70"
+            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             University
           </label>
@@ -172,7 +180,7 @@ export function CatalogFilterBar({
         <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
           <label
             htmlFor="catalog-filter-specialty"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70"
+            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Specialty
           </label>
