@@ -12,7 +12,7 @@ export default function LandingPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="min-h-screen overflow-x-hidden bg-white font-sans text-slate-900 [scrollbar-gutter:stable]">
+      <div className="flex min-h-screen flex-col bg-white text-slate-900">
         <Hero />
         <Intro />
         <Portals />

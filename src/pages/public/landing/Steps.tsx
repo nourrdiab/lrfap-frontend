@@ -86,7 +86,7 @@ export function Steps() {
   return (
     <section
       aria-labelledby="steps-heading"
-      className="relative w-full bg-white py-[30px]"
+      className="relative w-full overflow-hidden bg-white py-[30px]"
     >
       <div className="mx-auto w-full max-w-[1366px] px-[58px]">
         <div className="flex items-start">
