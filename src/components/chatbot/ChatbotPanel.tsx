@@ -140,9 +140,9 @@ export function ChatbotPanel({
       role="dialog"
       aria-modal="false"
       aria-label="LRFAP assistant"
-      className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_20px_60px_-15px_rgba(38,43,102,0.35)] sm:rounded-xl"
+      className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_24px_72px_-12px_rgba(38,43,102,0.5)] sm:rounded-xl"
     >
-      <header className="flex items-center justify-between gap-[12px] bg-lrfap-navy px-[16px] py-[14px] text-white">
+      <header className="flex items-center justify-between gap-[12px] bg-lrfap-navy px-[16px] py-[14px] text-white sm:rounded-t-xl">
         <div className="flex items-center gap-[8px]">
           <img
             src="/logos/favicon-white.png"

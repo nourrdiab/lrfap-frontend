@@ -26,14 +26,14 @@ export function ChatbotMessage({ message, onRetry }: ChatbotMessageProps) {
   return (
     <div className={`flex w-full flex-col ${isUser ? 'items-end' : 'items-start'}`}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap break-words border-[0.91px] px-[12px] py-[8px] font-sans text-[13px] leading-[1.5] ${
+        className={`max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-[12px] py-[8px] font-sans text-[13px] leading-[1.5] ${
           isUser
             ? isError
-              ? 'border-red-300 bg-red-50 text-red-800'
-              : `border-lrfap-navy bg-lrfap-navy text-white ${
+              ? 'bg-red-50 text-red-800'
+              : `bg-lrfap-navy text-white ${
                   isSending ? 'opacity-70' : ''
                 }`
-            : 'border-lrfap-ghost bg-lrfap-ghost/70 text-lrfap-navy'
+            : 'bg-lrfap-ghost/70 text-lrfap-navy'
         }`}
       >
         {message.text}
