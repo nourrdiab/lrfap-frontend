@@ -140,16 +140,19 @@ export function ChatbotPanel({
       role="dialog"
       aria-modal="false"
       aria-label="LRFAP assistant"
-      className="flex h-full w-full flex-col bg-white shadow-[0_18px_48px_-12px_rgba(38,43,102,0.35)] sm:border-[0.91px] sm:border-lrfap-ghost"
+      className="flex h-full w-full flex-col overflow-hidden bg-white shadow-[0_20px_60px_-15px_rgba(38,43,102,0.35)] sm:rounded-xl"
     >
-      <header className="flex items-center justify-between gap-[12px] border-b border-lrfap-ghost bg-lrfap-navy px-[16px] py-[14px] text-white">
-        <div className="min-w-0">
-          <p className="font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-lrfap-sky">
-            LRFAP assistant
-          </p>
-          <p className="font-sans text-[13px] font-medium text-white/90">
-            Ask me anything
-          </p>
+      <header className="flex items-center justify-between gap-[12px] bg-lrfap-navy px-[16px] py-[14px] text-white">
+        <div className="flex items-center gap-[8px]">
+          <img
+            src="/logos/favicon-white.png"
+            alt=""
+            aria-hidden="true"
+            className="h-[24px] w-[24px]"
+          />
+          <span className="font-display text-[16px] font-bold uppercase tracking-wide text-white">
+            LRFAP
+          </span>
         </div>
         <button
           type="button"
@@ -213,7 +216,7 @@ export function ChatbotPanel({
             placeholder={
               isBlocked
                 ? 'Please wait…'
-                : 'Type a message… (Shift+Enter for newline)'
+                : 'Type a message…'
             }
             maxLength={MAX_MESSAGE_LENGTH}
             className="min-h-[38px] max-h-[120px] flex-1 resize-none border-[0.91px] border-lrfap-ghost bg-white px-[12px] py-[8px] font-sans text-[13px] leading-[1.5] text-slate-900 transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-lrfap-sky focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50"

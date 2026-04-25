@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { MessageCircle, X } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { ChatbotPanel } from './ChatbotPanel';
@@ -59,6 +59,7 @@ function markTeaseSeen(): void {
 
 export function ChatbotWidget() {
   const { user, isAuthenticated } = useAuth();
+  const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [teaseVisible, setTeaseVisible] = useState(false);
 
@@ -126,10 +127,17 @@ export function ChatbotWidget() {
         {open ? (
           <motion.div
             key="chatbot-panel"
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
+            animate={
+              reduceMotion
+                ? { opacity: 1, transition: { duration: 0.15, ease: 'easeOut' } }
+                : { opacity: 1, scale: 1, transition: { duration: 0.22, ease: 'easeOut' } }
+            }
+            exit={
+              reduceMotion
+                ? { opacity: 0, transition: { duration: 0.12, ease: 'easeIn' } }
+                : { opacity: 0, scale: 0.85, transition: { duration: 0.18, ease: 'easeIn' } }
+            }
             style={{ transformOrigin: 'bottom right' }}
             className="fixed left-0 right-0 top-0 bottom-0 z-40 sm:left-auto sm:top-auto sm:right-[24px] sm:bottom-[24px] sm:h-[min(620px,calc(100dvh-48px))] sm:w-[400px]"
           >
