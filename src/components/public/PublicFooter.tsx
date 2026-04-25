@@ -32,10 +32,10 @@ interface FooterLink {
 const COLUMN_1: FooterLink[] = [
   { label: 'ABOUT US', href: '/about' },
   { label: 'PRIVACY POLICY', href: '/privacy' },
+  { label: 'TERMS & CONDITIONS', href: '/terms' },
 ];
 
 const COLUMN_2: FooterLink[] = [
-  { label: 'TERMS & CONDITIONS', href: '/terms' },
   { label: 'SUPPORT', href: '/support' },
   { label: 'FAQs', href: '/faqs' },
 ];

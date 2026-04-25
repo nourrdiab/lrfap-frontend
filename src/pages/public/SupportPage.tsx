@@ -73,7 +73,7 @@ const SECTIONS: Section[] = [
             After submitting an application, allow up to a few minutes for
             it to appear in your dashboard. If the application is still
             missing after thirty minutes, contact support with your account
-            email and the program you applied to.
+            email.
           </p>
         </div>
       </div>
@@ -83,27 +83,10 @@ const SECTIONS: Section[] = [
     id: 'support-by-role',
     title: 'Support for Different Roles',
     body: (
-      <>
-        <p>
-          <strong className="font-semibold">Applicants.</strong> For help
-          with registration, applications, document uploads, or match
-          results, contact support@lrfap.lb.
-        </p>
-        <p>
-          <strong className="font-semibold">University reviewers.</strong>{' '}
-          For help with reviewer accounts, ranking submissions, or program
-          data, contact your institutional liaison or escalate to
-          support@lrfap.lb.
-        </p>
-        <p>
-          <strong className="font-semibold">
-            LRFAP Governance Committee staff.
-          </strong>{' '}
-          Internal support is provided through the LGC&rsquo;s operational
-          channels. External inquiries are not handled through this
-          address.
-        </p>
-      </>
+      <p>
+        For help with registration, applications, document uploads, or match
+        results, contact support@lrfap.lb.
+      </p>
     ),
   },
   {
