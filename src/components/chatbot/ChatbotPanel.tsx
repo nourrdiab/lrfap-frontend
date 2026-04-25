@@ -6,6 +6,7 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Send, X } from 'lucide-react';
 import { ChatbotMessage } from './ChatbotMessage';
 import { ChatbotTypingIndicator } from './ChatbotTypingIndicator';
@@ -51,6 +52,7 @@ export function ChatbotPanel({
   onRetry,
 }: ChatbotPanelProps) {
   const [draft, setDraft] = useState('');
+  const reduceMotion = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const pinnedToBottomRef = useRef(true);
@@ -173,16 +175,28 @@ export function ChatbotPanel({
         className="flex-1 overflow-y-auto bg-white px-[16px] py-[14px]"
       >
         <ul className="flex flex-col gap-[10px]" role="list">
-          {messages.map((m) => (
-            <li key={m.id}>
-              <ChatbotMessage message={m} onRetry={onRetry} />
-            </li>
-          ))}
-          {isThinking ? (
-            <li>
-              <ChatbotTypingIndicator />
-            </li>
-          ) : null}
+          <AnimatePresence initial={false}>
+            {messages.map((m) => (
+              <motion.li
+                key={m.id}
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <ChatbotMessage message={m} onRetry={onRetry} />
+              </motion.li>
+            ))}
+            {isThinking ? (
+              <motion.li
+                key="typing"
+                initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <ChatbotTypingIndicator />
+              </motion.li>
+            ) : null}
+          </AnimatePresence>
         </ul>
       </div>
 

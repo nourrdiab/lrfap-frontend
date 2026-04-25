@@ -154,7 +154,7 @@ export function useChatbot({ welcomeText, open }: UseChatbotOptions) {
       setMessages([welcomeMessage]);
       setIsThinking(false);
       seededFor.current = welcomeText;
-    }, 700);
+    }, 1000);
     return () => clearTimeout(t);
   }, [open, welcomeText, welcomeMessage, reduceMotion]);
 
