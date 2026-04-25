@@ -94,9 +94,9 @@ function HeroStrip() {
     <section
       id="intro"
       aria-labelledby="about-hero-heading"
-      className="relative isolate flex w-full min-h-[560px] flex-col justify-center bg-lrfap-navy text-white md:min-h-[720px]"
+      className="relative isolate w-full bg-lrfap-navy text-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[64px] md:px-[58px] md:py-[96px]">
+      <div className="mx-auto w-full max-w-[1366px] px-6 py-[80px] md:px-[58px] md:py-[120px]">
         <motion.h1
           id="about-hero-heading"
           initial={{ opacity: 0, y: 18 }}
@@ -118,10 +118,6 @@ function HeroStrip() {
           application produces one transparent, verifiable match.
         </motion.p>
       </div>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[100px] bg-gradient-to-b from-transparent to-white"
-      />
     </section>
   );
 }
@@ -131,15 +127,13 @@ function HeroStrip() {
 function AboutImageStrip() {
   return (
     <section aria-hidden="true" className="w-full bg-white">
-      <div className="mx-auto w-full max-w-[1366px] px-6 md:px-[58px]">
-        <img
-          src="/images/about-image.jpg"
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className="my-[64px] h-[200px] w-full rounded-xl object-cover shadow-[0_8px_32px_-12px_rgba(38,43,102,0.2)] md:h-[280px]"
-        />
-      </div>
+      <img
+        src="/images/about-image.jpg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        className="mt-[40px] h-[320px] w-full object-cover md:h-[480px]"
+      />
     </section>
   );
 }

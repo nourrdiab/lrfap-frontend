@@ -55,7 +55,7 @@ export function AboutStatsStrip() {
 
   return (
     <div className="border-y border-lrfap-ghost bg-white">
-      <div className="mx-auto flex w-full max-w-[1366px] flex-col divide-y divide-lrfap-ghost px-6 py-[22px] sm:flex-row sm:divide-x sm:divide-y-0 sm:px-[58px]">
+      <div className="mx-auto flex w-full max-w-[1366px] flex-col divide-y divide-lrfap-ghost px-6 py-[40px] sm:flex-row sm:divide-x sm:divide-y-0 sm:px-[58px]">
         <StatCell
           label="Participating universities"
           value={stats?.universities}
