@@ -77,6 +77,7 @@ export default function AboutPage() {
     <div className="flex flex-col">
       <HeroStrip />
       <AboutStatsStrip />
+      <AboutImageStrip />
       <MissionVision />
       <HowMatchingWorks />
       <WhoUses />
@@ -93,23 +94,15 @@ function HeroStrip() {
     <section
       id="intro"
       aria-labelledby="about-hero-heading"
-      className="relative isolate w-full bg-lrfap-navy text-white"
+      className="relative isolate flex w-full min-h-[560px] flex-col justify-center bg-lrfap-navy text-white md:min-h-[720px]"
     >
       <div className="mx-auto w-full max-w-[1366px] px-6 py-[64px] md:px-[58px] md:py-[96px]">
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="font-sans text-[12px] font-semibold uppercase tracking-[0.2em] text-lrfap-sky"
-        >
-          About the platform
-        </motion.p>
         <motion.h1
           id="about-hero-heading"
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: 'easeOut', delay: 0.1 }}
-          className="mt-[14px] max-w-[960px] font-display text-[32px] font-extrabold leading-[1.1] md:text-[48px]"
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="max-w-[960px] font-display text-[32px] font-extrabold leading-[1.1] md:text-[48px]"
         >
           One centralized system for residency and fellowship matching in
           Lebanon.
@@ -117,13 +110,35 @@ function HeroStrip() {
         <motion.p
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: 'easeOut', delay: 0.2 }}
+          transition={{ duration: 0.55, ease: 'easeOut', delay: 0.1 }}
           className="mt-[18px] max-w-[760px] font-sans text-[16px] leading-[1.55] text-white/85 md:text-[18px]"
         >
           LRFAP connects applicants, participating universities, and the
           national oversight committee on a single platform — so one
           application produces one transparent, verifiable match.
         </motion.p>
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[100px] bg-gradient-to-b from-transparent to-white"
+      />
+    </section>
+  );
+}
+
+// ---- Decorative image strip --------------------------------------------
+
+function AboutImageStrip() {
+  return (
+    <section aria-hidden="true" className="w-full bg-white">
+      <div className="mx-auto w-full max-w-[1366px] px-6 md:px-[58px]">
+        <img
+          src="/images/about-image.jpg"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="my-[64px] h-[200px] w-full rounded-xl object-cover shadow-[0_8px_32px_-12px_rgba(38,43,102,0.2)] md:h-[280px]"
+        />
       </div>
     </section>
   );

@@ -95,7 +95,7 @@ function StatCell({ label, value, loading }: StatCellProps) {
           {value ?? 0}
         </p>
       )}
-      <p className="mt-[6px] font-sans text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+      <p className="mt-[6px] font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy">
         {label}
       </p>
     </div>
