@@ -36,7 +36,7 @@ const COLUMN_1: FooterLink[] = [
 ];
 
 const COLUMN_2: FooterLink[] = [
-  { label: 'TERMS & CONDITIONS', href: '/about' },
+  { label: 'TERMS & CONDITIONS', href: '/terms' },
   { label: 'SUPPORT', href: '/about' },
   { label: 'FAQs', href: '/about' },
 ];

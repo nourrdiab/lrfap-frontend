@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Mail, User } from 'lucide-react';
+import { Check, Lock, Mail, User } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getApiErrorMessage } from '../../utils/apiError';
@@ -36,6 +36,7 @@ interface FormState {
   email: string;
   password: string;
   confirmPassword: string;
+  acceptedTerms: boolean;
 }
 
 type FieldErrors = Partial<Record<keyof FormState, string>>;
@@ -46,6 +47,7 @@ const INITIAL: FormState = {
   email: '',
   password: '',
   confirmPassword: '',
+  acceptedTerms: false,
 };
 
 function validate(form: FormState): FieldErrors {
@@ -61,6 +63,9 @@ function validate(form: FormState): FieldErrors {
   if (!form.confirmPassword) errors.confirmPassword = 'Required';
   else if (form.password && form.confirmPassword !== form.password)
     errors.confirmPassword = 'Passwords do not match';
+  if (!form.acceptedTerms)
+    errors.acceptedTerms =
+      'You must accept the Terms & Conditions to continue.';
   return errors;
 }
 
@@ -74,7 +79,7 @@ export default function RegisterPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function setField<K extends keyof FormState>(name: K, value: string) {
+  function setField<K extends keyof FormState>(name: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [name]: value }));
     // Clear a field's error as soon as the user edits it — submit-time
     // validation will re-run and re-surface any problem that remains.
@@ -224,7 +229,51 @@ export default function RegisterPage() {
         </motion.div>
 
         <motion.div variants={CHILD_VARIANTS}>
-          <PrimaryButton loading={submitting} loadingLabel="Creating account…">
+          <label className="flex cursor-pointer items-start gap-[10px]">
+            <input
+              type="checkbox"
+              checked={form.acceptedTerms}
+              onChange={(e) => setField('acceptedTerms', e.target.checked)}
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden="true"
+              className={`mt-[3px] inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy peer-focus-visible:ring-2 peer-focus-visible:ring-lrfap-sky/60 ${
+                form.acceptedTerms ? 'bg-lrfap-navy' : 'bg-white'
+              }`}
+            >
+              {form.acceptedTerms ? (
+                <Check
+                  aria-hidden="true"
+                  className="h-3 w-3 text-white"
+                  strokeWidth={3}
+                />
+              ) : null}
+            </span>
+            <span className="font-sans text-[13px] leading-[1.4] text-lrfap-navy">
+              I have read and agree to the{' '}
+              <Link
+                to="/terms"
+                onClick={(e) => e.stopPropagation()}
+                className="font-medium text-lrfap-sky underline-offset-4 hover:underline"
+              >
+                Terms &amp; Conditions
+              </Link>
+            </span>
+          </label>
+          {fieldErrors.acceptedTerms ? (
+            <p className="mt-[6px] font-sans text-[12px] text-red-600">
+              {fieldErrors.acceptedTerms}
+            </p>
+          ) : null}
+        </motion.div>
+
+        <motion.div variants={CHILD_VARIANTS}>
+          <PrimaryButton
+            loading={submitting}
+            loadingLabel="Creating account…"
+            disabled={!form.acceptedTerms}
+          >
             Create account
           </PrimaryButton>
         </motion.div>

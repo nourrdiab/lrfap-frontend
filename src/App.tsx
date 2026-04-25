@@ -13,6 +13,7 @@ import { LGCLayout } from './layouts/LGCLayout';
 import LandingPage from './pages/public/LandingPage';
 import ProgramCatalogPage from './pages/public/ProgramCatalogPage';
 import AboutPage from './pages/public/AboutPage';
+import TermsPage from './pages/public/TermsPage';
 
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -63,6 +64,7 @@ export default function App() {
           <Route element={<PublicLayout />}>
             <Route path="programs" element={<ProgramCatalogPage />} />
             <Route path="about" element={<AboutPage />} />
+            <Route path="terms" element={<TermsPage />} />
           </Route>
 
           {/* Auth — split layout (form + photo) for multi-field flows */}
