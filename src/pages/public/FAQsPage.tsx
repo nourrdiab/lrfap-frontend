@@ -32,7 +32,7 @@ function QAList({ items }: { items: QA[] }) {
 const GETTING_STARTED: QA[] = [
   {
     q: 'Who can register on LRFAP?',
-    a: 'LRFAP registration is open to medical graduates from accredited institutions and final-year medical students who are eligible to pursue residency or fellowship training in Lebanon. University staff and LGC accounts are issued separately by the LRFAP Governance Committee.',
+    a: 'LRFAP registration is open to medical graduates from accredited institutions and final-year medical students who are eligible to pursue residency or fellowship training in Lebanon.',
   },
   {
     q: 'How do I create an account?',
