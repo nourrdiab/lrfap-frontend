@@ -21,7 +21,7 @@ import { Menu, X } from 'lucide-react';
  *   - solid:       navy background for inner public routes (Programs, About)
  */
 
-type Variant = 'transparent' | 'solid';
+type Variant = 'transparent' | 'solid' | 'white';
 
 interface NavLinkDef {
   to: string;
@@ -44,6 +44,15 @@ const GET_STARTED_CLS =
 const SIGN_IN_CLS =
   'inline-flex h-[40.67px] shrink-0 items-center justify-center border-[0.91px] border-white px-[22px] font-sans text-[16.49px] font-normal text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
 
+const LINK_DARK =
+  'relative font-sans text-[16.49px] font-normal text-lrfap-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
+
+const GET_STARTED_DARK =
+  'inline-flex shrink-0 items-center justify-center bg-lrfap-navy font-sans text-[16.49px] font-normal text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
+
+const SIGN_IN_DARK =
+  'inline-flex h-[40.67px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy px-[22px] font-sans text-[16.49px] font-normal text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
+
 interface PublicNavBarProps {
   variant?: Variant;
 }
@@ -57,22 +66,38 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  const bgClass =
-    variant === 'transparent' ? 'bg-transparent' : 'bg-lrfap-navy';
+  const isWhite = variant === 'white';
+  const navBg =
+    variant === 'transparent'
+      ? 'bg-transparent'
+      : isWhite
+        ? 'bg-white border-b border-lrfap-navy/10'
+        : 'bg-lrfap-navy';
+  const linkCls = isWhite ? LINK_DARK : LINK_BASE;
+  const signInCls = isWhite ? SIGN_IN_DARK : SIGN_IN_CLS;
+  const getStartedCls = isWhite ? GET_STARTED_DARK : GET_STARTED_CLS;
+  const mobileBtnCls = isWhite
+    ? 'inline-flex h-[40px] w-[40px] items-center justify-center border-[0.91px] border-lrfap-navy text-lrfap-navy focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy'
+    : 'inline-flex h-[40px] w-[40px] items-center justify-center border-[0.91px] border-white text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
+  const underlineColor = isWhite ? 'bg-lrfap-navy' : 'bg-white';
+  const logoSrc = isWhite ? '/logos/logo-navy.png' : '/logos/logo-white.png';
+  const logoFocus = isWhite
+    ? 'focus-visible:outline-lrfap-navy'
+    : 'focus-visible:outline-white';
 
   return (
     <nav
       aria-label="Primary"
-      className={`relative z-30 w-full text-white ${bgClass}`}
+      className={`relative z-30 w-full ${navBg}`}
     >
       <div className="mx-auto flex w-full max-w-[1366px] items-center px-6 pt-[31px] pb-[22px] md:px-[58px]">
         <Link
           to="/"
-          className="block shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          className={`block shrink-0 focus-visible:outline-2 focus-visible:outline-offset-4 ${logoFocus}`}
           aria-label="LRFAP — home"
         >
           <img
-            src="/logos/logo-white.png"
+            src={logoSrc}
             alt="LRFAP — Lebanese Residency and Fellowship Application Program"
             className="h-[40px] w-auto md:h-[48.5px]"
             draggable={false}
@@ -90,7 +115,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `${LINK_BASE} ${isActive ? 'opacity-100' : 'opacity-90'}`
+                  `${linkCls} ${isActive ? 'opacity-100' : 'opacity-90'}`
                 }
               >
                 {({ isActive }) => (
@@ -100,7 +125,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
                       <motion.span
                         layoutId="public-navbar-underline"
                         aria-hidden="true"
-                        className="absolute inset-x-0 -bottom-[2px] h-[2px] bg-white"
+                        className={`absolute inset-x-0 -bottom-[2px] h-[2px] ${underlineColor}`}
                         transition={{
                           type: 'spring',
                           stiffness: 420,
@@ -117,12 +142,12 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
 
         {/* Desktop right-side buttons */}
         <div className="hidden items-center gap-[18px] md:flex md:pl-[48px]">
-          <Link to="/login" className={SIGN_IN_CLS}>
+          <Link to="/login" className={signInCls}>
             SIGN IN
           </Link>
           <Link
             to="/register"
-            className={GET_STARTED_CLS}
+            className={getStartedCls}
             style={{ width: '198.36px', height: '40.67px' }}
           >
             GET STARTED NOW
@@ -133,7 +158,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
         <div className="ml-auto flex items-center gap-[14px] md:hidden">
           <Link
             to="/register"
-            className={`${GET_STARTED_CLS} h-[36px] px-[14px] text-[13px]`}
+            className={`${getStartedCls} h-[36px] px-[14px] text-[13px]`}
           >
             GET STARTED
           </Link>
@@ -143,7 +168,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
             aria-label="Open menu"
             aria-expanded={mobileOpen}
             aria-controls="public-mobile-drawer"
-            className="inline-flex h-[40px] w-[40px] items-center justify-center border-[0.91px] border-white text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            className={mobileBtnCls}
           >
             <Menu aria-hidden="true" className="h-5 w-5" />
           </button>

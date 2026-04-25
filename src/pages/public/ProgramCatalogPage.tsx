@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
 import { AlertCircle, Inbox } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
@@ -107,6 +108,10 @@ const EMPTY_FILTERS: CatalogFilterValues = {
 export default function ProgramCatalogPage() {
   useDocumentTitle('Programs');
   const { isAuthenticated } = useAuth();
+  const reduceMotion = useReducedMotion();
+  const headingVariants = reduceMotion
+    ? { hidden: {}, visible: {} }
+    : { hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } };
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<CatalogFilterValues>(() =>
@@ -321,16 +326,32 @@ export default function ProgramCatalogPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-[40px] md:px-8 md:py-[56px]">
       <div className="flex flex-col gap-[28px]">
-        <header className="flex flex-col gap-[8px]">
-          <h1 className="font-display text-[32px] font-extrabold leading-[1.05] text-lrfap-navy md:text-[40px]">
-            Programs
-          </h1>
-          <p className="max-w-[720px] font-sans text-[14px] text-slate-600 md:text-[15px]">
+        <motion.header
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: reduceMotion ? 0 : 0.1 } },
+          }}
+          className="flex flex-col gap-[12px] md:flex-row md:items-end md:gap-8"
+        >
+          <motion.h1
+            variants={headingVariants}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="font-display text-[32px] font-extrabold leading-[1.05] text-lrfap-navy md:text-[40px]"
+          >
+            PROGRAMS
+          </motion.h1>
+          <motion.p
+            variants={headingVariants}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="max-w-[480px] font-sans text-[14px] text-lrfap-navy md:text-[15px]"
+          >
             Browse residency and fellowship programs offered across
             participating Lebanese universities. Use the filters to narrow
             by cycle, track, university, or specialty.
-          </p>
-        </header>
+          </motion.p>
+        </motion.header>
 
         <CatalogFilterBar
           values={filters}
@@ -345,7 +366,7 @@ export default function ProgramCatalogPage() {
 
         <div className="flex items-baseline justify-between">
           <p
-            className="font-sans text-[12px] text-slate-500"
+            className="font-sans text-[12px] text-lrfap-navy/70"
             aria-live="polite"
           >
             {isLoading ? (
@@ -358,7 +379,7 @@ export default function ProgramCatalogPage() {
                 </span>{' '}
                 {filtered.length === 1 ? 'program' : 'programs'}
                 {hasAnyActive && programs.length !== filtered.length ? (
-                  <span className="text-slate-400">
+                  <span className="text-lrfap-navy/40">
                     {' '}· {programs.length} total
                   </span>
                 ) : null}
@@ -428,7 +449,7 @@ export default function ProgramCatalogPage() {
 
 function SkeletonCard() {
   return (
-    <div className="flex flex-col gap-[12px] border-[0.91px] border-lrfap-ghost bg-white px-[20px] pt-[20px] pb-[20px]">
+    <div className="flex flex-col gap-[12px] rounded-xl bg-white px-[20px] pt-[20px] pb-[20px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]">
       <div className="h-[22px] w-3/4 animate-pulse bg-slate-100" />
       <div className="h-[14px] w-1/2 animate-pulse bg-slate-100" />
       <div className="flex gap-[6px]">
@@ -450,21 +471,21 @@ interface EmptyStateProps {
 
 function EmptyState({ hasAnyActive, onClear }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-[12px] border-[0.91px] border-dashed border-lrfap-ghost bg-white px-[16px] py-[56px] text-center">
-      <Inbox aria-hidden="true" className="h-8 w-8 text-slate-300" strokeWidth={1.5} />
-      <p className="font-sans text-[14px] text-slate-600">
+    <div className="flex flex-col items-center justify-center gap-[12px] rounded-xl bg-white px-[16px] py-[56px] text-center shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]">
+      <Inbox aria-hidden="true" className="h-8 w-8 text-lrfap-navy/30" strokeWidth={1.5} />
+      <p className="font-sans text-[14px] text-lrfap-navy">
         No programs match these filters.
       </p>
       {hasAnyActive ? (
         <button
           type="button"
           onClick={onClear}
-          className="inline-flex h-[36px] items-center justify-center border-[0.91px] border-lrfap-navy px-[16px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
+          className="inline-flex h-[36px] items-center justify-center rounded-lg px-[16px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy ring-1 ring-inset ring-lrfap-navy/40 transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
         >
           Clear filters
         </button>
       ) : (
-        <p className="font-sans text-[12px] text-slate-500">
+        <p className="font-sans text-[12px] text-lrfap-navy/70">
           No programs have been published yet.
         </p>
       )}

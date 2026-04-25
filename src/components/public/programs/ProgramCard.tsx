@@ -26,8 +26,8 @@ import type {
  */
 
 const TRACK_PILL: Record<Track, string> = {
-  residency: 'border-sky-200 bg-sky-50 text-sky-800',
-  fellowship: 'border-amber-200 bg-amber-50 text-amber-800',
+  residency: 'rounded-md bg-sky-50 text-sky-800',
+  fellowship: 'rounded-md bg-amber-50 text-amber-800',
 };
 
 const POST_MATCH_STATUSES: ReadonlyArray<CycleStatus> = [
@@ -83,10 +83,10 @@ export function ProgramCard({
 
   return (
     <article
-      className={`flex flex-col overflow-hidden border-[0.91px] bg-white transition-shadow duration-200 ${
+      className={`flex flex-col overflow-hidden rounded-xl bg-white transition-shadow duration-200 ${
         expanded
-          ? 'border-lrfap-navy/40 shadow-[0_8px_28px_rgba(38,43,102,0.12)]'
-          : 'border-lrfap-ghost shadow-[0_2px_8px_rgba(38,43,102,0.04)] hover:border-lrfap-navy/30 hover:shadow-[0_4px_16px_rgba(38,43,102,0.08)]'
+          ? 'shadow-[0_8px_32px_-12px_rgba(38,43,102,0.25)]'
+          : 'shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)] hover:shadow-[0_6px_28px_-12px_rgba(38,43,102,0.2)]'
       }`}
     >
       <button
@@ -101,10 +101,10 @@ export function ProgramCard({
             <h3 className="font-display text-[20px] font-bold leading-[1.2] text-lrfap-navy">
               {spec?.name ?? 'Unknown specialty'}
             </h3>
-            <p className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[2px] font-sans text-[13px] text-slate-700">
+            <p className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[2px] font-sans text-[13px] text-lrfap-navy">
               <span className="font-medium">{uni?.name ?? 'Unknown university'}</span>
               {uni?.city ? (
-                <span className="inline-flex items-center gap-[3px] text-slate-500">
+                <span className="inline-flex items-center gap-[3px] text-lrfap-navy/70">
                   <MapPin aria-hidden="true" className="h-3 w-3" />
                   {uni.city}
                 </span>
@@ -113,7 +113,7 @@ export function ProgramCard({
           </div>
           <ChevronDown
             aria-hidden="true"
-            className={`mt-[4px] h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 group-hover:text-lrfap-navy ${
+            className={`mt-[4px] h-4 w-4 shrink-0 text-lrfap-navy/40 transition-transform duration-200 group-hover:text-lrfap-navy ${
               expanded ? 'rotate-180' : ''
             }`}
           />
@@ -121,24 +121,24 @@ export function ProgramCard({
 
         <div className="flex flex-wrap items-center gap-[6px]">
           <span
-            className={`inline-flex items-center border-[0.91px] px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize ${trackPill}`}
+            className={`inline-flex items-center px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize ${trackPill}`}
           >
             {program.track}
           </span>
-          <span className="inline-flex items-center gap-[4px] border-[0.91px] border-slate-200 bg-slate-50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-slate-700">
+          <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-lrfap-navy">
             <GraduationCap aria-hidden="true" className="h-3 w-3" />
             {program.durationYears} {program.durationYears === 1 ? 'yr' : 'yrs'}
           </span>
           {hasLanguage ? (
-            <span className="inline-flex items-center gap-[4px] border-[0.91px] border-slate-200 bg-slate-50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize text-slate-700">
+            <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize text-lrfap-navy">
               <Languages aria-hidden="true" className="h-3 w-3" />
               {program.languageRequirement}
             </span>
           ) : null}
         </div>
 
-        <p className="inline-flex items-center gap-[6px] font-sans text-[12px] text-slate-600">
-          <Users aria-hidden="true" className="h-3.5 w-3.5 text-slate-400" />
+        <p className="inline-flex items-center gap-[6px] font-sans text-[12px] text-lrfap-navy">
+          <Users aria-hidden="true" className="h-3.5 w-3.5 text-lrfap-navy/40" />
           <span>
             <strong className="font-semibold text-lrfap-navy">{seatsLabel}</strong>
           </span>
@@ -147,7 +147,7 @@ export function ProgramCard({
         {program.description ? (
           <div className="relative">
             <p
-              className={`font-sans text-[13px] leading-[1.5] text-slate-600 ${
+              className={`font-sans text-[13px] leading-[1.5] text-lrfap-navy ${
                 expanded ? '' : 'line-clamp-2'
               }`}
             >
@@ -161,7 +161,7 @@ export function ProgramCard({
             ) : null}
           </div>
         ) : (
-          <p className="font-sans text-[13px] italic text-slate-400">
+          <p className="font-sans text-[13px] italic text-lrfap-navy/60">
             No description provided.
           </p>
         )}
@@ -178,13 +178,13 @@ export function ProgramCard({
             transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
             className="overflow-hidden"
           >
-            <div className="border-t border-lrfap-ghost px-[20px] py-[16px]">
+            <div className="border-t border-lrfap-navy/10 px-[20px] py-[16px]">
               {extras.length > 0 ? (
                 <>
-                  <h4 className="font-sans text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  <h4 className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70">
                     Additional requirements
                   </h4>
-                  <ul className="mt-[6px] flex flex-col gap-[4px] font-sans text-[13px] text-slate-700">
+                  <ul className="mt-[6px] flex flex-col gap-[4px] font-sans text-[13px] text-lrfap-navy">
                     {extras.map((req, i) => (
                       <li
                         key={`${req}-${i}`}
@@ -200,12 +200,12 @@ export function ProgramCard({
                   </ul>
                 </>
               ) : (
-                <p className="font-sans text-[13px] italic text-slate-400">
+                <p className="font-sans text-[13px] italic text-lrfap-navy/60">
                   No additional requirements listed.
                 </p>
               )}
               {!isAuthenticated ? (
-                <div className="mt-[14px] flex justify-end border-t border-lrfap-ghost/60 pt-[12px]">
+                <div className="mt-[14px] flex justify-end border-t border-lrfap-navy/10 pt-[12px]">
                   <Link
                     to="/login"
                     className="inline-flex items-center gap-[4px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy hover:text-lrfap-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
