@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
+import { ProgramsRoute } from './routes/ProgramsRoute';
 
 import { PublicLayout } from './layouts/PublicLayout';
 import { AuthLayout } from './layouts/AuthLayout';
@@ -65,12 +66,17 @@ export default function App() {
           {/* Other public pages keep the scaffold PublicLayout shell until
               they're rebuilt from Figma. */}
           <Route element={<PublicLayout />}>
-            <Route path="programs" element={<ProgramCatalogPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="terms" element={<TermsPage />} />
             <Route path="faqs" element={<FAQsPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="privacy" element={<PrivacyPolicyPage />} />
+          </Route>
+
+          {/* /programs is public-or-private — ProgramsRoute picks the
+              appropriate layout based on auth state and role. */}
+          <Route path="programs" element={<ProgramsRoute />}>
+            <Route index element={<ProgramCatalogPage />} />
           </Route>
 
           {/* Auth — split layout (form + photo) for multi-field flows */}
