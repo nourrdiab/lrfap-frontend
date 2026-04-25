@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AxiosError } from 'axios';
 import { useReducedMotion } from 'framer-motion';
 import { chatbotApi, type ChatbotRateLimit } from '../../api/chatbot';
@@ -21,6 +21,7 @@ const WELCOME_ID = 'welcome';
 
 export interface UseChatbotOptions {
   welcomeText: string;
+  open: boolean;
 }
 
 export interface RateLimitState {
@@ -108,7 +109,7 @@ function numericHeader(headers: unknown, key: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export function useChatbot({ welcomeText }: UseChatbotOptions) {
+export function useChatbot({ welcomeText, open }: UseChatbotOptions) {
   const welcomeMessage: ChatbotUIMessage = useMemo(
     () => ({
       id: WELCOME_ID,
@@ -122,33 +123,40 @@ export function useChatbot({ welcomeText }: UseChatbotOptions) {
 
   const reduceMotion = useReducedMotion();
 
-  const [messages, setMessages] = useState<ChatbotUIMessage[]>(
-    reduceMotion ? [welcomeMessage] : [],
-  );
-  const [isThinking, setIsThinking] = useState(!reduceMotion);
+  const [messages, setMessages] = useState<ChatbotUIMessage[]>([]);
+  const [isThinking, setIsThinking] = useState(false);
   const [rate, setRate] = useState<{
     limit: number | null;
     remaining: number | null;
     blockedUntilMs: number | null;
   }>({ limit: null, remaining: null, blockedUntilMs: null });
 
-  // Show a brief "typing" indicator before the canned greeting renders.
-  // Fires on mount and on welcome-text change (e.g. user logs in
-  // mid-session) — preserving the prior reset behavior.
+  // Seed the welcome message when the panel first opens (and re-seed if
+  // welcome text changes mid-session, e.g. user logs in). The brief
+  // "typing" indicator before the greeting fires on the first open per
+  // welcome — closing and reopening preserves the conversation and
+  // does not re-type.
+  const seededFor = useRef<string | null>(null);
   useEffect(() => {
+    if (!open) return;
+    if (seededFor.current === welcomeText) return;
+
     if (reduceMotion) {
       setMessages([welcomeMessage]);
       setIsThinking(false);
+      seededFor.current = welcomeText;
       return;
     }
+
     setMessages([]);
     setIsThinking(true);
     const t = setTimeout(() => {
       setMessages([welcomeMessage]);
       setIsThinking(false);
+      seededFor.current = welcomeText;
     }, 700);
     return () => clearTimeout(t);
-  }, [welcomeText, welcomeMessage, reduceMotion]);
+  }, [open, welcomeText, welcomeMessage, reduceMotion]);
 
   // Tick for the countdown while blocked.
   const [now, setNow] = useState(() => Date.now());

@@ -68,7 +68,7 @@ export function ChatbotWidget() {
     [user, isAuthenticated],
   );
 
-  const chat = useChatbot({ welcomeText });
+  const chat = useChatbot({ welcomeText, open });
 
   // Lock body scroll while the panel is open on mobile viewports.
   // Desktop (≥640px) floats alongside page content and doesn't need
