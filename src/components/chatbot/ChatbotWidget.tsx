@@ -163,13 +163,9 @@ export function ChatbotWidget() {
                 <button
                   type="button"
                   onClick={handleOpen}
-                  className="relative block border-[0.91px] border-lrfap-navy bg-white px-[14px] py-[8px] pr-[36px] font-sans text-[13px] font-medium text-lrfap-navy shadow-[0_6px_18px_-6px_rgba(38,43,102,0.25)] transition-colors hover:bg-lrfap-ghost/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
+                  className="relative block rounded-lg bg-white px-[14px] py-[8px] pr-[36px] font-sans text-[13px] font-medium text-lrfap-navy shadow-[0_12px_32px_-8px_rgba(38,43,102,0.25)] transition-colors hover:bg-lrfap-ghost/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
                 >
                   Ask me anything
-                  <span
-                    aria-hidden="true"
-                    className="absolute -right-[5px] top-1/2 h-[10px] w-[10px] -translate-y-1/2 rotate-45 border-b-[0.91px] border-r-[0.91px] border-lrfap-navy bg-white"
-                  />
                 </button>
                 <button
                   type="button"
