@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, MotionConfig } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { AboutStatsStrip } from '../../components/public/about/AboutStatsStrip';
@@ -39,7 +39,7 @@ const MATCHING_STEPS: Array<{
   {
     number: '03',
     title: 'The LGC runs the matching algorithm',
-    body: 'A Gale-Shapley based algorithm produces a stable match that is optimal for applicants, given both sides’ rankings.',
+    body: 'A stable matching algorithm produces a stable match that is optimal for applicants, given both sides’ rankings.',
   },
   {
     number: '04',
@@ -74,16 +74,18 @@ export default function AboutPage() {
   useDocumentTitle('About');
 
   return (
-    <div className="flex flex-col">
-      <HeroStrip />
-      <AboutStatsStrip />
-      <AboutImageStrip />
-      <MissionVision />
-      <HowMatchingWorks />
-      <WhoUses />
-      <Governance />
-      <Contact />
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="flex flex-col">
+        <HeroStrip />
+        <AboutStatsStrip />
+        <AboutImageStrip />
+        <MissionVision />
+        <HowMatchingWorks />
+        <WhoUses />
+        <Governance />
+        <Contact />
+      </div>
+    </MotionConfig>
   );
 }
 
@@ -96,7 +98,7 @@ function HeroStrip() {
       aria-labelledby="about-hero-heading"
       className="relative isolate w-full bg-lrfap-navy text-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[80px] md:px-[58px] md:py-[120px]">
+      <div className="mx-auto w-full max-w-[1366px] px-6 py-[100px] md:px-[58px] md:py-[160px]">
         <motion.h1
           id="about-hero-heading"
           initial={{ opacity: 0, y: 18 }}
@@ -127,13 +129,21 @@ function HeroStrip() {
 function AboutImageStrip() {
   return (
     <section aria-hidden="true" className="w-full bg-white">
-      <img
-        src="/images/about-image.jpg"
-        alt=""
-        aria-hidden="true"
-        draggable={false}
-        className="mt-[40px] h-[320px] w-full object-cover md:h-[480px]"
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 md:px-[58px]"
+      >
+        <img
+          src="/images/about-image.jpg"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className="h-[320px] w-full object-cover md:h-[480px]"
+        />
+      </motion.div>
     </section>
   );
 }
@@ -147,7 +157,13 @@ function MissionVision() {
       aria-labelledby="mission-heading"
       className="w-full bg-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+      >
         <h2
           id="mission-heading"
           className="font-display text-[24px] font-extrabold uppercase tracking-wide text-lrfap-navy md:text-[32px]"
@@ -163,7 +179,7 @@ function MissionVision() {
               Centralize, standardize, and modernize residency and
               fellowship matching in Lebanon.
             </p>
-            <p className="font-sans text-[14px] leading-[1.6] text-slate-600 md:text-[15px]">
+            <p className="font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
               Applicants and universities have historically worked across
               fragmented applications and manual coordination, with ranking
               errors hard to detect until it was too late. LRFAP replaces
@@ -179,7 +195,7 @@ function MissionVision() {
               A single source of truth, where every match is fair,
               automated, and explainable.
             </p>
-            <p className="font-sans text-[14px] leading-[1.6] text-slate-600 md:text-[15px]">
+            <p className="font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
               Applicants, universities, and the LGC should all be looking
               at the same data, the same rankings, and the same results —
               at the same time. LRFAP is the shared surface that makes
@@ -188,7 +204,7 @@ function MissionVision() {
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -200,17 +216,23 @@ function HowMatchingWorks() {
     <section
       id="matching"
       aria-labelledby="matching-heading"
-      className="w-full border-y border-lrfap-ghost bg-lrfap-ghost/30"
+      className="w-full bg-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+      >
         <h2
           id="matching-heading"
           className="font-display text-[24px] font-extrabold uppercase tracking-wide text-lrfap-navy md:text-[32px]"
         >
           How matching works
         </h2>
-        <p className="mt-[12px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-slate-600 md:text-[15px]">
-          The platform runs a Gale-Shapley based algorithm that produces
+        <p className="mt-[12px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
+          The platform runs a stable matching algorithm that produces
           a stable match — no applicant and program pair can both prefer
           each other over the partners they were matched with. The
           algorithm is configured to be applicant-optimal.
@@ -219,7 +241,7 @@ function HowMatchingWorks() {
           {MATCHING_STEPS.map((step) => (
             <li
               key={step.number}
-              className="flex flex-col gap-[10px] border-[0.91px] border-lrfap-ghost bg-white p-[22px]"
+              className="flex flex-col gap-[10px] rounded-xl bg-white p-[22px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]"
             >
               <span
                 aria-hidden="true"
@@ -230,13 +252,13 @@ function HowMatchingWorks() {
               <h3 className="font-display text-[15px] font-bold uppercase tracking-wide text-lrfap-navy">
                 {step.title}
               </h3>
-              <p className="font-sans text-[13px] leading-[1.55] text-slate-600">
+              <p className="font-sans text-[13px] leading-[1.55] text-lrfap-navy">
                 {step.body}
               </p>
             </li>
           ))}
         </ol>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -250,7 +272,13 @@ function WhoUses() {
       aria-labelledby="roles-heading"
       className="w-full bg-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+      >
         <h2
           id="roles-heading"
           className="font-display text-[24px] font-extrabold uppercase tracking-wide text-lrfap-navy md:text-[32px]"
@@ -262,18 +290,18 @@ function WhoUses() {
             <article
               key={role.id}
               id={role.id}
-              className="flex flex-col gap-[10px] border-[0.91px] border-lrfap-ghost bg-white p-[24px]"
+              className="flex flex-col gap-[10px] rounded-xl bg-white p-[24px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]"
             >
               <h3 className="font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy">
                 {role.title}
               </h3>
-              <p className="font-sans text-[13px] leading-[1.6] text-slate-600">
+              <p className="font-sans text-[13px] leading-[1.6] text-lrfap-navy">
                 {role.body}
               </p>
             </article>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -285,29 +313,30 @@ function Governance() {
     <section
       id="governance"
       aria-labelledby="governance-heading"
-      className="w-full border-y border-lrfap-ghost bg-lrfap-ghost/30"
+      className="w-full bg-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+      >
         <h2
           id="governance-heading"
           className="font-display text-[24px] font-extrabold uppercase tracking-wide text-lrfap-navy md:text-[32px]"
         >
           Governance
         </h2>
-        <div className="mt-[24px] flex max-w-[860px] flex-col gap-[18px] font-sans text-[14px] leading-[1.7] text-slate-700 md:text-[15px]">
+        <div className="mt-[24px] flex max-w-[860px] flex-col gap-[18px] font-sans text-[14px] leading-[1.7] text-lrfap-navy md:text-[15px]">
           <p>
             The LRFAP platform is operated by the national Licensing
             &amp; Governance Committee (LGC), which oversees match runs,
             validates applicant data, and publishes residency and
             fellowship placements across Lebanese universities.
           </p>
-          <p>
-            The platform was developed at the Lebanese American
-            University as part of a CSC 599 capstone project under the
-            supervision of Dr. Ibrahim El Bitar.
-          </p>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
@@ -321,14 +350,20 @@ function Contact() {
       aria-labelledby="contact-heading"
       className="w-full bg-white"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+      >
         <h2
           id="contact-heading"
           className="font-display text-[24px] font-extrabold uppercase tracking-wide text-lrfap-navy md:text-[32px]"
         >
           Contact
         </h2>
-        <p className="mt-[16px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-slate-600 md:text-[15px]">
+        <p className="mt-[16px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
           For questions about the platform, participating institutions,
           or the matching process, reach out below. Applicants with
           questions about their own submission should sign in and use
@@ -341,7 +376,7 @@ function Contact() {
           <Mail aria-hidden="true" className="h-4 w-4" />
           {CONTACT_EMAIL}
         </a>
-      </div>
+      </motion.div>
     </section>
   );
 }

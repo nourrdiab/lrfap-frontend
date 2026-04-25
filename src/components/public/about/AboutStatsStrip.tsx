@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { programsApi } from '../../../api/programs';
 import { universitiesApi } from '../../../api/universities';
 import { specialtiesApi } from '../../../api/specialties';
@@ -54,8 +55,14 @@ export function AboutStatsStrip() {
   if (status === 'error') return null;
 
   return (
-    <div className="border-y border-lrfap-ghost bg-white">
-      <div className="mx-auto flex w-full max-w-[1366px] flex-col divide-y divide-lrfap-ghost px-6 py-[40px] sm:flex-row sm:divide-x sm:divide-y-0 sm:px-[58px]">
+    <div className="bg-white">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="mx-auto flex w-full max-w-[1366px] flex-col px-6 py-[64px] sm:flex-row sm:px-[58px]"
+      >
         <StatCell
           label="Participating universities"
           value={stats?.universities}
@@ -71,7 +78,7 @@ export function AboutStatsStrip() {
           value={stats?.programs}
           loading={status === 'loading'}
         />
-      </div>
+      </motion.div>
     </div>
   );
 }
