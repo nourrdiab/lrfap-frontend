@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
@@ -376,6 +376,38 @@ export default function TermsPage() {
     ? { hidden: {}, visible: {} }
     : { hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0 } };
 
+  const [activeId, setActiveId] = useState<string>(SECTIONS[0].id);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length === 0) return;
+        visible.sort(
+          (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
+        );
+        setActiveId(visible[0].target.id);
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+    SECTIONS.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  function handleTocClick(e: MouseEvent<HTMLAnchorElement>, id: string) {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (!target) return;
+    target.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    });
+    history.replaceState(null, '', `#${id}`);
+  }
+
   return (
     <article className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]">
       <motion.header
@@ -403,27 +435,54 @@ export default function TermsPage() {
         </motion.p>
       </motion.header>
 
-      <div className="mt-[48px] flex max-w-[800px] flex-col gap-[48px]">
-        {SECTIONS.map((section, i) => (
-          <section key={section.id} aria-labelledby={section.id}>
-            <h2
-              id={section.id}
-              className="font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy md:text-[20px]"
-            >
-              {i + 1}. {section.title}
-            </h2>
-            <div className="mt-[12px] flex flex-col gap-[12px] font-sans text-[14px] leading-[1.65] text-lrfap-navy md:text-[15px]">
-              {section.body}
-            </div>
-          </section>
-        ))}
-      </div>
+      <div className="mt-[48px] flex flex-col gap-[48px] md:flex-row md:items-start md:justify-between md:gap-[48px]">
+        <div className="flex w-full max-w-[800px] flex-col gap-[48px]">
+          {SECTIONS.map((section, i) => (
+            <section key={section.id} aria-labelledby={section.id}>
+              <h2
+                id={section.id}
+                className="scroll-mt-[40px] font-display text-[18px] font-bold uppercase tracking-wide text-lrfap-navy md:text-[20px]"
+              >
+                {i + 1}. {section.title}
+              </h2>
+              <div className="mt-[12px] flex flex-col gap-[12px] font-sans text-[14px] leading-[1.65] text-lrfap-navy md:text-[15px]">
+                {section.body}
+              </div>
+            </section>
+          ))}
+        </div>
 
-      <p className="mt-[64px] max-w-[800px] font-sans text-[12px] italic leading-[1.5] text-lrfap-navy/60">
-        This document is provided as part of a capstone academic project (CSC
-        599, Lebanese American University) and is not a substitute for legal
-        advice.
-      </p>
+        <aside className="hidden w-[260px] shrink-0 md:block">
+          <nav
+            aria-label="On this page"
+            className="sticky top-[24px] rounded-xl bg-white p-[20px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]"
+          >
+            <p className="font-display text-[12px] font-semibold uppercase tracking-wide text-lrfap-navy">
+              On this page
+            </p>
+            <ul className="mt-[12px] flex flex-col">
+              {SECTIONS.map((section, i) => {
+                const isActive = activeId === section.id;
+                return (
+                  <li key={section.id}>
+                    <a
+                      href={`#${section.id}`}
+                      onClick={(e) => handleTocClick(e, section.id)}
+                      className={`block border-l-2 py-[6px] pl-[10px] font-sans text-[13px] transition-colors ${
+                        isActive
+                          ? 'border-lrfap-navy font-semibold text-lrfap-navy'
+                          : 'border-transparent text-lrfap-navy/70 hover:text-lrfap-navy'
+                      }`}
+                    >
+                      {i + 1}. {section.title}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </aside>
+      </div>
     </article>
   );
 }

@@ -238,7 +238,7 @@ export default function RegisterPage() {
             />
             <span
               aria-hidden="true"
-              className={`mt-[3px] inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy peer-focus-visible:ring-2 peer-focus-visible:ring-lrfap-sky/60 ${
+              className={`mt-[1px] inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy peer-focus-visible:ring-2 peer-focus-visible:ring-lrfap-sky/60 ${
                 form.acceptedTerms ? 'bg-lrfap-navy' : 'bg-white'
               }`}
             >
@@ -255,7 +255,7 @@ export default function RegisterPage() {
               <Link
                 to="/terms"
                 onClick={(e) => e.stopPropagation()}
-                className="font-medium text-lrfap-sky underline-offset-4 hover:underline"
+                className="font-medium whitespace-nowrap text-lrfap-sky underline-offset-4 hover:underline"
               >
                 Terms &amp; Conditions
               </Link>
