@@ -378,11 +378,9 @@ export default function ProgramCatalogPage() {
                   {filtered.length}
                 </span>{' '}
                 {filtered.length === 1 ? 'program' : 'programs'}
-                {hasAnyActive && programs.length !== filtered.length ? (
-                  <span className="text-lrfap-navy/40">
-                    {' '}· {programs.length} total
-                  </span>
-                ) : null}
+                <span className="text-lrfap-navy/40">
+                  {' '}· {programs.length} total
+                </span>
               </>
             ) : null}
           </p>
@@ -472,7 +470,7 @@ interface EmptyStateProps {
 function EmptyState({ hasAnyActive, onClear }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-[12px] rounded-xl bg-white px-[16px] py-[56px] text-center shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]">
-      <Inbox aria-hidden="true" className="h-8 w-8 text-lrfap-navy/30" strokeWidth={1.5} />
+      <Inbox aria-hidden="true" className="h-8 w-8 text-lrfap-navy" strokeWidth={1.5} />
       <p className="font-sans text-[14px] text-lrfap-navy">
         No programs match these filters.
       </p>
@@ -480,7 +478,7 @@ function EmptyState({ hasAnyActive, onClear }: EmptyStateProps) {
         <button
           type="button"
           onClick={onClear}
-          className="inline-flex h-[36px] items-center justify-center rounded-lg px-[16px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy ring-1 ring-inset ring-lrfap-navy/40 transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
+          className="inline-flex h-[36px] items-center justify-center rounded-lg px-[16px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy ring-1 ring-inset ring-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
         >
           Clear filters
         </button>
