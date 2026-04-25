@@ -36,7 +36,7 @@ export function AuthLayout() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
-          className="relative hidden md:block md:w-1/2 md:flex-none"
+          className="relative hidden md:block md:w-1/2 md:flex-none md:shadow-[-12px_0_24px_-8px_rgba(38,43,102,0.12)]"
         >
           <img
             src="/images/auth-background2.jpg"
