@@ -366,7 +366,7 @@ export default function ProgramCatalogPage() {
 
         <div className="flex items-baseline justify-between">
           <p
-            className="font-sans text-[12px] text-lrfap-navy/70"
+            className="font-sans text-[12px] text-lrfap-navy"
             aria-live="polite"
           >
             {isLoading ? (

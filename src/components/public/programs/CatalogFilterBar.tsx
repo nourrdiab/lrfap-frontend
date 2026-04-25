@@ -64,7 +64,7 @@ export function CatalogFilterBar({
           <span className="sr-only">Search programs</span>
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy/40"
+            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy/60"
           />
           <input
             id="catalog-search"
@@ -73,7 +73,7 @@ export function CatalogFilterBar({
             onChange={(e) => patch('search', e.target.value)}
             placeholder="Search specialty, university, description…"
             disabled={isBusy}
-            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy/40 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy/60 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
         {hasAnyActive ? (
@@ -122,7 +122,7 @@ export function CatalogFilterBar({
           <div
             role="radiogroup"
             aria-labelledby="catalog-filter-track-label"
-            className="flex h-[40px] items-stretch overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-lrfap-navy/40"
+            className="flex h-[40px] items-stretch overflow-hidden rounded-xl bg-white ring-1 ring-inset ring-lrfap-navy"
           >
             {(['all', 'residency', 'fellowship'] as TrackFilter[]).map((t, i) => {
               const selected = values.track === t;
@@ -140,7 +140,7 @@ export function CatalogFilterBar({
                     aria-checked={selected}
                     onClick={() => patch('track', t)}
                     disabled={isBusy}
-                    className={`flex-1 font-sans text-[12px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`flex-1 px-[14px] font-sans text-[12px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
                       selected
                         ? 'bg-lrfap-navy text-white'
                         : 'bg-transparent text-lrfap-navy hover:bg-lrfap-navy/5'
