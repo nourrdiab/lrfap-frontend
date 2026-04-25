@@ -44,7 +44,7 @@ const MATCHING_STEPS: Array<{
   {
     number: '04',
     title: 'Results publish to everyone at once',
-    body: 'Applicants and programs see results simultaneously. Accepted offers move into a fixed acceptance window; unfilled seats enter a transparent post-match phase.',
+    body: 'Applicants and programs see results simultaneously. Accepted offers move into a fixed acceptance window, and any unfilled seats are made available in a transparent post-match round.',
   },
 ];
 
@@ -66,7 +66,7 @@ const ROLES: Array<{
   {
     id: 'lgc',
     title: 'LRFAP Governance Committee',
-    body: 'The national body that operates the platform end-to-end. The LGC manages cycles, validates readiness, runs the matching algorithm, publishes results, and reviews a complete audit trail of every action on the platform.',
+    body: 'The national body that operates the platform. The LGC manages cycles, runs the matching algorithm, publishes results, and reviews a complete audit trail of every action on the platform.',
   },
 ];
 
@@ -181,10 +181,11 @@ function MissionVision() {
             </p>
             <p className="font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
               Applicants and universities have historically worked across
-              fragmented applications and manual coordination, with ranking
-              errors hard to detect until it was too late. LRFAP replaces
-              that with one verified application per applicant, one
-              canonical program catalog, and one audited matching run.
+              fragmented applications and manual coordination, where
+              ranking errors often went undetected until after results
+              were published. LRFAP replaces that with one verified
+              application per applicant, one official program catalog,
+              and one audited matching run.
             </p>
           </div>
           <div className="flex flex-col gap-[12px]">
@@ -196,11 +197,9 @@ function MissionVision() {
               automated, and explainable.
             </p>
             <p className="font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
-              Applicants, universities, and the LGC should all be looking
-              at the same data, the same rankings, and the same results,
-              at the same time. LRFAP is the shared surface that makes
-              that possible, and the audit log is what makes it
-              accountable.
+              Applicants, universities, and the LGC should all see the
+              same data, the same rankings, and the same results, at the
+              same time. LRFAP is the platform that makes this possible.
             </p>
           </div>
         </div>
@@ -232,10 +231,10 @@ function HowMatchingWorks() {
           How matching works
         </h2>
         <p className="mt-[12px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
-          The platform runs a stable matching algorithm that produces
-          a stable match. No applicant and program pair can both prefer
-          each other over the partners they were matched with. The
-          algorithm is configured to be applicant-optimal.
+          The platform runs a stable matching algorithm. The result is
+          stable: no applicant and program pair can both prefer each
+          other over the partners they were matched with. The algorithm
+          is configured to be applicant-optimal.
         </p>
         <ol className="mt-[32px] grid grid-cols-1 gap-[18px] sm:grid-cols-2 lg:grid-cols-4">
           {MATCHING_STEPS.map((step) => (

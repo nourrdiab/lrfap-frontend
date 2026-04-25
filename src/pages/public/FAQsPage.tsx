@@ -29,6 +29,7 @@ function QAList({ items }: { items: QA[] }) {
   );
 }
 
+// TODO: re-add a "Fees" question once fee policy is finalized — needs platform fee, program fee, refund policy
 const GETTING_STARTED: QA[] = [
   {
     q: 'Who can register on LRFAP?',
@@ -37,10 +38,6 @@ const GETTING_STARTED: QA[] = [
   {
     q: 'How do I create an account?',
     a: 'Click "Get Started Now" on the homepage, fill in your details, accept the Terms and Conditions, and submit. You will receive a confirmation email and can sign in immediately.',
-  },
-  {
-    q: 'Is there a fee to apply?',
-    a: 'There are no platform fees for applicants in this cycle. Individual programs may charge their own application or interview fees, communicated directly by the program.',
   },
   {
     q: 'What if I forget my password?',
@@ -103,11 +100,35 @@ const ACCOUNTS_AND_PRIVACY: QA[] = [
   },
   {
     q: 'How do I close my account?',
-    a: 'Contact support@lrfap.lb with a request to close your account. Note that closing an account during an active cycle does not nullify match outcomes already produced.',
+    a: (
+      <>
+        Contact{' '}
+        <a
+          href="mailto:support@lrfap.lb"
+          className="font-medium text-lrfap-sky underline-offset-4 hover:underline"
+        >
+          support@lrfap.lb
+        </a>{' '}
+        with a request to close your account. Note that closing an account
+        during an active cycle does not nullify match outcomes already
+        produced.
+      </>
+    ),
   },
   {
     q: 'Who do I contact if I need help?',
-    a: 'For technical issues, account questions, or urgent inquiries, email support@lrfap.lb. We typically respond within two business days.',
+    a: (
+      <>
+        For technical issues, account questions, or urgent inquiries, email{' '}
+        <a
+          href="mailto:support@lrfap.lb"
+          className="font-medium text-lrfap-sky underline-offset-4 hover:underline"
+        >
+          support@lrfap.lb
+        </a>
+        . We typically respond within two business days.
+      </>
+    ),
   },
 ];
 
