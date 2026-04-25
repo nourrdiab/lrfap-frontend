@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AxiosError } from 'axios';
+import { useReducedMotion } from 'framer-motion';
 import { chatbotApi, type ChatbotRateLimit } from '../../api/chatbot';
 import type { ChatbotTurn, ChatbotUIMessage } from '../../types';
 
@@ -119,22 +120,35 @@ export function useChatbot({ welcomeText }: UseChatbotOptions) {
     [welcomeText],
   );
 
-  const [messages, setMessages] = useState<ChatbotUIMessage[]>([welcomeMessage]);
-  const [isThinking, setIsThinking] = useState(false);
+  const reduceMotion = useReducedMotion();
+
+  const [messages, setMessages] = useState<ChatbotUIMessage[]>(
+    reduceMotion ? [welcomeMessage] : [],
+  );
+  const [isThinking, setIsThinking] = useState(!reduceMotion);
   const [rate, setRate] = useState<{
     limit: number | null;
     remaining: number | null;
     blockedUntilMs: number | null;
   }>({ limit: null, remaining: null, blockedUntilMs: null });
 
-  // Reset when the welcome changes (e.g. user logs in mid-session).
-  const lastWelcome = useRef(welcomeText);
+  // Show a brief "typing" indicator before the canned greeting renders.
+  // Fires on mount and on welcome-text change (e.g. user logs in
+  // mid-session) — preserving the prior reset behavior.
   useEffect(() => {
-    if (lastWelcome.current === welcomeText) return;
-    lastWelcome.current = welcomeText;
-    setMessages([welcomeMessage]);
-    setIsThinking(false);
-  }, [welcomeText, welcomeMessage]);
+    if (reduceMotion) {
+      setMessages([welcomeMessage]);
+      setIsThinking(false);
+      return;
+    }
+    setMessages([]);
+    setIsThinking(true);
+    const t = setTimeout(() => {
+      setMessages([welcomeMessage]);
+      setIsThinking(false);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [welcomeText, welcomeMessage, reduceMotion]);
 
   // Tick for the countdown while blocked.
   const [now, setNow] = useState(() => Date.now());

@@ -14,7 +14,7 @@ export function ChatbotTypingIndicator() {
       aria-label="Assistant is typing"
       className="flex items-start"
     >
-      <div className="inline-flex items-center gap-[4px] border-[0.91px] border-lrfap-ghost bg-lrfap-ghost/70 px-[14px] py-[10px]">
+      <div className="inline-flex items-center gap-[4px] rounded-xl bg-lrfap-ghost/70 px-[14px] py-[10px]">
         <Dot delay="-0.3s" />
         <Dot delay="-0.15s" />
         <Dot delay="0s" />

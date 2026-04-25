@@ -186,7 +186,7 @@ export function ChatbotPanel({
         </ul>
       </div>
 
-      <div className="border-t border-lrfap-ghost bg-white px-[12px] pb-[12px] pt-[10px]">
+      <div className="bg-white px-[12px] pb-[12px] pt-[10px]">
         {blockedHint ? (
           <p
             role="status"
@@ -219,13 +219,13 @@ export function ChatbotPanel({
                 : 'Type a message…'
             }
             maxLength={MAX_MESSAGE_LENGTH}
-            className="min-h-[38px] max-h-[120px] flex-1 resize-none border-[0.91px] border-lrfap-ghost bg-white px-[12px] py-[8px] font-sans text-[13px] leading-[1.5] text-slate-900 transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-lrfap-sky focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="min-h-[38px] max-h-[120px] flex-1 resize-none rounded-xl bg-lrfap-ghost/40 px-[12px] py-[8px] font-sans text-[13px] leading-[1.5] text-slate-900 transition-colors placeholder:text-slate-400 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
           <button
             type="submit"
             disabled={sendDisabled}
             aria-label="Send message"
-            className="inline-flex h-[38px] w-[42px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy bg-lrfap-navy text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+            className="inline-flex h-[38px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-lrfap-navy text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
           >
             <Send aria-hidden="true" className="h-4 w-4" />
           </button>
