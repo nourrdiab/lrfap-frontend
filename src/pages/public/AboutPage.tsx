@@ -19,7 +19,7 @@ import { AboutStatsStrip } from '../../components/public/about/AboutStatsStrip';
  */
 
 // TODO: replace with real support email before production.
-const CONTACT_EMAIL = 'contact@lrfap.lb';
+const CONTACT_EMAIL = 'support@lrfap.lb';
 
 const MATCHING_STEPS: Array<{
   number: string;
@@ -65,7 +65,7 @@ const ROLES: Array<{
   },
   {
     id: 'lgc',
-    title: 'Licensing & Governance Committee',
+    title: 'LRFAP Governance Committee',
     body: 'The national body that operates the platform end-to-end. The LGC manages cycles, validates readiness, runs the matching algorithm, publishes results, and reviews a complete audit trail of every action on the platform.',
   },
 ];
@@ -106,7 +106,7 @@ function HeroStrip() {
           transition={{ duration: 0.55, ease: 'easeOut' }}
           className="max-w-[960px] font-display text-[32px] font-extrabold leading-[1.1] md:text-[48px]"
         >
-          One centralized system for residency and fellowship matching in
+          One unified system for residency and fellowship matching in
           Lebanon.
         </motion.h1>
         <motion.p
@@ -116,7 +116,7 @@ function HeroStrip() {
           className="mt-[18px] max-w-[760px] font-sans text-[16px] leading-[1.55] text-white/85 md:text-[18px]"
         >
           LRFAP connects applicants, participating universities, and the
-          national oversight committee on a single platform — so one
+          national oversight committee on a single platform. One
           application produces one transparent, verifiable match.
         </motion.p>
       </div>
@@ -162,7 +162,7 @@ function MissionVision() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]"
       >
         <h2
           id="mission-heading"
@@ -172,7 +172,7 @@ function MissionVision() {
         </h2>
         <div className="mt-[32px] grid grid-cols-1 gap-[28px] md:grid-cols-2 md:gap-[48px]">
           <div className="flex flex-col gap-[12px]">
-            <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-lrfap-sky">
+            <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-lrfap-navy/60">
               Mission
             </h3>
             <p className="font-display text-[20px] font-bold leading-[1.3] text-lrfap-navy md:text-[22px]">
@@ -188,7 +188,7 @@ function MissionVision() {
             </p>
           </div>
           <div className="flex flex-col gap-[12px]">
-            <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-lrfap-sky">
+            <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-lrfap-navy/60">
               Vision
             </h3>
             <p className="font-display text-[20px] font-bold leading-[1.3] text-lrfap-navy md:text-[22px]">
@@ -197,7 +197,7 @@ function MissionVision() {
             </p>
             <p className="font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
               Applicants, universities, and the LGC should all be looking
-              at the same data, the same rankings, and the same results —
+              at the same data, the same rankings, and the same results,
               at the same time. LRFAP is the shared surface that makes
               that possible, and the audit log is what makes it
               accountable.
@@ -223,7 +223,7 @@ function HowMatchingWorks() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]"
       >
         <h2
           id="matching-heading"
@@ -233,7 +233,7 @@ function HowMatchingWorks() {
         </h2>
         <p className="mt-[12px] max-w-[720px] font-sans text-[14px] leading-[1.6] text-lrfap-navy md:text-[15px]">
           The platform runs a stable matching algorithm that produces
-          a stable match — no applicant and program pair can both prefer
+          a stable match. No applicant and program pair can both prefer
           each other over the partners they were matched with. The
           algorithm is configured to be applicant-optimal.
         </p>
@@ -277,7 +277,7 @@ function WhoUses() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]"
       >
         <h2
           id="roles-heading"
@@ -320,7 +320,7 @@ function Governance() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]"
       >
         <h2
           id="governance-heading"
@@ -330,8 +330,8 @@ function Governance() {
         </h2>
         <div className="mt-[24px] flex max-w-[860px] flex-col gap-[18px] font-sans text-[14px] leading-[1.7] text-lrfap-navy md:text-[15px]">
           <p>
-            The LRFAP platform is operated by the national Licensing
-            &amp; Governance Committee (LGC), which oversees match runs,
+            The platform is operated by the national LRFAP Governance
+            Committee (LGC), which oversees match runs,
             validates applicant data, and publishes residency and
             fellowship placements across Lebanese universities.
           </p>
@@ -355,7 +355,7 @@ function Contact() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[40px] md:px-[58px] md:py-[64px]"
       >
         <h2
           id="contact-heading"

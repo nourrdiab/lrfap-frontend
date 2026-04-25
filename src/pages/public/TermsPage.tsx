@@ -19,7 +19,7 @@ const SECTIONS: Section[] = [
           and Fellowship Application Program (&ldquo;LRFAP&rdquo;, &ldquo;the
           platform&rdquo;), you agree to be bound by these Terms &amp;
           Conditions. These terms constitute a binding agreement between you
-          and the Licensing and Governance Committee (&ldquo;LGC&rdquo;),
+          and the LRFAP Governance Committee (&ldquo;LGC&rdquo;),
           which operates the platform.
         </p>
         <p>
