@@ -28,7 +28,7 @@ export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="w-full max-w-[400px] border-[0.91px] border-lrfap-ghost bg-white p-[36px] shadow-[0_10px_40px_-12px_rgba(38,43,102,0.15)]"
+      className="w-full max-w-[400px] rounded-xl bg-white p-[36px] shadow-[0_20px_60px_-15px_rgba(38,43,102,0.2)]"
     >
       <header className="mb-[28px] text-center">
         <h1 className="font-display text-[26px] font-bold uppercase leading-tight tracking-wide text-lrfap-navy">
