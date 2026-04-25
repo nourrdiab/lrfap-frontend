@@ -147,6 +147,7 @@ export default function ForgotPasswordPage() {
             type="email"
             autoComplete="email"
             required
+            hideRequiredMarker
             autoFocus
             value={email}
             onChange={(e) => handleEmailChange(e.target.value)}

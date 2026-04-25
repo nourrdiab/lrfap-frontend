@@ -194,6 +194,7 @@ export default function ResetPasswordPage() {
             label="New Password"
             autoComplete="new-password"
             required
+            hideRequiredMarker
             autoFocus
             value={password}
             onChange={(e) => setPasswordField(e.target.value)}
@@ -210,6 +211,7 @@ export default function ResetPasswordPage() {
             label="Confirm New Password"
             autoComplete="new-password"
             required
+            hideRequiredMarker
             value={confirmPassword}
             onChange={(e) => setConfirmField(e.target.value)}
             placeholder="Re-enter your new password"
