@@ -64,7 +64,7 @@ export function CatalogFilterBar({
           <span className="sr-only">Search programs</span>
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy/80"
+            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy"
           />
           <input
             id="catalog-search"
@@ -73,7 +73,7 @@ export function CatalogFilterBar({
             onChange={(e) => patch('search', e.target.value)}
             placeholder="Search specialty, university, description…"
             disabled={isBusy}
-            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy/80 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
         {hasAnyActive ? (

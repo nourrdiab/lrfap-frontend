@@ -80,6 +80,82 @@ export function ProgramCard({
 
   const descriptionId = `program-${program._id}-description`;
   const extras = program.extraRequirements?.filter(Boolean) ?? [];
+  const hasDescription = !!program.description?.trim();
+  const hasExtras = extras.length > 0;
+  const isExpandable = hasDescription || hasExtras;
+  const showCTA = !isAuthenticated;
+
+  const cardBody = (
+    <>
+      <header className="flex items-start justify-between gap-[10px]">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-[20px] font-bold leading-[1.2] text-lrfap-navy">
+            {spec?.name ?? 'Unknown specialty'}
+          </h3>
+          <p className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[2px] font-sans text-[13px] text-lrfap-navy">
+            <span className="font-medium">{uni?.name ?? 'Unknown university'}</span>
+            {uni?.city ? (
+              <span className="inline-flex items-center gap-[3px] text-lrfap-navy">
+                <MapPin aria-hidden="true" className="h-3 w-3" />
+                {uni.city}
+              </span>
+            ) : null}
+          </p>
+        </div>
+        {isExpandable ? (
+          <ChevronDown
+            aria-hidden="true"
+            className={`mt-[4px] h-4 w-4 shrink-0 text-lrfap-navy/40 transition-transform duration-200 group-hover:text-lrfap-navy ${
+              expanded ? 'rotate-180' : ''
+            }`}
+          />
+        ) : null}
+      </header>
+
+      <div className="flex flex-wrap items-center gap-[6px]">
+        <span
+          className={`inline-flex items-center px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize ${trackPill}`}
+        >
+          {program.track}
+        </span>
+        <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-lrfap-navy">
+          <GraduationCap aria-hidden="true" className="h-3 w-3" />
+          {program.durationYears} {program.durationYears === 1 ? 'yr' : 'yrs'}
+        </span>
+        {hasLanguage ? (
+          <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize text-lrfap-navy">
+            <Languages aria-hidden="true" className="h-3 w-3" />
+            {program.languageRequirement}
+          </span>
+        ) : null}
+      </div>
+
+      <p className="inline-flex items-center gap-[6px] font-sans text-[12px] text-lrfap-navy">
+        <Users aria-hidden="true" className="h-3.5 w-3.5 text-lrfap-navy" />
+        <span>
+          <strong className="font-semibold text-lrfap-navy">{seatsLabel}</strong>
+        </span>
+      </p>
+
+      {hasDescription ? (
+        <div className="relative">
+          <p
+            className={`font-sans text-[13px] leading-[1.5] text-lrfap-navy ${
+              expanded ? '' : 'line-clamp-2'
+            }`}
+          >
+            {program.description}
+          </p>
+          {!expanded ? (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-[18px] bg-gradient-to-t from-white to-transparent"
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
 
   return (
     <article
@@ -89,86 +165,34 @@ export function ProgramCard({
           : 'shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)] hover:shadow-[0_6px_28px_-12px_rgba(38,43,102,0.2)]'
       }`}
     >
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={expanded}
-        aria-controls={descriptionId}
-        className="group flex flex-col items-stretch gap-[12px] px-[20px] pt-[20px] pb-[16px] text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky"
-      >
-        <header className="flex items-start justify-between gap-[10px]">
-          <div className="min-w-0 flex-1">
-            <h3 className="font-display text-[20px] font-bold leading-[1.2] text-lrfap-navy">
-              {spec?.name ?? 'Unknown specialty'}
-            </h3>
-            <p className="mt-[6px] flex flex-wrap items-center gap-x-[8px] gap-y-[2px] font-sans text-[13px] text-lrfap-navy">
-              <span className="font-medium">{uni?.name ?? 'Unknown university'}</span>
-              {uni?.city ? (
-                <span className="inline-flex items-center gap-[3px] text-lrfap-navy/70">
-                  <MapPin aria-hidden="true" className="h-3 w-3" />
-                  {uni.city}
-                </span>
-              ) : null}
-            </p>
-          </div>
-          <ChevronDown
-            aria-hidden="true"
-            className={`mt-[4px] h-4 w-4 shrink-0 text-lrfap-navy/40 transition-transform duration-200 group-hover:text-lrfap-navy ${
-              expanded ? 'rotate-180' : ''
-            }`}
-          />
-        </header>
-
-        <div className="flex flex-wrap items-center gap-[6px]">
-          <span
-            className={`inline-flex items-center px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize ${trackPill}`}
-          >
-            {program.track}
-          </span>
-          <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-lrfap-navy">
-            <GraduationCap aria-hidden="true" className="h-3 w-3" />
-            {program.durationYears} {program.durationYears === 1 ? 'yr' : 'yrs'}
-          </span>
-          {hasLanguage ? (
-            <span className="inline-flex items-center gap-[4px] rounded-md bg-lrfap-ghost/50 px-[8px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide capitalize text-lrfap-navy">
-              <Languages aria-hidden="true" className="h-3 w-3" />
-              {program.languageRequirement}
-            </span>
+      {isExpandable ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-controls={descriptionId}
+          className="group flex flex-col items-stretch gap-[12px] px-[20px] pt-[20px] pb-[16px] text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky"
+        >
+          {cardBody}
+        </button>
+      ) : (
+        <div className="flex flex-col items-stretch gap-[12px] px-[20px] pt-[20px] pb-[16px]">
+          {cardBody}
+          {showCTA ? (
+            <div className="flex justify-end border-t border-lrfap-navy/10 pt-[12px]">
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-[4px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy hover:text-lrfap-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
+              >
+                Sign in to apply →
+              </Link>
+            </div>
           ) : null}
         </div>
-
-        <p className="inline-flex items-center gap-[6px] font-sans text-[12px] text-lrfap-navy">
-          <Users aria-hidden="true" className="h-3.5 w-3.5 text-lrfap-navy/40" />
-          <span>
-            <strong className="font-semibold text-lrfap-navy">{seatsLabel}</strong>
-          </span>
-        </p>
-
-        {program.description ? (
-          <div className="relative">
-            <p
-              className={`font-sans text-[13px] leading-[1.5] text-lrfap-navy ${
-                expanded ? '' : 'line-clamp-2'
-              }`}
-            >
-              {program.description}
-            </p>
-            {!expanded ? (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-[18px] bg-gradient-to-t from-white to-transparent"
-              />
-            ) : null}
-          </div>
-        ) : (
-          <p className="font-sans text-[13px] italic text-lrfap-navy/60">
-            No description provided.
-          </p>
-        )}
-      </button>
+      )}
 
       <AnimatePresence initial={false}>
-        {expanded ? (
+        {expanded && isExpandable ? (
           <motion.section
             key="expanded"
             id={descriptionId}
@@ -179,7 +203,7 @@ export function ProgramCard({
             className="overflow-hidden"
           >
             <div className="border-t border-lrfap-navy/10 px-[20px] py-[16px]">
-              {extras.length > 0 ? (
+              {hasExtras ? (
                 <>
                   <h4 className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70">
                     Additional requirements
@@ -199,13 +223,11 @@ export function ProgramCard({
                     ))}
                   </ul>
                 </>
-              ) : (
-                <p className="font-sans text-[13px] italic text-lrfap-navy/60">
-                  No additional requirements listed.
-                </p>
-              )}
-              {!isAuthenticated ? (
-                <div className="mt-[14px] flex justify-end border-t border-lrfap-navy/10 pt-[12px]">
+              ) : null}
+              {showCTA ? (
+                <div
+                  className={`flex justify-end ${hasExtras ? 'mt-[14px] border-t border-lrfap-navy/10 pt-[12px]' : ''}`}
+                >
                   <Link
                     to="/login"
                     className="inline-flex items-center gap-[4px] font-sans text-[12px] font-medium uppercase tracking-wide text-lrfap-navy hover:text-lrfap-sky focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
