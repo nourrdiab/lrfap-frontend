@@ -64,7 +64,7 @@ export function CatalogFilterBar({
           <span className="sr-only">Search programs</span>
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy/60"
+            className="pointer-events-none absolute left-[12px] top-1/2 h-4 w-4 -translate-y-1/2 text-lrfap-navy/80"
           />
           <input
             id="catalog-search"
@@ -73,7 +73,7 @@ export function CatalogFilterBar({
             onChange={(e) => patch('search', e.target.value)}
             placeholder="Search specialty, university, description…"
             disabled={isBusy}
-            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy/60 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
+            className="h-[40px] w-full rounded-xl bg-lrfap-ghost/40 pl-[36px] pr-[14px] font-sans text-[14px] text-lrfap-navy transition-colors placeholder:text-lrfap-navy/80 focus:bg-lrfap-ghost/60 focus:outline-none focus:ring-2 focus:ring-lrfap-sky/60 disabled:cursor-not-allowed disabled:bg-slate-50"
           />
         </label>
         {hasAnyActive ? (
@@ -92,7 +92,7 @@ export function CatalogFilterBar({
         <div className="flex flex-[2] flex-col gap-[4px] min-w-[280px]">
           <label
             htmlFor="catalog-filter-cycle"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
+            className="font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Cycle
           </label>
@@ -112,10 +112,10 @@ export function CatalogFilterBar({
           </select>
         </div>
 
-        <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
+        <div className="flex flex-1 flex-col gap-[4px] min-w-[260px]">
           <span
             id="catalog-filter-track-label"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
+            className="font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Track
           </span>
@@ -140,7 +140,7 @@ export function CatalogFilterBar({
                     aria-checked={selected}
                     onClick={() => patch('track', t)}
                     disabled={isBusy}
-                    className={`flex-1 px-[14px] font-sans text-[12px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`flex-1 px-[10px] font-sans text-[11px] font-medium uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60 ${
                       selected
                         ? 'bg-lrfap-navy text-white'
                         : 'bg-transparent text-lrfap-navy hover:bg-lrfap-navy/5'
@@ -157,7 +157,7 @@ export function CatalogFilterBar({
         <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
           <label
             htmlFor="catalog-filter-university"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
+            className="font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             University
           </label>
@@ -180,7 +180,7 @@ export function CatalogFilterBar({
         <div className="flex flex-1 flex-col gap-[4px] min-w-[180px]">
           <label
             htmlFor="catalog-filter-specialty"
-            className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy"
+            className="font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy"
           >
             Specialty
           </label>
