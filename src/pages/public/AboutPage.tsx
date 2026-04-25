@@ -162,7 +162,7 @@ function MissionVision() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
       >
         <h2
           id="mission-heading"
@@ -223,7 +223,7 @@ function HowMatchingWorks() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
       >
         <h2
           id="matching-heading"
@@ -245,7 +245,7 @@ function HowMatchingWorks() {
             >
               <span
                 aria-hidden="true"
-                className="font-display text-[32px] font-extrabold leading-none text-lrfap-sky"
+                className="font-display text-[32px] font-extrabold leading-none text-lrfap-ghost"
               >
                 {step.number}
               </span>
@@ -277,7 +277,7 @@ function WhoUses() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
       >
         <h2
           id="roles-heading"
@@ -320,7 +320,7 @@ function Governance() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
       >
         <h2
           id="governance-heading"
@@ -355,7 +355,7 @@ function Contact() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="mx-auto w-full max-w-[1366px] px-6 py-[72px] md:px-[58px] md:py-[112px]"
+        className="mx-auto w-full max-w-[1366px] px-6 py-[56px] md:px-[58px] md:py-[80px]"
       >
         <h2
           id="contact-heading"
