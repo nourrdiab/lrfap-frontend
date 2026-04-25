@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
@@ -51,7 +51,6 @@ interface PublicNavBarProps {
 export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const underlineId = useId();
 
   // Close drawer on route change.
   useEffect(() => {
@@ -99,7 +98,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
                     <span className="block py-[6px]">{item.label}</span>
                     {isActive ? (
                       <motion.span
-                        layoutId={underlineId}
+                        layoutId="public-navbar-underline"
                         aria-hidden="true"
                         className="absolute inset-x-0 -bottom-[2px] h-[2px] bg-white"
                         transition={{
