@@ -250,7 +250,7 @@ export default function RegisterPage() {
                 />
               ) : null}
             </span>
-            <span className="font-sans text-[13px] leading-[1.4] text-lrfap-navy">
+            <span className="font-sans text-[12px] leading-[1.4] text-lrfap-navy">
               I have read and agree to the{' '}
               <Link
                 to="/terms"
