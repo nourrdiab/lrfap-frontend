@@ -31,14 +31,13 @@ interface FooterLink {
 
 const COLUMN_1: FooterLink[] = [
   { label: 'ABOUT US', href: '/about' },
-  { label: 'PRIVACY POLICY', href: '/about' },
-  { label: 'GOVERNANCE', href: '/about' },
+  { label: 'PRIVACY POLICY', href: '/privacy' },
 ];
 
 const COLUMN_2: FooterLink[] = [
   { label: 'TERMS & CONDITIONS', href: '/terms' },
-  { label: 'SUPPORT', href: '/about' },
-  { label: 'FAQs', href: '/about' },
+  { label: 'SUPPORT', href: '/support' },
+  { label: 'FAQs', href: '/faqs' },
 ];
 
 function LinkColumn({ items }: { items: FooterLink[] }) {

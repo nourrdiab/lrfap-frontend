@@ -14,6 +14,9 @@ import LandingPage from './pages/public/LandingPage';
 import ProgramCatalogPage from './pages/public/ProgramCatalogPage';
 import AboutPage from './pages/public/AboutPage';
 import TermsPage from './pages/public/TermsPage';
+import FAQsPage from './pages/public/FAQsPage';
+import SupportPage from './pages/public/SupportPage';
+import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
 
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -65,6 +68,9 @@ export default function App() {
             <Route path="programs" element={<ProgramCatalogPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="terms" element={<TermsPage />} />
+            <Route path="faqs" element={<FAQsPage />} />
+            <Route path="support" element={<SupportPage />} />
+            <Route path="privacy" element={<PrivacyPolicyPage />} />
           </Route>
 
           {/* Auth — split layout (form + photo) for multi-field flows */}

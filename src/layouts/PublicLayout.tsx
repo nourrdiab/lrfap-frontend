@@ -3,10 +3,11 @@ import { PublicNavBar } from '../components/public/PublicNavBar';
 import { PublicFooter } from '../components/public/PublicFooter';
 import { ChatbotWidget } from '../components/chatbot/ChatbotWidget';
 
+const WHITE_NAV_ROUTES = ['/programs', '/terms', '/faqs', '/support', '/privacy'];
+
 export function PublicLayout() {
   const { pathname } = useLocation();
-  const navVariant =
-    pathname === '/programs' || pathname === '/terms' ? 'white' : 'solid';
+  const navVariant = WHITE_NAV_ROUTES.includes(pathname) ? 'white' : 'solid';
   return (
     <div className="flex min-h-screen flex-col bg-white text-slate-900">
       <PublicNavBar variant={navVariant} />
