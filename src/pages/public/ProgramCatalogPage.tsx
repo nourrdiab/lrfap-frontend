@@ -366,7 +366,7 @@ export default function ProgramCatalogPage() {
 
         <div className="flex items-baseline justify-between">
           <p
-            className="font-sans text-[12px] text-lrfap-navy"
+            className={`font-sans text-[12px] ${isLoading ? 'italic text-lrfap-navy/70' : 'text-lrfap-navy'}`}
             aria-live="polite"
           >
             {isLoading ? (
@@ -448,15 +448,15 @@ export default function ProgramCatalogPage() {
 function SkeletonCard() {
   return (
     <div className="flex flex-col gap-[12px] rounded-xl bg-white px-[20px] pt-[20px] pb-[20px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]">
-      <div className="h-[22px] w-3/4 animate-pulse bg-slate-100" />
-      <div className="h-[14px] w-1/2 animate-pulse bg-slate-100" />
+      <div className="h-[22px] w-3/4 animate-pulse bg-lrfap-navy/5" />
+      <div className="h-[14px] w-1/2 animate-pulse bg-lrfap-navy/5" />
       <div className="flex gap-[6px]">
-        <div className="h-[20px] w-[70px] animate-pulse bg-slate-100" />
-        <div className="h-[20px] w-[50px] animate-pulse bg-slate-100" />
+        <div className="h-[20px] w-[70px] animate-pulse bg-lrfap-navy/5" />
+        <div className="h-[20px] w-[50px] animate-pulse bg-lrfap-navy/5" />
       </div>
       <div className="mt-[4px] flex flex-col gap-[6px]">
-        <div className="h-[12px] w-full animate-pulse bg-slate-100" />
-        <div className="h-[12px] w-5/6 animate-pulse bg-slate-100" />
+        <div className="h-[12px] w-full animate-pulse bg-lrfap-navy/5" />
+        <div className="h-[12px] w-5/6 animate-pulse bg-lrfap-navy/5" />
       </div>
     </div>
   );
