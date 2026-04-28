@@ -61,7 +61,7 @@ export function Hero() {
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="absolute bottom-0 left-1/2 -z-20 h-full w-full -translate-x-1/2 object-cover object-[48%_center] md:h-[115%] md:w-[225%] md:object-[48%_0%]"
+        className="absolute bottom-0 left-1/2 -z-20 h-full w-full -translate-x-1/2 object-cover object-[42%_center] md:h-[115%] md:w-[225%] md:object-[42%_0%]"
       />
       <div
         aria-hidden="true"
@@ -78,7 +78,7 @@ export function Hero() {
         className="relative mx-auto mt-[34.4px] w-full max-w-[1366px] px-6 font-display text-[clamp(22px,6.4vw,40.3px)] leading-[1.2] font-extrabold tracking-normal text-white md:px-[58px] md:leading-[48.37px]"
       >
         <span className="block">LEBANESE RESIDENCY AND</span>
-        <span className="relative inline-block">
+        <span className="relative inline-block whitespace-nowrap">
           <motion.span
             aria-hidden="true"
             initial={{ scaleX: 0 }}
