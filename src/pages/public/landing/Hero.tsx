@@ -17,11 +17,14 @@ import { PublicNavBar } from '../../../components/public/PublicNavBar';
  * frames 1:1604 (highlight) and 1:1635 (text).
  */
 
+// em equivalents of the original Figma px offsets (calibrated to the 40.3px
+// desktop H1) so the highlight scales with the responsive clamp on mobile
+// instead of overhanging proportionally more of the smaller text.
 const HIGHLIGHT_OFFSETS: React.CSSProperties = {
-  top: '2.32px',
-  bottom: '-1.52px',
-  left: '-4.99px',
-  right: '-4.61px',
+  top: '0.0576em',
+  bottom: '-0.0377em',
+  left: '-0.1239em',
+  right: '-0.1144em',
 };
 
 // Linear-gradient multiply overlay pulled from imgVector1 (c068d996…svg).
@@ -58,7 +61,7 @@ export function Hero() {
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="absolute bottom-0 left-1/2 -z-20 h-full w-full -translate-x-1/2 object-cover object-[60%_center] md:h-[115%] md:w-[225%] md:object-[center_0%]"
+        className="absolute bottom-0 left-1/2 -z-20 h-full w-full -translate-x-1/2 object-cover object-[48%_center] md:h-[115%] md:w-[225%] md:object-[48%_0%]"
       />
       <div
         aria-hidden="true"

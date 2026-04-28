@@ -87,13 +87,13 @@ function PortalCard(layout: CardLayout) {
           paddingBottom: `${layout.paddingBottom}px`,
           paddingLeft: `${layout.paddingX}px`,
           paddingRight: `${layout.paddingX}px`,
+          ['--title-offset' as string]: `${layout.titleOffsetLeft}px`,
+          ['--body-offset' as string]: `${layout.bodyOffsetLeft}px`,
+          ['--cta-offset' as string]: `${layout.ctaOffsetLeft}px`,
         }}
       >
         <div
-          className="flex flex-col items-start gap-[10px] md:h-[55.49px] md:flex-row md:items-center md:gap-0"
-          style={{
-            marginLeft: `${layout.titleOffsetLeft}px`,
-          }}
+          className="flex flex-col items-start gap-[10px] md:ml-[var(--title-offset)] md:h-[55.49px] md:flex-row md:items-center md:gap-0"
         >
           <p className="font-sans text-[14px] leading-[20px] font-bold md:shrink-0 md:text-[18.11px] md:leading-[22px] md:whitespace-nowrap">
             {layout.title}
@@ -122,9 +122,8 @@ function PortalCard(layout: CardLayout) {
         <div className="min-h-0 flex-1" />
 
         <p
-          className="mt-[20px] font-sans text-[18.11px] leading-[28px] font-normal md:mt-0 md:leading-[21.73px]"
+          className="mt-[20px] font-sans text-[18.11px] leading-[28px] font-normal md:mt-0 md:ml-[var(--body-offset)] md:leading-[21.73px]"
           style={{
-            marginLeft: `${layout.bodyOffsetLeft}px`,
             width: `${layout.bodyWidth}px`,
             maxWidth: '100%',
           }}
@@ -134,13 +133,12 @@ function PortalCard(layout: CardLayout) {
 
         <Link
           to={layout.ctaHref}
-          className="flex items-center justify-center bg-lrfap-sky font-sans text-[16.49px] font-normal text-white transition-colors hover:bg-[#3a86bd] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          className="flex items-center justify-center bg-lrfap-sky font-sans text-[16.49px] font-normal text-white transition-colors hover:bg-[#3a86bd] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:ml-[var(--cta-offset)]"
           style={{
             width: `${CTA_WIDTH}px`,
             maxWidth: '100%',
             height: `${CTA_HEIGHT}px`,
             marginTop: `${layout.gapBodyToCTA}px`,
-            marginLeft: `${layout.ctaOffsetLeft}px`,
           }}
         >
           {layout.cta}
