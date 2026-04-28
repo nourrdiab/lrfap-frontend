@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
+import { MobileDrawer } from '../public/MobileDrawer';
 
 /**
  * Shared navbar for every auth page (/login, /register, /forgot-password,
@@ -11,6 +13,10 @@ import { ArrowLeft } from 'lucide-react';
  * /register we offer SIGN IN as the way back; on every other auth page we
  * offer CREATE ACCOUNT. Keeps the CTA useful for someone who lands on the
  * wrong page.
+ *
+ * Below md the secondary links (PROGRAMS / ABOUT / Back to home) collapse
+ * into the shared MobileDrawer; the CTA pill stays in the topbar so the
+ * primary action is always reachable.
  */
 
 const AUX_LINK_CLS =
@@ -19,6 +25,14 @@ const AUX_LINK_CLS =
 export function AuthNavbar() {
   const { pathname } = useLocation();
   const isRegister = pathname === '/register';
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const ctaTarget = isRegister ? '/login' : '/register';
+  const ctaLabel = isRegister ? 'SIGN IN' : 'CREATE ACCOUNT';
 
   return (
     <header className="w-full border-b-[0.91px] border-lrfap-ghost bg-white">
@@ -36,9 +50,10 @@ export function AuthNavbar() {
           />
         </Link>
 
+        {/* Desktop chrome */}
         <nav
           aria-label="Auth chrome"
-          className="ml-auto flex items-center gap-[24px] md:gap-[40px]"
+          className="ml-auto hidden items-center gap-[24px] md:flex md:gap-[40px]"
         >
           <Link to="/programs" className={AUX_LINK_CLS}>
             PROGRAMS
@@ -67,7 +82,43 @@ export function AuthNavbar() {
             </Link>
           )}
         </nav>
+
+        {/* Mobile: CTA pill stays + hamburger opens drawer */}
+        <div className="ml-auto flex items-center gap-[12px] md:hidden">
+          <Link
+            to={ctaTarget}
+            className="inline-flex h-[36px] shrink-0 items-center justify-center border-[0.91px] border-lrfap-navy px-[14px] font-sans text-[13px] font-normal text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy"
+          >
+            {ctaLabel}
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            aria-controls="auth-mobile-drawer"
+            className="inline-flex h-[40px] w-[40px] items-center justify-center border-[0.91px] border-lrfap-navy text-lrfap-navy focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy"
+          >
+            <Menu aria-hidden="true" className="h-5 w-5" />
+          </button>
+        </div>
       </div>
+
+      <MobileDrawer
+        id="auth-mobile-drawer"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        links={[
+          { to: '/programs', label: 'PROGRAMS' },
+          { to: '/about', label: 'ABOUT' },
+          {
+            to: '/',
+            label: 'Back to home',
+            end: true,
+            icon: <ArrowLeft className="h-[18px] w-[18px]" />,
+          },
+        ]}
+      />
     </header>
   );
 }

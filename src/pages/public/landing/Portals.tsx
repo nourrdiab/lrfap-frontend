@@ -90,7 +90,7 @@ function PortalCard(layout: CardLayout) {
         }}
       >
         <div
-          className="flex flex-col items-start gap-[2px] md:h-[55.49px] md:flex-row md:items-center md:gap-0"
+          className="flex flex-col items-start gap-[10px] md:h-[55.49px] md:flex-row md:items-center md:gap-0"
           style={{
             marginLeft: `${layout.titleOffsetLeft}px`,
           }}
@@ -115,14 +115,14 @@ function PortalCard(layout: CardLayout) {
 
         <div
           aria-hidden="true"
-          className="h-[0.91px] w-full bg-white"
+          className="hidden h-[0.91px] w-full bg-white md:block"
           style={{ marginLeft: `-${layout.titleOffsetLeft}px` }}
         />
 
         <div className="min-h-0 flex-1" />
 
         <p
-          className="font-sans text-[18.11px] leading-[21.73px] font-normal"
+          className="mt-[20px] font-sans text-[18.11px] leading-[28px] font-normal md:mt-0 md:leading-[21.73px]"
           style={{
             marginLeft: `${layout.bodyOffsetLeft}px`,
             width: `${layout.bodyWidth}px`,

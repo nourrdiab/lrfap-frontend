@@ -89,10 +89,10 @@ export function Steps() {
       className="relative w-full overflow-hidden bg-white py-[30px]"
     >
       <div className="mx-auto w-full max-w-[1366px] px-6 md:px-[58px]">
-        <div className="flex items-start">
+        <div className="flex flex-col items-start md:flex-row">
           <p
             aria-hidden="true"
-            className="hidden font-display text-[121.21px] leading-none font-extrabold text-lrfap-ghost select-none md:block"
+            className="font-display text-[64px] leading-none font-extrabold text-lrfap-ghost select-none md:text-[121.21px]"
           >
             05
           </p>
