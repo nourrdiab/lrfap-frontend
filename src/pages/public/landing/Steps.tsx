@@ -88,11 +88,11 @@ export function Steps() {
       aria-labelledby="steps-heading"
       className="relative w-full overflow-hidden bg-white py-[30px]"
     >
-      <div className="mx-auto w-full max-w-[1366px] px-[58px]">
+      <div className="mx-auto w-full max-w-[1366px] px-6 md:px-[58px]">
         <div className="flex items-start">
           <p
             aria-hidden="true"
-            className="font-display text-[121.21px] leading-none font-extrabold text-lrfap-ghost select-none"
+            className="hidden font-display text-[121.21px] leading-none font-extrabold text-lrfap-ghost select-none md:block"
           >
             05
           </p>
@@ -102,7 +102,7 @@ export function Steps() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.55, ease: 'easeOut' }}
-            className="mt-[30.63px] ml-[22.06px] font-display text-[40.3px] leading-[48.37px] font-extrabold text-lrfap-navy"
+            className="font-display text-[26px] leading-[32px] font-extrabold text-lrfap-navy md:mt-[30.63px] md:ml-[22.06px] md:text-[40.3px] md:leading-[48.37px]"
           >
             <span className="block">STEP</span>
             <span className="block">OVERVIEW</span>
@@ -110,7 +110,7 @@ export function Steps() {
         </div>
       </div>
 
-      <div className="mx-auto mt-[35.05px] grid w-[1362px] max-w-full grid-cols-5">
+      <div className="mx-auto mt-[35.05px] grid w-full max-w-[1362px] grid-cols-1 px-6 md:grid-cols-5 md:px-0">
         {STEPS.map((step, i) => (
           <motion.div
             key={i}
@@ -122,8 +122,8 @@ export function Steps() {
               ease: 'easeOut',
               delay: 0.1 + i * 0.08,
             }}
-            className={`relative border-t-[0.91px] border-r-[0.91px] border-b-[0.91px] border-lrfap-ghost ${
-              i === 0 ? 'border-l-[0.91px]' : ''
+            className={`relative border-[0.91px] border-lrfap-ghost md:border-l-0 ${
+              i === 0 ? 'md:border-l-[0.91px]' : ''
             }`}
             style={{ height: '289.91px' }}
           >

@@ -20,49 +20,72 @@ import decorationIntro from '../../../assets/landing/decoration-intro.svg';
 export function Intro() {
   return (
     <section
-      aria-labelledby="intro-heading"
+      aria-label="Built for transparency, fairness and national coordination"
       className="relative w-full overflow-hidden bg-white"
     >
-      <div className="relative mx-auto h-[253.76px] w-full max-w-[1366px]">
-        <img
-          src={decorationIntro}
-          alt=""
-          aria-hidden="true"
-          draggable={false}
-          className="pointer-events-none absolute select-none"
-          style={{
-            top: '30.04px',
-            right: '-256.26px',
-            width: '507.72px',
-            height: '431.20px',
-          }}
-        />
-
+      <div className="px-6 py-10 md:hidden">
         <motion.h2
-          id="intro-heading"
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="absolute font-display text-[40.3px] leading-[43.7px] font-extrabold text-lrfap-navy"
-          style={{ top: '62.69px', left: '28px' }}
+          className="font-display text-[26px] leading-[32px] font-extrabold text-lrfap-navy"
         >
-          <span className="block">BUILT FOR TRANSPARENCY</span>
-          <span className="block pl-[238.28px]">FAIRNESS</span>
-          <span className="block pl-[238.28px]">&amp; NATIONAL COORDINATION</span>
+          BUILT FOR TRANSPARENCY, FAIRNESS &amp; NATIONAL COORDINATION
         </motion.h2>
-
         <motion.p
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut', delay: 0.15 }}
-          className="absolute font-sans text-[18.11px] leading-[21.73px] font-normal text-lrfap-navy"
-          style={{ top: '62.69px', left: '653.27px', width: '594px' }}
+          className="mt-6 font-sans text-[15px] leading-[22px] font-normal text-lrfap-navy"
         >
           Submit one verified application, rank your preferred programs, and
           access a secure, transparent, and standardized matching process.
         </motion.p>
+      </div>
+
+      <div className="hidden md:block">
+        <div className="relative mx-auto h-[253.76px] w-full max-w-[1366px]">
+          <img
+            src={decorationIntro}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            className="pointer-events-none absolute select-none"
+            style={{
+              top: '30.04px',
+              right: '-256.26px',
+              width: '507.72px',
+              height: '431.20px',
+            }}
+          />
+
+          <motion.h2
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.55, ease: 'easeOut' }}
+            className="absolute font-display text-[40.3px] leading-[43.7px] font-extrabold text-lrfap-navy"
+            style={{ top: '62.69px', left: '28px' }}
+          >
+            <span className="block">BUILT FOR TRANSPARENCY</span>
+            <span className="block pl-[238.28px]">FAIRNESS</span>
+            <span className="block pl-[238.28px]">&amp; NATIONAL COORDINATION</span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.55, ease: 'easeOut', delay: 0.15 }}
+            className="absolute font-sans text-[18.11px] leading-[21.73px] font-normal text-lrfap-navy"
+            style={{ top: '62.69px', left: '653.27px', width: '594px' }}
+          >
+            Submit one verified application, rank your preferred programs, and
+            access a secure, transparent, and standardized matching process.
+          </motion.p>
+        </div>
       </div>
     </section>
   );

@@ -64,8 +64,7 @@ function PortalCard(layout: CardLayout) {
         visible: { opacity: 1, y: 0 },
       }}
       transition={{ duration: 0.55, ease: 'easeOut' }}
-      className="relative w-full overflow-hidden"
-      style={{ aspectRatio: layout.aspectRatio }}
+      className="relative w-full overflow-hidden md:aspect-[1325.80/697.41]"
     >
       <img
         src={layout.photo}
@@ -91,18 +90,17 @@ function PortalCard(layout: CardLayout) {
         }}
       >
         <div
-          className="flex items-center"
+          className="flex flex-col items-start gap-[2px] md:h-[55.49px] md:flex-row md:items-center md:gap-0"
           style={{
-            height: '55.49px',
             marginLeft: `${layout.titleOffsetLeft}px`,
           }}
         >
-          <p className="shrink-0 font-sans text-[18.11px] leading-[22px] font-bold whitespace-nowrap">
+          <p className="font-sans text-[14px] leading-[20px] font-bold md:shrink-0 md:text-[18.11px] md:leading-[22px] md:whitespace-nowrap">
             {layout.title}
           </p>
           <span
             aria-hidden="true"
-            className="block shrink-0 bg-white"
+            className="hidden shrink-0 bg-white md:block"
             style={{
               width: '0.91px',
               height: '55.49px',
@@ -110,7 +108,7 @@ function PortalCard(layout: CardLayout) {
               marginRight: `${layout.dividerMarginRight}px`,
             }}
           />
-          <p className="min-w-0 font-sans text-[18.11px] leading-[22px] font-normal">
+          <p className="font-sans text-[12px] leading-[16px] font-normal md:min-w-0 md:text-[18.11px] md:leading-[22px]">
             {layout.subtitle}
           </p>
         </div>

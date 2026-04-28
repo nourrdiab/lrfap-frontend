@@ -51,14 +51,14 @@ export function Hero() {
   return (
     <section
       aria-label="LRFAP — Lebanese Residency and Fellowship Application Program"
-      className="relative isolate flex min-h-[580px] w-full flex-col overflow-hidden bg-[#1a1d2e]"
+      className="relative isolate flex min-h-[480px] w-full flex-col overflow-hidden bg-[#1a1d2e] md:min-h-[580px]"
     >
       <img
         src="/images/homepage-1.jpg"
         alt=""
         aria-hidden="true"
         draggable={false}
-        className="absolute bottom-0 left-1/2 -z-20 h-[115%] w-[225%] -translate-x-1/2 object-cover object-[center_0%]"
+        className="absolute bottom-0 left-1/2 -z-20 h-full w-full -translate-x-1/2 object-cover object-center md:h-[115%] md:w-[225%] md:object-[center_0%]"
       />
       <div
         aria-hidden="true"
@@ -72,7 +72,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
-        className="relative mx-auto mt-[34.4px] w-full max-w-[1366px] px-[58px] font-display text-[40.3px] leading-[48.37px] font-extrabold tracking-normal text-white"
+        className="relative mx-auto mt-[34.4px] w-full max-w-[1366px] px-6 font-display text-[clamp(22px,6.4vw,40.3px)] leading-[1.2] font-extrabold tracking-normal text-white md:px-[58px] md:leading-[48.37px]"
       >
         <span className="block">LEBANESE RESIDENCY AND</span>
         <span className="relative inline-block">
@@ -100,7 +100,7 @@ export function Hero() {
               : { staggerChildren: 0.07, delayChildren: 0.3 },
           },
         }}
-        className="relative mx-auto mt-auto mb-[42.4px] flex w-full max-w-[1366px] items-start justify-between px-[58px]"
+        className="relative mx-auto mt-auto mb-[42.4px] hidden w-full max-w-[1366px] items-start justify-between px-[58px] md:flex"
       >
         {FEATURES.map((feature) => (
           <motion.li

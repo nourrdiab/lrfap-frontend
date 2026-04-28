@@ -166,7 +166,7 @@ export function ChatbotWidget() {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 6, scale: 0.96 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
-                className="relative"
+                className="relative hidden sm:block"
               >
                 <button
                   type="button"
