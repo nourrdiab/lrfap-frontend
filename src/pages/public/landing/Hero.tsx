@@ -75,10 +75,10 @@ export function Hero() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
-        className="relative mx-auto mt-[34.4px] w-full max-w-[1366px] px-6 font-display text-[clamp(22px,6.4vw,40.3px)] leading-[1.2] font-extrabold tracking-normal text-white md:px-[58px] md:leading-[48.37px]"
+        className="relative mx-auto mt-[34.4px] w-full max-w-[1366px] px-6 font-display text-[clamp(20px,5.8vw,40.3px)] leading-[1.2] font-extrabold tracking-normal text-white md:px-[58px] md:leading-[48.37px]"
       >
-        <span className="block">LEBANESE RESIDENCY AND</span>
-        <span className="relative inline-block whitespace-nowrap">
+        <span className="block whitespace-nowrap">LEBANESE RESIDENCY AND</span>
+        <span className="relative block w-fit whitespace-nowrap md:inline-block">
           <motion.span
             aria-hidden="true"
             initial={{ scaleX: 0 }}
