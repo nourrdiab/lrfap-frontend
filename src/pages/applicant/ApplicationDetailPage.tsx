@@ -348,10 +348,10 @@ export default function ApplicantApplicationDetailPage() {
                       key={slug}
                       className="flex items-center justify-between gap-[16px] px-[18px] py-[14px]"
                     >
-                      <span className="font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy">
+                      <span className="min-w-0 font-sans text-[13px] font-semibold uppercase tracking-wide text-lrfap-navy">
                         {def.label}
                       </span>
-                      <span className="inline-flex items-center gap-[6px] border border-green-200 bg-green-50 px-[10px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-green-700">
+                      <span className="inline-flex shrink-0 items-center gap-[6px] border border-green-200 bg-green-50 px-[10px] py-[2px] font-sans text-[11px] font-medium uppercase tracking-wide text-green-700">
                         <CheckCircle aria-hidden="true" className="h-3 w-3" />
                         Complete
                       </span>

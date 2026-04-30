@@ -123,7 +123,7 @@ function RankRow({ rank, program, isHighlighted = false }: RankRowProps) {
       </div>
       <div className="min-w-0 flex-1 px-[16px] py-[14px]">
         <div className="flex flex-wrap items-center gap-[10px]">
-          <p className="truncate font-display text-[13px] font-bold uppercase tracking-wide text-lrfap-navy">
+          <p className="font-display text-[13px] font-bold uppercase tracking-wide text-lrfap-navy">
             {headlineFor(program)}
           </p>
           {isHighlighted ? (
