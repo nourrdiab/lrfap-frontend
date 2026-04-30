@@ -44,7 +44,7 @@ const MATCHING_STEPS: Array<{
   {
     number: '04',
     title: 'Results publish to everyone at once',
-    body: 'Applicants and programs see results simultaneously. Accepted offers move into a fixed acceptance window, and any unfilled seats are made available in a transparent post-match round.',
+    body: 'Applicants and programs see results simultaneously. Accepted offers move into a 48-hour acceptance window, ensuring all participants receive their match outcome and respond on the same timeline.',
   },
 ];
 
