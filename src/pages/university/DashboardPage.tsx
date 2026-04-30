@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowUpRight,
-  BellOff,
   ClipboardList,
   GraduationCap,
   Users,
@@ -13,13 +12,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { universityReviewApi } from '../../api/universityReview';
 import { cyclesApi } from '../../api/cycles';
 import { dashboardApi } from '../../api/dashboard';
-import { notificationsApi } from '../../api/notifications';
 import type {
   ApplicationStatus,
   Cycle,
   CycleStatus,
   ID,
-  Notification,
   Program,
   Specialty,
   UniversityProgramStatusCounts,
@@ -31,10 +28,9 @@ import type {
  * First wave (parallel):
  *   1. GET /university-review/programs   — programs owned by this university
  *   2. GET /cycles                       — used to pick the active cycle
- *   3. GET /notifications                — last 3 for Recent Activity
  *
  * Second wave (after active cycle is known):
- *   4. GET /dashboard/university/program-counts?cycle=…
+ *   3. GET /dashboard/university/program-counts?cycle=…
  *      Single aggregation that returns per-program status counts AND
  *      the total unique applicants across them — scoped to the active
  *      cycle. Replaces the old N+1 fetch that pulled one applications
@@ -117,9 +113,6 @@ export default function UniversityDashboardPage() {
   const [totalUniqueApplicants, setTotalUniqueApplicants] = useState(0);
   const [programsStatus, setProgramsStatus] = useState<FetchStatus>('idle');
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notificationsStatus, setNotificationsStatus] = useState<FetchStatus>('idle');
-
   useEffect(() => {
     let cancelled = false;
     setProgramsStatus('loading');
@@ -179,24 +172,6 @@ export default function UniversityDashboardPage() {
     };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    setNotificationsStatus('loading');
-    notificationsApi
-      .list()
-      .then((res) => {
-        if (cancelled) return;
-        setNotifications(res);
-        setNotificationsStatus('loaded');
-      })
-      .catch(() => {
-        if (!cancelled) setNotificationsStatus('error');
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const summary = useMemo(() => {
     let pendingReview = 0;
     for (const { counts } of entries) {
@@ -208,17 +183,6 @@ export default function UniversityDashboardPage() {
       pendingReview,
     };
   }, [entries, totalUniqueApplicants]);
-
-  const recentNotifications = useMemo(() => {
-    if (!Array.isArray(notifications)) return [];
-    return notifications
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-      .slice(0, 3);
-  }, [notifications]);
 
   const firstName = user?.firstName?.trim() || '';
 
@@ -232,7 +196,6 @@ export default function UniversityDashboardPage() {
           <div className="h-[110px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
         </div>
         <div className="h-[220px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
-        <div className="h-[180px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
       </PageShell>
     );
   }
@@ -271,10 +234,6 @@ export default function UniversityDashboardPage() {
       />
 
       <ProgramList entries={entries} />
-
-      <RecentActivity
-        notifications={notificationsStatus === 'error' ? [] : recentNotifications}
-      />
     </PageShell>
   );
 }
@@ -459,89 +418,5 @@ function ProgramCard({ program, counts }: ProgramCardProps) {
         className="hidden h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:-translate-y-[1px] group-hover:translate-x-[1px] group-hover:text-lrfap-navy md:block"
       />
     </Link>
-  );
-}
-
-interface RecentActivityProps {
-  notifications: Notification[];
-}
-
-function relativeTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const diffMs = Date.now() - d.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  if (diffSec < 60) return 'just now';
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffDay === 1) return 'yesterday';
-  if (diffDay < 7) return `${diffDay}d ago`;
-  return d.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function RecentActivity({ notifications }: RecentActivityProps) {
-  return (
-    <section
-      aria-labelledby="dashboard-activity-heading"
-      className="border-[0.91px] border-lrfap-ghost bg-white p-[24px] shadow-[0_4px_12px_rgba(38,43,102,0.08)]"
-    >
-      <h2
-        id="dashboard-activity-heading"
-        className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
-      >
-        Recent Activity
-      </h2>
-
-      {notifications.length === 0 ? (
-        <div className="mt-[16px] flex flex-col items-center justify-center gap-[8px] border border-dashed border-lrfap-ghost bg-white/60 px-[16px] py-[36px] text-center">
-          <BellOff
-            aria-hidden="true"
-            className="h-8 w-8 text-slate-300"
-            strokeWidth={1.5}
-          />
-          <p className="font-sans text-[13px] text-slate-500">
-            No recent activity
-          </p>
-        </div>
-      ) : (
-        <ul role="list" className="mt-[16px] flex flex-col">
-          {notifications.map((n, idx) => (
-            <li
-              key={n._id}
-              className={idx > 0 ? 'border-t border-lrfap-ghost/70' : ''}
-            >
-              <div className="flex items-start gap-[12px] px-[4px] py-[12px]">
-                <span
-                  aria-hidden="true"
-                  className={`mt-[8px] h-[8px] w-[8px] shrink-0 rounded-full ${
-                    n.isRead ? 'bg-transparent' : 'bg-lrfap-sky'
-                  }`}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-sans text-[13px] font-semibold text-lrfap-navy">
-                    {n.title}
-                  </p>
-                  {n.message ? (
-                    <p className="mt-[2px] truncate font-sans text-[12px] text-slate-500">
-                      {n.message}
-                    </p>
-                  ) : null}
-                </div>
-                <span className="shrink-0 font-sans text-[11px] text-slate-500">
-                  {relativeTime(n.createdAt)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
   );
 }

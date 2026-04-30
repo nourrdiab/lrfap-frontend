@@ -1,6 +1,5 @@
 import {
   useEffect,
-  useId,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -40,7 +39,7 @@ const NAV_LINKS: NavLinkDef[] = [
 ];
 
 const DESKTOP_LINK_CLS =
-  'relative font-sans text-[16.49px] font-normal text-lrfap-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
+  'relative font-sans text-[16.49px] font-normal uppercase text-lrfap-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
 
 function initialsOf(firstName?: string, lastName?: string, email?: string) {
   const f = firstName?.trim()?.[0];
@@ -55,7 +54,6 @@ export function LGCNavBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const underlineId = useId();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -97,7 +95,7 @@ export function LGCNavBar() {
           aria-label="LGC navigation"
           className="ml-auto hidden items-center gap-[32px] lg:flex"
         >
-          <ul className="flex items-center gap-[28px]" role="list">
+          <ul className="flex items-center gap-[32px] xl:gap-[48px]" role="list">
             {NAV_LINKS.map((item) => (
               <li key={item.to} className="relative">
                 <NavLink to={item.to} end={item.end} className={DESKTOP_LINK_CLS}>
@@ -106,9 +104,9 @@ export function LGCNavBar() {
                       <span className="block py-[6px]">{item.label}</span>
                       {isActive ? (
                         <motion.span
-                          layoutId={underlineId}
+                          layoutId="lgc-navbar-underline"
                           aria-hidden="true"
-                          className="absolute inset-x-0 -bottom-[4px] h-[2px] bg-lrfap-sky"
+                          className="absolute inset-x-0 -bottom-[2px] h-[2px] bg-lrfap-navy"
                           transition={{ type: 'spring', stiffness: 420, damping: 38 }}
                         />
                       ) : null}
@@ -351,8 +349,8 @@ function MobileDrawer({ open, onClose }: MobileDrawerProps) {
                   end={item.end}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `font-sans text-[22px] font-normal text-lrfap-navy transition-opacity ${
-                      isActive ? 'opacity-100 underline underline-offset-[6px] decoration-lrfap-sky' : 'opacity-90'
+                    `font-sans text-[22px] font-normal uppercase text-lrfap-navy transition-opacity ${
+                      isActive ? 'opacity-100 underline underline-offset-[6px] decoration-lrfap-navy' : 'opacity-90'
                     }`
                   }
                 >

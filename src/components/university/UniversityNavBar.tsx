@@ -5,15 +5,29 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 /**
- * Authenticated navbar for the university portal. The portal is now a
- * single-page experience (the dashboard), so the navbar only carries the
- * logo and the user menu — no nav links, no mobile drawer.
+ * Authenticated navbar for the university portal. The portal is a single-
+ * page experience (the dashboard), so the desktop bar carries one nav link
+ * (Dashboard) plus the user dropdown. Mobile (< md) collapses the link —
+ * tapping the logo navigates to the same destination.
  */
+
+interface NavLinkDef {
+  to: string;
+  label: string;
+  end?: boolean;
+}
+
+const NAV_LINKS: NavLinkDef[] = [
+  { to: '/university', label: 'Dashboard', end: true },
+];
+
+const DESKTOP_LINK_CLS =
+  'relative font-sans text-[16.49px] font-normal uppercase text-lrfap-navy transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lrfap-navy';
 
 function initialsOf(firstName?: string, lastName?: string, email?: string) {
   const f = firstName?.trim()?.[0];
@@ -63,7 +77,45 @@ export function UniversityNavBar() {
           />
         </Link>
 
-        <div className="ml-auto">
+        {/* Desktop: nav link + user dropdown */}
+        <nav
+          aria-label="University navigation"
+          className="ml-auto hidden items-center gap-[40px] md:flex"
+        >
+          <ul className="flex items-center gap-[24px] lg:gap-[48px]" role="list">
+            {NAV_LINKS.map((item) => (
+              <li key={item.to} className="relative">
+                <NavLink to={item.to} end={item.end} className={DESKTOP_LINK_CLS}>
+                  {({ isActive }) => (
+                    <>
+                      <span className="block py-[6px]">{item.label}</span>
+                      {isActive ? (
+                        <motion.span
+                          layoutId="university-navbar-underline"
+                          aria-hidden="true"
+                          className="absolute inset-x-0 -bottom-[2px] h-[2px] bg-lrfap-navy"
+                          transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+                        />
+                      ) : null}
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <UserDropdown
+            open={dropdownOpen}
+            setOpen={setDropdownOpen}
+            initials={initials}
+            displayName={displayName}
+            email={user?.email}
+            onSignOut={handleSignOut}
+          />
+        </nav>
+
+        {/* Mobile: dropdown only — logo doubles as the Dashboard link */}
+        <div className="ml-auto md:hidden">
           <UserDropdown
             open={dropdownOpen}
             setOpen={setDropdownOpen}
