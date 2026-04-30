@@ -131,7 +131,7 @@ export function ChatbotPanel({
 
   const blockedHint =
     rateLimit.secondsUntilUnblocked > 0
-      ? `Rate limit — try again in ${rateLimit.secondsUntilUnblocked}s.`
+      ? `Rate limit. Try again in ${rateLimit.secondsUntilUnblocked}s.`
       : null;
 
   const sendDisabled =

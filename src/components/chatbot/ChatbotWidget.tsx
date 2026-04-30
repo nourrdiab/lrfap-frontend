@@ -32,9 +32,9 @@ function buildWelcome(user: User | null, isAuthenticated: boolean): string {
   // data, so we don't promise role-specific workflow help.
   if (isAuthenticated && user && user.role === 'applicant') {
     const firstName = user.firstName?.trim() || 'there';
-    return `Hi ${firstName}! I can help you understand how LRFAP works — programs, the matching algorithm, or application steps.`;
+    return `Hi ${firstName}! I can help you understand how LRFAP works. Ask me about programs, the matching algorithm, or application steps.`;
   }
-  return "Hi! I can help explain how LRFAP works — programs, the matching process, or how to apply.";
+  return "Hi! I can help explain how LRFAP works. Ask me about programs, the matching process, or how to apply.";
 }
 
 function readTeaseSeen(): boolean {

@@ -57,7 +57,7 @@ function mapErrorToText(err: unknown): {
 
     if (status === 400) {
       return {
-        userText: 'Your message was invalid — please try rephrasing.',
+        userText: 'Your message was invalid. Please try rephrasing.',
         blockSeconds: null,
         rateLimit: rl,
       };
