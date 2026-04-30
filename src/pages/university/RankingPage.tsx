@@ -285,7 +285,6 @@ export default function UniversityRankingPage() {
           email: populatedUser?.email ?? null,
           status: 'withdrawn',
           reference: null,
-          appliedRank: null,
           isIneligible: true,
           ineligibleReason: 'No longer applicable',
         });
