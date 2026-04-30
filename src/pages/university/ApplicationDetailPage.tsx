@@ -10,7 +10,6 @@ import {
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { universityReviewApi } from '../../api/universityReview';
 import { documentsApi } from '../../api/documents';
-import { SelectedProgramsList } from '../../components/applicant/applicationView/SelectedProgramsList';
 import { DocumentsList } from '../../components/applicant/applicationView/DocumentsList';
 import type {
   Application,
@@ -325,48 +324,27 @@ export default function UniversityApplicationDetailPage() {
         </section>
       ) : null}
 
-      {/* Two-column grid: documents + selections with highlight */}
-      <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-[1fr_1fr]">
-        <section aria-labelledby="detail-documents-heading" className="flex flex-col gap-[12px]">
-          <h2
-            id="detail-documents-heading"
-            className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
-          >
-            Documents
-          </h2>
-          {docsStatus === 'loading' ? (
-            <div className="h-[320px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
-          ) : docsStatus === 'error' ? (
-            <div
-              role="alert"
-              className="flex items-start gap-[10px] border-[0.91px] border-red-200 bg-red-50 px-[16px] py-[12px] font-sans text-[13px] text-red-800"
-            >
-              <AlertCircle aria-hidden="true" className="mt-[2px] h-4 w-4 shrink-0" />
-              <span>Couldn&apos;t load documents. Refresh to try again.</span>
-            </div>
-          ) : (
-            <DocumentsList documents={documents} readOnly />
-          )}
-        </section>
-
-        <section
-          aria-labelledby="detail-ranked-heading"
-          className="flex flex-col gap-[12px]"
+      <section aria-labelledby="detail-documents-heading" className="flex flex-col gap-[12px]">
+        <h2
+          id="detail-documents-heading"
+          className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
         >
-          <h2
-            id="detail-ranked-heading"
-            className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
+          Documents
+        </h2>
+        {docsStatus === 'loading' ? (
+          <div className="h-[320px] animate-pulse border-[0.91px] border-lrfap-ghost bg-slate-50" />
+        ) : docsStatus === 'error' ? (
+          <div
+            role="alert"
+            className="flex items-start gap-[10px] border-[0.91px] border-red-200 bg-red-50 px-[16px] py-[12px] font-sans text-[13px] text-red-800"
           >
-            Selected Programs &amp; Rankings
-          </h2>
-          <SelectedProgramsList
-            selections={application.selections}
-            readOnly
-            highlightProgramId={sourceProgramId ?? undefined}
-            emptyMessage="No programs were ranked on this application."
-          />
-        </section>
-      </div>
+            <AlertCircle aria-hidden="true" className="mt-[2px] h-4 w-4 shrink-0" />
+            <span>Couldn&apos;t load documents. Refresh to try again.</span>
+          </div>
+        ) : (
+          <DocumentsList documents={documents} readOnly />
+        )}
+      </section>
     </PageShell>
   );
 }

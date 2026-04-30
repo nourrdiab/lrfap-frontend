@@ -4,20 +4,14 @@ import type {
   Application,
   ApplicationStatus,
   ID,
-  ProgramSelection,
   User,
 } from '../../../types';
 
 /**
- * Per-program applicants table. Rank is the heaviest visual element in
- * each row — it's the strongest signal for a reviewer deciding who to
- * interview first, so it gets display-weight navy numerals. Other cells
- * stay at 13 px sans.
- *
- * Sort policy: rank ASC (most-preferred first) then submittedAt DESC
- * (newer among tied ranks). Applications missing a rank for this program
- * fall to the bottom — shouldn't happen given backend filters, but
- * guarding anyway.
+ * Per-program applicants table. The applicant's preference rank for this
+ * program is intentionally not surfaced — exposing it would let reviewers
+ * favor applicants who ranked them highly, breaking the stable-matching
+ * guarantee the algorithm provides. Sort by submittedAt DESC.
  */
 
 interface ApplicantsTableProps {
@@ -70,17 +64,6 @@ function applicantDisplay(applicant: ID | User): {
   };
 }
 
-function rankForProgram(
-  selections: ProgramSelection[],
-  programId: ID,
-): number | null {
-  for (const s of selections) {
-    const id = typeof s.program === 'string' ? s.program : s.program?._id;
-    if (id === programId) return s.rank;
-  }
-  return null;
-}
-
 export function ApplicantsTable({ applications, programId }: ApplicantsTableProps) {
   if (applications.length === 0) {
     return (
@@ -110,9 +93,6 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
               Applied
             </th>
             <th className="px-[16px] py-[14px] text-left font-sans text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-              Rank
-            </th>
-            <th className="px-[16px] py-[14px] text-left font-sans text-[11px] font-semibold uppercase tracking-wide text-slate-500">
               Status
             </th>
             <th className="px-[16px] py-[14px] text-left font-sans text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -126,7 +106,6 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
         <tbody>
           {applications.map((app, idx) => {
             const { name, email } = applicantDisplay(app.applicant);
-            const rank = rankForProgram(app.selections, programId);
             const presentation = STATUS_PRESENTATION[app.status];
             return (
               <tr
@@ -145,18 +124,6 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
                 </td>
                 <td className="px-[16px] py-[14px] align-middle font-sans text-[13px] text-slate-600">
                   {formatDate(app.submittedAt)}
-                </td>
-                <td className="px-[16px] py-[14px] align-middle">
-                  {rank !== null ? (
-                    <span className="inline-flex items-baseline gap-[2px]">
-                      <span className="font-sans text-[14px] text-slate-400">#</span>
-                      <span className="font-display text-[20px] font-extrabold leading-none text-lrfap-navy">
-                        {rank}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="font-sans text-[12px] text-slate-400">—</span>
-                  )}
                 </td>
                 <td className="px-[16px] py-[14px] align-middle">
                   <span
@@ -187,7 +154,6 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
       <ul role="list" className="flex flex-col md:hidden">
         {applications.map((app, idx) => {
           const { name, email } = applicantDisplay(app.applicant);
-          const rank = rankForProgram(app.selections, programId);
           const presentation = STATUS_PRESENTATION[app.status];
           return (
             <li
@@ -198,18 +164,6 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
                 to={`/university/applications/${app._id}?program=${programId}`}
                 className="flex items-stretch gap-[14px] px-[16px] py-[14px] transition-colors hover:bg-lrfap-ghost/20 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-lrfap-sky"
               >
-                <div className="flex w-[60px] shrink-0 flex-col items-center justify-center border-r border-lrfap-ghost">
-                  {rank !== null ? (
-                    <span className="inline-flex items-baseline gap-[1px]">
-                      <span className="font-sans text-[12px] text-slate-400">#</span>
-                      <span className="font-display text-[22px] font-extrabold leading-none text-lrfap-navy">
-                        {rank}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="font-sans text-[12px] text-slate-400">—</span>
-                  )}
-                </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-sans text-[14px] font-semibold text-lrfap-navy">
                     {name}

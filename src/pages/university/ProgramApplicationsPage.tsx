@@ -13,19 +13,18 @@ import type {
   Application,
   Cycle,
   Program,
-  ProgramSelection,
   Specialty,
 } from '../../types';
 
 /**
  * Per-program applicants list. Entry point for the university review
- * workflow — linked from the Dashboard program cards and from the
- * top-level /university/programs list. Fetches the program (for the
- * header) and its applications in parallel.
+ * workflow — linked from the Dashboard program cards. Fetches the program
+ * (for the header) and its applications in parallel.
  *
  * Status filtering is client-side: small lists (single-program scope,
- * backend already drops drafts). Sort order is rank ASC → submittedAt
- * DESC so the applicants most committed to this program sit at the top.
+ * backend already drops drafts). Sort order is submittedAt DESC; the
+ * applicant's preference rank for this program is intentionally hidden
+ * from reviewers so it can't bias their own ranking.
  */
 
 type FetchStatus = 'idle' | 'loading' | 'loaded' | 'error' | 'not-found';
@@ -46,14 +45,6 @@ function populatedSpecialty(program: Program | null): Specialty | null {
 function populatedCycle(program: Program | null): Cycle | null {
   if (!program) return null;
   return typeof program.cycle === 'object' ? (program.cycle as Cycle) : null;
-}
-
-function rankForProgram(selections: ProgramSelection[], programId: string): number {
-  for (const s of selections) {
-    const id = typeof s.program === 'string' ? s.program : s.program?._id;
-    if (id === programId) return s.rank;
-  }
-  return Number.POSITIVE_INFINITY;
 }
 
 function submittedMs(app: Application): number {
@@ -120,14 +111,8 @@ export default function UniversityProgramApplicationsPage() {
   }, [programId, validId]);
 
   const sorted = useMemo(() => {
-    if (!programId) return [] as Application[];
-    return applications.slice().sort((a, b) => {
-      const ra = rankForProgram(a.selections, programId);
-      const rb = rankForProgram(b.selections, programId);
-      if (ra !== rb) return ra - rb;
-      return submittedMs(b) - submittedMs(a);
-    });
-  }, [applications, programId]);
+    return applications.slice().sort((a, b) => submittedMs(b) - submittedMs(a));
+  }, [applications]);
 
   const counts = useMemo<Record<StatusFilter, number>>(() => {
     const c: Record<StatusFilter, number> = {

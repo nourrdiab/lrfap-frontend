@@ -27,7 +27,6 @@ import type {
   ID,
   Program,
   ProgramRanking,
-  ProgramSelection,
   Specialty,
   User,
 } from '../../types';
@@ -108,15 +107,7 @@ function submittedMs(app: Application): number {
   return Number.isNaN(t) ? 0 : t;
 }
 
-function rankForProgram(selections: ProgramSelection[], programId: ID): number | null {
-  for (const s of selections) {
-    const id = idOf(s.program);
-    if (id === programId) return s.rank;
-  }
-  return null;
-}
-
-function rowForApp(app: Application, programId: ID): RankedRowData {
+function rowForApp(app: Application): RankedRowData {
   const ineligible =
     app.status !== 'submitted' && app.status !== 'under_review';
   return {
@@ -126,7 +117,6 @@ function rowForApp(app: Application, programId: ID): RankedRowData {
     email: applicantEmail(app.applicant),
     status: app.status,
     reference: app.submissionReference ?? null,
-    appliedRank: rankForProgram(app.selections, programId),
     isIneligible: ineligible,
     ineligibleReason: ineligible
       ? app.status === 'withdrawn'
@@ -276,7 +266,7 @@ export default function UniversityRankingPage() {
     for (const entry of sortedStored) {
       const app = appsById.get(entry.application);
       if (app) {
-        storedRows.push(rowForApp(app, programId));
+        storedRows.push(rowForApp(app));
         rankedIds.add(app._id);
       } else {
         // Fallback: applicant was populated on the ranking response, so
@@ -314,7 +304,7 @@ export default function UniversityRankingPage() {
         )
         .slice()
         .sort((a, b) => submittedMs(a) - submittedMs(b));
-      const seeded = eligible.map((a) => rowForApp(a, programId));
+      const seeded = eligible.map((a) => rowForApp(a));
       setRanked(seeded);
       // serverSignature stays '' — stored ranking is empty — so any
       // non-empty seeded list is dirty, as intended.
@@ -341,7 +331,7 @@ export default function UniversityRankingPage() {
       .filter((a) => a.status === 'submitted' || a.status === 'under_review')
       .slice()
       .sort((a, b) => submittedMs(a) - submittedMs(b))
-      .map((a) => rowForApp(a, programId));
+      .map((a) => rowForApp(a));
   }, [applications, ranked, programId]);
 
   const ineligibleInRanking = useMemo(
@@ -395,7 +385,7 @@ export default function UniversityRankingPage() {
       if (!programId) return;
       const app = applications.find((a) => a._id === applicationId);
       if (!app) return;
-      const row = rowForApp(app, programId);
+      const row = rowForApp(app);
       setRanked((prev) => [...prev, row]);
       setSaveError(null);
     },

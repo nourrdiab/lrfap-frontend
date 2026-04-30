@@ -40,8 +40,6 @@ export interface RankedRowData {
   email: string | null;
   status: ApplicationStatus;
   reference: string | null;
-  /** Rank this applicant gave THIS program in their preference list. */
-  appliedRank: number | null;
   /** True when status is not in ['submitted', 'under_review']. */
   isIneligible: boolean;
   /** Short label describing the ineligibility reason (for the tooltip). */
@@ -229,14 +227,6 @@ function RowShell({
           <p className="truncate font-sans text-[14px] font-semibold text-lrfap-navy">
             {row.name}
           </p>
-          {row.appliedRank !== null ? (
-            <span
-              title={`Applicant ranked this program #${row.appliedRank} in their preferences`}
-              className="inline-flex items-center gap-[4px] border-[0.91px] border-lrfap-sky/40 bg-lrfap-sky/10 px-[8px] py-[1px] font-sans text-[10px] font-semibold uppercase tracking-wide text-lrfap-sky"
-            >
-              Applicant chose #{row.appliedRank}
-            </span>
-          ) : null}
           {row.isIneligible ? (
             <span
               title={row.ineligibleReason ?? 'No longer eligible'}

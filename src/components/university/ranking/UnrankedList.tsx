@@ -54,11 +54,6 @@ export function UnrankedList({ rows, onAdd }: UnrankedListProps) {
               <p className="truncate font-sans text-[14px] font-semibold text-lrfap-navy">
                 {row.name}
               </p>
-              {row.appliedRank !== null ? (
-                <span className="inline-flex items-center gap-[4px] border-[0.91px] border-lrfap-sky/40 bg-lrfap-sky/10 px-[8px] py-[1px] font-sans text-[10px] font-semibold uppercase tracking-wide text-lrfap-sky">
-                  Applicant chose #{row.appliedRank}
-                </span>
-              ) : null}
             </div>
             <div className="mt-[2px] flex flex-wrap items-center gap-[10px]">
               {row.email ? (
