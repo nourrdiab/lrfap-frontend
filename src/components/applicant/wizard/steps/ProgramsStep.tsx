@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, Check, Plus, Search, X } from 'lucide-react';
+import { AlertCircle, ChevronDown, Plus, Search, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { FormSelect } from '../../forms/FormSelect';
 import { useWizard } from '../WizardContext';
 import type {
@@ -13,30 +14,18 @@ import type {
 /**
  * Programs step (step 3 of the wizard).
  *
- * Figma designer included 5 filters (UNIVERSITY · SPECIALITY · ELIGIBILITY
- * · PROGRAM TYPE · CITY), but only 3 map to real backend fields:
- *   - UNIVERSITY and SPECIALITY filter via GET /api/programs query params
- *   - CITY is client-side against the populated university.city
- *   - ELIGIBILITY is redundant with `track` (fixed by the application on
- *     create); every program shown is already of the correct track
- *   - PROGRAM TYPE has no backend analogue
+ * Three filters drive discovery — UNIVERSITY and SPECIALITY hit the
+ * backend via GET /api/programs query params; CITY filters client-side
+ * against the populated university.city. Search is client-side and
+ * case-insensitive against specialty.name + specialty.code +
+ * university.name + university.code.
  *
- * We drop ELIGIBILITY + PROGRAM TYPE rather than ship disabled placeholders
- * (designer oversight, same pattern as the applicant-navbar bug). The 3
- * real filters cover the most useful discovery patterns.
- *
- * Search is client-side, case-insensitive, against specialty.name +
- * specialty.code + university.name + university.code.
- *
- * ADD / REMOVE mutations are optimistic + 400ms debounced (wired through
- * WizardContext.addProgramSelection / removeProgramSelection). On server
- * rejection the cached selections revert and `selectionsError` surfaces
- * at the top of the step.
- *
- * Eligibility pill on each card is currently hard-coded to "Eligible" —
- * real per-applicant eligibility rules (graduation year, language, etc.)
- * are a deferred MVP concern. Hook lives in `computeEligibility` for
- * when the rules land.
+ * ADD / REMOVE mutations are optimistic + 400ms debounced (wired
+ * through WizardContext.addProgramSelection / removeProgramSelection).
+ * On server rejection the cached selections revert and `selectionsError`
+ * surfaces at the top of the step. The right-rail "Selected Programs"
+ * panel is collapsed by default so a long selection list doesn't push
+ * the wizard's Previous/Next controls below the fold.
  */
 
 // Local tiny helpers; intentionally duplicated from WizardContext because
@@ -48,11 +37,6 @@ function idOf(ref: ID | { _id: ID } | null | undefined): ID | null {
 function populated<T extends { _id: ID }>(ref: ID | T | null | undefined): T | null {
   if (!ref || typeof ref === 'string') return null;
   return ref;
-}
-
-function computeEligibility(_program: Program): { eligible: true } {
-  // Placeholder — see docblock.
-  return { eligible: true };
 }
 
 /** Compose "JOHNS HOPKINS EMERGENCY MEDICINE RESIDENCY"-style heading. */
@@ -85,6 +69,7 @@ export default function ProgramsStep() {
   const [specialtyFilter, setSpecialtyFilter] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [search, setSearch] = useState('');
+  const [selectedExpanded, setSelectedExpanded] = useState(false);
 
   useEffect(() => {
     // No step save: every mutation hits the server already (debounced),
@@ -363,6 +348,7 @@ export default function ProgramsStep() {
                     program={p}
                     isSelected={selectedIds.has(p._id)}
                     onAdd={() => addProgramSelection(p._id)}
+                    onRemove={() => removeProgramSelection(p._id)}
                   />
                 </li>
               ))}
@@ -371,33 +357,61 @@ export default function ProgramsStep() {
         </div>
 
         <aside className="flex flex-col gap-[12px]">
-          <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setSelectedExpanded((v) => !v)}
+            aria-expanded={selectedExpanded}
+            aria-controls="selected-programs-panel"
+            className="flex w-full items-center justify-between gap-[12px] border-[0.91px] border-lrfap-ghost bg-white px-[14px] py-[12px] text-left transition-colors hover:border-lrfap-navy/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
+          >
             <h3 className="font-sans text-[14px] font-semibold uppercase tracking-wide text-lrfap-navy">
               Selected Programs
             </h3>
-            <span className="font-sans text-[12px] text-slate-500">
-              {selectedEntries.length} selected
+            <span className="flex items-center gap-[10px]">
+              <span className="font-sans text-[12px] text-slate-500">
+                {selectedEntries.length} selected
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`h-4 w-4 text-lrfap-navy transition-transform duration-200 ${
+                  selectedExpanded ? 'rotate-180' : ''
+                }`}
+              />
             </span>
-          </div>
+          </button>
 
-          {selectedEntries.length === 0 ? (
-            <EmptyPanel
-              title="Nothing selected yet"
-              body="Add programs from the left. You'll rank them in the next step."
-            />
-          ) : (
-            <ul role="list" className="flex flex-col gap-[12px]">
-              {selectedEntries.map((entry) => (
-                <li key={entry.programId}>
-                  <SelectedProgramRow
-                    rank={entry.rank}
-                    program={entry.program}
-                    onRemove={() => removeProgramSelection(entry.programId)}
+          <AnimatePresence initial={false}>
+            {selectedExpanded ? (
+              <motion.div
+                id="selected-programs-panel"
+                key="selected-programs-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{ overflow: 'hidden' }}
+              >
+                {selectedEntries.length === 0 ? (
+                  <EmptyPanel
+                    title="Nothing selected yet"
+                    body="Add programs from the left. You'll rank them in the next step."
                   />
-                </li>
-              ))}
-            </ul>
-          )}
+                ) : (
+                  <ul role="list" className="flex flex-col gap-[12px]">
+                    {selectedEntries.map((entry) => (
+                      <li key={entry.programId}>
+                        <SelectedProgramRow
+                          rank={entry.rank}
+                          program={entry.program}
+                          onRemove={() => removeProgramSelection(entry.programId)}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </aside>
       </div>
     </section>
@@ -408,35 +422,28 @@ interface AvailableProgramCardProps {
   program: Program;
   isSelected: boolean;
   onAdd: () => void;
+  onRemove: () => void;
 }
 
 function AvailableProgramCard({
   program,
   isSelected,
   onAdd,
+  onRemove,
 }: AvailableProgramCardProps) {
   const uni = populated<University>(program.university);
   const spec = populated<Specialty>(program.specialty);
-  const { eligible } = computeEligibility(program);
 
   return (
     <article className="border-[0.91px] border-lrfap-ghost bg-white p-[20px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.1)]">
-      <div className="flex items-start justify-between gap-[16px]">
-        <div className="min-w-0 flex-1">
-          <h4 className="font-display text-[15px] font-bold uppercase tracking-wide text-lrfap-navy">
-            {headlineFor(program)}
-          </h4>
-          {uni?.name ? (
-            <p className="mt-[2px] font-sans text-[13px] text-slate-500">
-              {uni.name}
-            </p>
-          ) : null}
-        </div>
-        {eligible ? (
-          <span className="inline-flex shrink-0 items-center gap-[6px] border border-sky-200 bg-sky-50 px-[10px] py-[3px] font-sans text-[11px] font-medium uppercase tracking-wide text-sky-700">
-            <span aria-hidden="true" className="h-[6px] w-[6px] rounded-full bg-sky-500" />
-            Eligible
-          </span>
+      <div className="min-w-0">
+        <h4 className="font-display text-[15px] font-bold uppercase tracking-wide text-lrfap-navy">
+          {headlineFor(program)}
+        </h4>
+        {uni?.name ? (
+          <p className="mt-[2px] font-sans text-[13px] text-slate-500">
+            {uni.name}
+          </p>
         ) : null}
       </div>
 
@@ -451,10 +458,14 @@ function AvailableProgramCard({
 
       <div className="mt-[16px] flex justify-end">
         {isSelected ? (
-          <span className="inline-flex h-[40px] items-center justify-center gap-[8px] border-[0.91px] border-green-600 bg-green-600 px-[20px] font-sans text-[13px] font-medium uppercase tracking-wide text-white">
-            <Check aria-hidden="true" className="h-4 w-4" strokeWidth={3} />
-            Added
-          </span>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="inline-flex h-[40px] items-center justify-center gap-[8px] border-[0.91px] border-lrfap-navy bg-white px-[20px] font-sans text-[13px] font-medium uppercase tracking-wide text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
+          >
+            <X aria-hidden="true" className="h-4 w-4" />
+            Remove
+          </button>
         ) : (
           <button
             type="button"
