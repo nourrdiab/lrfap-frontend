@@ -23,7 +23,7 @@ export function Intro() {
       aria-label="Built for transparency, fairness and national coordination"
       className="relative w-full overflow-hidden bg-white"
     >
-      <div className="px-6 py-10 md:hidden">
+      <div className="px-6 py-10 lg:hidden">
         <motion.h2
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -45,7 +45,7 @@ export function Intro() {
         </motion.p>
       </div>
 
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <div className="relative mx-auto h-[253.76px] w-full max-w-[1366px]">
           <img
             src={decorationIntro}

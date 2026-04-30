@@ -200,7 +200,7 @@ export default function SupportPage() {
         </motion.p>
       </motion.header>
 
-      <div className="mt-[48px] flex flex-col gap-[48px] md:flex-row md:items-start md:justify-between md:gap-[48px]">
+      <div className="mt-[48px] flex flex-col gap-[48px] lg:flex-row lg:items-start lg:justify-between lg:gap-[48px]">
         <div className="flex w-full max-w-[800px] flex-col gap-[48px]">
           {SECTIONS.map((section, i) => (
             <section key={section.id} aria-labelledby={section.id}>
@@ -217,7 +217,7 @@ export default function SupportPage() {
           ))}
         </div>
 
-        <aside className="hidden w-[260px] shrink-0 md:block">
+        <aside className="hidden w-[260px] shrink-0 lg:block">
           <nav
             aria-label="On this page"
             className="sticky top-[24px] rounded-xl bg-white p-[20px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.15)]"

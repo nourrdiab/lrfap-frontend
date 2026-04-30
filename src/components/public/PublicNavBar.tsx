@@ -107,7 +107,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
 
         {/* Desktop links */}
         <ul
-          className="ml-auto hidden items-center gap-[48px] md:flex"
+          className="ml-auto hidden items-center gap-[24px] md:flex lg:gap-[48px]"
           role="list"
         >
           {NAV_LINKS.map((item) => (
@@ -142,7 +142,7 @@ export function PublicNavBar({ variant = 'solid' }: PublicNavBarProps) {
         </ul>
 
         {/* Desktop right-side buttons */}
-        <div className="hidden items-center gap-[18px] md:flex md:pl-[48px]">
+        <div className="hidden items-center gap-[18px] md:flex md:pl-[24px] lg:pl-[48px]">
           <Link to="/login" className={signInCls}>
             SIGN IN
           </Link>

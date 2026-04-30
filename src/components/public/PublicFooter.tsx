@@ -86,7 +86,7 @@ export function PublicFooter() {
 
         <nav
           aria-label="Footer"
-          className="flex flex-col items-start gap-[24px] md:flex-row md:gap-[120px]"
+          className="flex flex-col items-start gap-[24px] md:flex-row md:gap-[40px] lg:gap-[120px]"
         >
           <LinkColumn items={COLUMN_1} />
           <LinkColumn items={COLUMN_2} />

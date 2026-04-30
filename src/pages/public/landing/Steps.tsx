@@ -110,7 +110,7 @@ export function Steps() {
         </div>
       </div>
 
-      <div className="mx-auto mt-[35.05px] grid w-full max-w-[1362px] grid-cols-1 px-6 md:grid-cols-5 md:px-0">
+      <div className="mx-auto mt-[35.05px] grid w-full max-w-[1362px] grid-cols-1 px-6 xl:grid-cols-5 xl:px-0">
         {STEPS.map((step, i) => (
           <motion.div
             key={i}
@@ -122,8 +122,8 @@ export function Steps() {
               ease: 'easeOut',
               delay: 0.1 + i * 0.08,
             }}
-            className={`relative border-[0.91px] border-lrfap-ghost md:border-l-0 ${
-              i === 0 ? 'md:border-l-[0.91px]' : ''
+            className={`relative border-[0.91px] border-lrfap-ghost xl:border-l-0 ${
+              i === 0 ? 'xl:border-l-[0.91px]' : ''
             }`}
             style={{ height: '289.91px' }}
           >

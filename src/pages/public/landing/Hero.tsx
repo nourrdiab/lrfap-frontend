@@ -103,7 +103,7 @@ export function Hero() {
               : { staggerChildren: 0.07, delayChildren: 0.3 },
           },
         }}
-        className="relative mx-auto mt-auto mb-[42.4px] hidden w-full max-w-[1366px] items-start justify-between px-[58px] md:flex"
+        className="relative mx-auto mt-auto mb-[42.4px] hidden w-full max-w-[1366px] items-start justify-between px-[58px] lg:flex"
       >
         {FEATURES.map((feature) => (
           <motion.li
