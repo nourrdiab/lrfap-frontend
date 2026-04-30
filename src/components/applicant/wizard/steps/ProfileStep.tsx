@@ -321,16 +321,6 @@ export default function ProfileStep() {
             error={fieldErrors.graduationYear}
           />
           <FormField
-            id="profile-gpa"
-            label="GPA"
-            type="number"
-            step="0.01"
-            value={form.gpa}
-            onChange={(e) => setField('gpa', e.target.value)}
-            placeholder="3.8"
-            hint="Optional — 0 to 4 scale"
-          />
-          <FormField
             id="profile-classRank"
             label="Class Rank"
             value={form.classRank}
@@ -400,7 +390,7 @@ export default function ProfileStep() {
         <div className="grid grid-cols-1 gap-[16px] md:grid-cols-2">
           <FormField
             id="profile-usmleStep1"
-            label="USMLE Step 1"
+            label="IFOM 1"
             type="number"
             value={form.usmleStep1}
             onChange={(e) => setField('usmleStep1', e.target.value)}
@@ -409,7 +399,7 @@ export default function ProfileStep() {
           />
           <FormField
             id="profile-usmleStep2"
-            label="USMLE Step 2"
+            label="IFOM 2"
             type="number"
             value={form.usmleStep2}
             onChange={(e) => setField('usmleStep2', e.target.value)}

@@ -26,7 +26,6 @@ export interface ProfileForm {
   medicalSchool: string;
   medicalSchoolOther: string;
   graduationYear: string;
-  gpa: string;
   classRank: string;
   languageEnglish: LanguageLevel;
   languageFrench: LanguageLevel;
@@ -55,7 +54,6 @@ export const EMPTY_PROFILE_FORM: ProfileForm = {
   medicalSchool: '',
   medicalSchoolOther: '',
   graduationYear: '',
-  gpa: '',
   classRank: '',
   languageEnglish: 'none',
   languageFrench: 'none',
@@ -84,7 +82,6 @@ export function hydrateProfileForm(profile: ApplicantProfile): ProfileForm {
     medicalSchool: profile.medicalSchool ?? '',
     medicalSchoolOther: profile.medicalSchoolOther ?? '',
     graduationYear: profile.graduationYear?.toString() ?? '',
-    gpa: profile.gpa?.toString() ?? '',
     classRank: profile.classRank ?? '',
     languageEnglish: langs.english ?? 'none',
     languageFrench: langs.french ?? 'none',
@@ -133,7 +130,6 @@ export function serializeProfileForm(
     medicalSchool: medSchool,
     medicalSchoolOther: medSchoolOther,
     graduationYear: parseNumber(form.graduationYear),
-    gpa: parseNumber(form.gpa),
     classRank: form.classRank.trim() || undefined,
     usmleStep1: parseNumber(form.usmleStep1),
     usmleStep2: parseNumber(form.usmleStep2),

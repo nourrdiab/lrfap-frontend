@@ -433,17 +433,6 @@ export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps)
             error={fieldErrors.graduationYear}
           />
           <FormField
-            id="profile-gpa"
-            label="GPA"
-            type="number"
-            step="0.01"
-            readOnly={locked}
-            value={form.gpa}
-            onChange={(e) => setField('gpa', e.target.value)}
-            placeholder="3.8"
-            hint="Optional — 0 to 4 scale"
-          />
-          <FormField
             id="profile-classRank"
             label="Class Rank"
             readOnly={locked}
@@ -523,7 +512,7 @@ export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps)
         <div className="grid grid-cols-1 gap-[16px] md:grid-cols-2">
           <FormField
             id="profile-usmleStep1"
-            label="USMLE Step 1"
+            label="IFOM 1"
             type="number"
             readOnly={locked}
             value={form.usmleStep1}
@@ -533,7 +522,7 @@ export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps)
           />
           <FormField
             id="profile-usmleStep2"
-            label="USMLE Step 2"
+            label="IFOM 2"
             type="number"
             readOnly={locked}
             value={form.usmleStep2}

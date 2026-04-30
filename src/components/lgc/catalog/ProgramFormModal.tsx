@@ -564,7 +564,7 @@ export function ProgramFormModal({
                         onChange={(e) => update('extraRequirementsRaw', e.target.value)}
                         rows={3}
                         className="min-h-[80px] w-full resize-y border-2 border-lrfap-ghost bg-white px-[14px] py-[10px] font-sans text-[15px] text-slate-900 transition-colors duration-150 placeholder:text-slate-400 hover:border-slate-300 focus-within:border-lrfap-sky focus:outline-none"
-                        placeholder={'USMLE Step 1 passing score\nClinical rotation certificate'}
+                        placeholder={'IFOM 1 passing score\nClinical rotation certificate'}
                       />
                       <p className="font-sans text-[12px] text-slate-500">
                         One requirement per line. Leave blank if none.
