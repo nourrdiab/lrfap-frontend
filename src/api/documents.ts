@@ -62,6 +62,9 @@ export const documentsApi = {
   getDownloadUrl: (id: ID) =>
     apiGet<{ url: string; expiresAt?: string }>(`/documents/${id}/download`),
 
+  getViewUrl: (id: ID) =>
+    apiGet<{ url: string; expiresAt?: string }>(`/documents/${id}/view`),
+
   remove: (id: ID) => apiDelete<{ success: boolean }>(`/documents/${id}`),
 
   review: (id: ID, body: ReviewDocumentPayload) =>

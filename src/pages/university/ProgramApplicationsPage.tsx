@@ -6,7 +6,7 @@ import { programsApi } from '../../api/programs';
 import { universityReviewApi } from '../../api/universityReview';
 import {
   StatusFilterBar,
-  type StatusFilter,
+  type ReviewStateFilter,
 } from '../../components/university/applications/StatusFilterBar';
 import { ApplicantsTable } from '../../components/university/applications/ApplicantsTable';
 import type {
@@ -64,7 +64,7 @@ export default function UniversityProgramApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [appsStatus, setAppsStatus] = useState<FetchStatus>('idle');
 
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const [filter, setFilter] = useState<ReviewStateFilter>('new');
 
   useEffect(() => {
     if (!validId || !programId) return;
@@ -114,24 +114,22 @@ export default function UniversityProgramApplicationsPage() {
     return applications.slice().sort((a, b) => submittedMs(b) - submittedMs(a));
   }, [applications]);
 
-  const counts = useMemo<Record<StatusFilter, number>>(() => {
-    const c: Record<StatusFilter, number> = {
-      all: sorted.length,
-      submitted: 0,
+  const counts = useMemo<Record<ReviewStateFilter, number>>(() => {
+    const c: Record<ReviewStateFilter, number> = {
+      new: 0,
       under_review: 0,
+      reviewed: 0,
       matched: 0,
     };
     for (const a of sorted) {
-      if (a.status === 'submitted') c.submitted += 1;
-      else if (a.status === 'under_review') c.under_review += 1;
-      else if (a.status === 'matched') c.matched += 1;
+      const s = a.reviewState ?? 'new';
+      c[s] += 1;
     }
     return c;
   }, [sorted]);
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return sorted;
-    return sorted.filter((a) => a.status === filter);
+    return sorted.filter((a) => (a.reviewState ?? 'new') === filter);
   }, [sorted, filter]);
 
   const specialty = populatedSpecialty(program);

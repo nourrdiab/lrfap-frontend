@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle,
   ArrowLeft,
   CheckCircle,
+  Loader2,
   Mail,
   User as UserIcon,
 } from 'lucide-react';
@@ -14,7 +15,7 @@ import { DocumentsList } from '../../components/applicant/applicationView/Docume
 import type {
   Application,
   ApplicationDocument,
-  ApplicationStatus,
+  ApplicationReviewState,
   Cycle,
   ID,
   Program,
@@ -74,35 +75,22 @@ interface StatusPresentation {
   label: string;
   badgeCls: string;
 }
-function presentStatus(status: ApplicationStatus): StatusPresentation {
-  switch (status) {
-    case 'submitted':
-      return { label: 'Submitted', badgeCls: 'bg-sky-50 text-sky-700 border-sky-200' };
-    case 'under_review':
-      return {
-        label: 'Under Review',
-        badgeCls: 'bg-amber-50 text-amber-800 border-amber-200',
-      };
-    case 'matched':
-      return {
-        label: 'Matched',
-        badgeCls: 'bg-green-50 text-green-700 border-green-200',
-      };
-    case 'unmatched':
-      return {
-        label: 'Unmatched',
-        badgeCls: 'bg-slate-50 text-slate-700 border-slate-200',
-      };
-    case 'withdrawn':
-      return {
-        label: 'Withdrawn',
-        badgeCls: 'bg-slate-50 text-slate-500 border-slate-200',
-      };
-    case 'draft':
-    default:
-      return { label: status, badgeCls: 'bg-slate-50 text-slate-700 border-slate-200' };
-  }
-}
+
+const REVIEW_STATE_PRESENTATION: Record<ApplicationReviewState, StatusPresentation> = {
+  new: { label: 'New', badgeCls: 'bg-slate-50 text-slate-700 border-slate-200' },
+  under_review: {
+    label: 'Under Review',
+    badgeCls: 'bg-sky-50 text-sky-700 border-sky-200',
+  },
+  reviewed: {
+    label: 'Reviewed',
+    badgeCls: 'bg-green-50 text-green-700 border-green-200',
+  },
+  matched: {
+    label: 'Matched',
+    badgeCls: 'bg-lrfap-navy/5 text-lrfap-navy border-lrfap-navy/40',
+  },
+};
 
 function applicantName(applicant: ID | User): string {
   if (typeof applicant === 'string') return 'Applicant';
@@ -125,6 +113,9 @@ export default function UniversityApplicationDetailPage() {
   const [appStatus, setAppStatus] = useState<FetchStatus>('idle');
   const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
   const [docsStatus, setDocsStatus] = useState<FetchStatus>('idle');
+  const [reviewState, setReviewState] = useState<ApplicationReviewState>('new');
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   const validId = isValidObjectId(applicationId);
 
@@ -137,6 +128,7 @@ export default function UniversityApplicationDetailPage() {
       .then((res) => {
         if (cancelled) return;
         setApplication(res);
+        setReviewState(res.reviewState ?? 'new');
         setAppStatus('loaded');
       })
       .catch((err: unknown) => {
@@ -184,10 +176,35 @@ export default function UniversityApplicationDetailPage() {
     return null;
   }, [application, sourceProgramId]);
 
-  const statusPresentation = useMemo(
-    () => (application ? presentStatus(application.status) : null),
-    [application],
-  );
+  const statePresentation = REVIEW_STATE_PRESENTATION[reviewState];
+
+  const handleBeginReview = useCallback(async () => {
+    if (!applicationId) return;
+    setReviewBusy(true);
+    setReviewError(null);
+    try {
+      const res = await universityReviewApi.beginReview(applicationId);
+      setReviewState(res.state);
+    } catch {
+      setReviewError("Couldn't update review state. Try again.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }, [applicationId]);
+
+  const handleMarkReviewed = useCallback(async () => {
+    if (!applicationId) return;
+    setReviewBusy(true);
+    setReviewError(null);
+    try {
+      const res = await universityReviewApi.markReviewed(applicationId);
+      setReviewState(res.state);
+    } catch {
+      setReviewError("Couldn't update review state. Try again.");
+    } finally {
+      setReviewBusy(false);
+    }
+  }, [applicationId]);
 
   const matchedProgram = populated<Program>(application?.matchedProgram ?? null);
   const matchedUni = matchedProgram ? populated<University>(matchedProgram.university) : null;
@@ -213,7 +230,7 @@ export default function UniversityApplicationDetailPage() {
     );
   }
 
-  if (appStatus === 'error' || !application || !statusPresentation) {
+  if (appStatus === 'error' || !application) {
     return (
       <PageShell>
         <BackLink sourceProgramId={sourceProgramId} sourceProgram={sourceProgram} />
@@ -257,13 +274,51 @@ export default function UniversityApplicationDetailPage() {
             ) : null}
           </div>
         </div>
-        <span
-          role="status"
-          aria-label={`Status: ${statusPresentation.label}`}
-          className={`inline-flex shrink-0 items-center border px-[12px] py-[4px] font-sans text-[11px] font-medium uppercase tracking-wide ${statusPresentation.badgeCls}`}
-        >
-          {statusPresentation.label}
-        </span>
+        <div className="flex shrink-0 flex-col items-start gap-[6px] md:items-end">
+          <div className="flex items-center gap-[10px]">
+            <span
+              role="status"
+              aria-label={`Review state: ${statePresentation.label}`}
+              className={`inline-flex shrink-0 items-center border px-[12px] py-[4px] font-sans text-[11px] font-medium uppercase tracking-wide ${statePresentation.badgeCls}`}
+            >
+              {statePresentation.label}
+            </span>
+            {reviewState === 'new' ? (
+              <button
+                type="button"
+                onClick={() => void handleBeginReview()}
+                disabled={reviewBusy}
+                className="inline-flex items-center gap-[6px] border-[0.91px] border-lrfap-navy bg-lrfap-navy px-[14px] py-[6px] font-sans text-[11px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {reviewBusy ? (
+                  <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
+                ) : null}
+                Begin Review
+              </button>
+            ) : null}
+            {reviewState === 'under_review' ? (
+              <button
+                type="button"
+                onClick={() => void handleMarkReviewed()}
+                disabled={reviewBusy}
+                className="inline-flex items-center gap-[6px] border-[0.91px] border-lrfap-navy bg-lrfap-navy px-[14px] py-[6px] font-sans text-[11px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {reviewBusy ? (
+                  <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" />
+                ) : null}
+                Mark as Reviewed
+              </button>
+            ) : null}
+          </div>
+          {reviewError ? (
+            <p
+              role="alert"
+              className="font-sans text-[11px] text-red-700"
+            >
+              {reviewError}
+            </p>
+          ) : null}
+        </div>
       </header>
 
       {/* Reference + submitted-at summary */}
@@ -342,7 +397,7 @@ export default function UniversityApplicationDetailPage() {
             <span>Couldn&apos;t load documents. Refresh to try again.</span>
           </div>
         ) : (
-          <DocumentsList documents={documents} readOnly />
+          <DocumentsList documents={documents} readOnly showActions />
         )}
       </section>
     </PageShell>

@@ -1,24 +1,23 @@
-import type { ApplicationStatus } from '../../../types';
+import type { ApplicationReviewState } from '../../../types';
 
 /**
- * Client-side filter chips for the program applications list. Backend
- * endpoint also supports `?status=` — kept client-side because per-program
- * lists are small and chip switching should feel instant. Draft is never
- * an option here because backend filters drafts out server-side.
+ * Client-side filter chips for the program applications list, keyed on
+ * the per-university review state attached by the backend. Per-program
+ * lists are small so chip switching stays client-side.
  */
 
-export type StatusFilter = 'all' | Extract<ApplicationStatus, 'submitted' | 'under_review' | 'matched'>;
+export type ReviewStateFilter = ApplicationReviewState;
 
 interface StatusFilterBarProps {
-  active: StatusFilter;
-  counts: Record<StatusFilter, number>;
-  onChange: (next: StatusFilter) => void;
+  active: ReviewStateFilter;
+  counts: Record<ReviewStateFilter, number>;
+  onChange: (next: ReviewStateFilter) => void;
 }
 
-const CHIPS: { key: StatusFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'submitted', label: 'Submitted' },
+const CHIPS: { key: ReviewStateFilter; label: string }[] = [
+  { key: 'new', label: 'New' },
   { key: 'under_review', label: 'Under review' },
+  { key: 'reviewed', label: 'Reviewed' },
   { key: 'matched', label: 'Matched' },
 ];
 
@@ -26,7 +25,7 @@ export function StatusFilterBar({ active, counts, onChange }: StatusFilterBarPro
   return (
     <div
       role="tablist"
-      aria-label="Filter applicants by status"
+      aria-label="Filter applicants by review state"
       className="flex flex-wrap items-center gap-[8px]"
     >
       {CHIPS.map(({ key, label }) => {

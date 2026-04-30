@@ -19,6 +19,12 @@ export type ApplicationStatus =
 
 export type OfferStatus = 'none' | 'pending' | 'accepted' | 'declined' | 'expired';
 
+export type ApplicationReviewState =
+  | 'new'
+  | 'under_review'
+  | 'reviewed'
+  | 'matched';
+
 export interface ProgramSelection {
   program: ID | Program;
   rank: number;
@@ -44,4 +50,10 @@ export interface Application {
   offerExpiresAt?: ISODateString;
   createdAt: ISODateString;
   updatedAt: ISODateString;
+  /**
+   * Per-university review state, attached by /university-review endpoints
+   * relative to the requesting reviewer's institution. Undefined on
+   * applicant-side responses.
+   */
+  reviewState?: ApplicationReviewState;
 }

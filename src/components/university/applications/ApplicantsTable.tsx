@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Users } from 'lucide-react';
 import type {
   Application,
-  ApplicationStatus,
+  ApplicationReviewState,
   ID,
   User,
 } from '../../../types';
@@ -24,19 +24,20 @@ interface StatusPresentation {
   cls: string;
 }
 
-const STATUS_PRESENTATION: Record<ApplicationStatus, StatusPresentation> = {
-  draft: { label: 'Draft', cls: 'border-slate-200 bg-slate-50 text-slate-600' },
-  submitted: {
-    label: 'Submitted',
-    cls: 'border-lrfap-sky/40 bg-lrfap-sky/10 text-lrfap-navy',
-  },
+const REVIEW_STATE_PRESENTATION: Record<ApplicationReviewState, StatusPresentation> = {
+  new: { label: 'New', cls: 'border-slate-200 bg-slate-50 text-slate-600' },
   under_review: {
     label: 'Under review',
-    cls: 'border-amber-200 bg-amber-50 text-amber-800',
+    cls: 'border-lrfap-sky/40 bg-lrfap-sky/10 text-lrfap-navy',
   },
-  matched: { label: 'Matched', cls: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
-  unmatched: { label: 'Unmatched', cls: 'border-rose-200 bg-rose-50 text-rose-800' },
-  withdrawn: { label: 'Withdrawn', cls: 'border-slate-200 bg-slate-50 text-slate-500' },
+  reviewed: {
+    label: 'Reviewed',
+    cls: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  },
+  matched: {
+    label: 'Matched',
+    cls: 'border-lrfap-navy bg-lrfap-navy/5 text-lrfap-navy',
+  },
 };
 
 function formatDate(iso: string | null | undefined): string {
@@ -106,7 +107,7 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
         <tbody>
           {applications.map((app, idx) => {
             const { name, email } = applicantDisplay(app.applicant);
-            const presentation = STATUS_PRESENTATION[app.status];
+            const presentation = REVIEW_STATE_PRESENTATION[app.reviewState ?? 'new'];
             return (
               <tr
                 key={app._id}
@@ -154,7 +155,7 @@ export function ApplicantsTable({ applications, programId }: ApplicantsTableProp
       <ul role="list" className="flex flex-col md:hidden">
         {applications.map((app, idx) => {
           const { name, email } = applicantDisplay(app.applicant);
-          const presentation = STATUS_PRESENTATION[app.status];
+          const presentation = REVIEW_STATE_PRESENTATION[app.reviewState ?? 'new'];
           return (
             <li
               key={app._id}

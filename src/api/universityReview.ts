@@ -1,6 +1,7 @@
 import { apiGet, apiPost, apiPut } from './client';
 import type {
   Application,
+  ApplicationReviewState,
   ID,
   Program,
   ProgramRanking,
@@ -49,4 +50,14 @@ export const universityReviewApi = {
     );
     return res.ranking;
   },
+
+  beginReview: (applicationId: ID) =>
+    apiPost<{ state: ApplicationReviewState; updatedAt: string }>(
+      `/university-review/applications/${applicationId}/begin-review`,
+    ),
+
+  markReviewed: (applicationId: ID) =>
+    apiPost<{ state: ApplicationReviewState; updatedAt: string }>(
+      `/university-review/applications/${applicationId}/mark-reviewed`,
+    ),
 };
