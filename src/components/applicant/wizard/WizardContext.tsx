@@ -78,7 +78,6 @@ interface ProfileSummary {
   fullName: string;
   applicantId: string;
   dob: string;
-  institution: string;
 }
 
 export interface WizardContextValue {
@@ -809,15 +808,6 @@ export function WizardProvider({ children }: WizardProviderProps) {
         dob: profile?.dateOfBirth
           ? new Date(profile.dateOfBirth).toLocaleDateString('en-GB')
           : '—',
-        institution: (() => {
-          if (!profile) return '—';
-          if (profile.medicalSchool) {
-            const u = universities.find((x) => x._id === profile.medicalSchool);
-            if (u) return u.name;
-          }
-          if (profile.medicalSchoolOther) return profile.medicalSchoolOther;
-          return '—';
-        })(),
       },
       welcomeName,
       applicationCycle: applicationCycleLabel,

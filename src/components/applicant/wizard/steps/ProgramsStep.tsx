@@ -70,6 +70,8 @@ export default function ProgramsStep() {
   const [cityFilter, setCityFilter] = useState('');
   const [search, setSearch] = useState('');
   const [selectedExpanded, setSelectedExpanded] = useState(false);
+  const [availableExpanded, setAvailableExpanded] = useState(false);
+  const [showingAll, setShowingAll] = useState(false);
 
   useEffect(() => {
     // No step save: every mutation hits the server already (debounced),
@@ -309,51 +311,98 @@ export default function ProgramsStep() {
       {/* Split */}
       <div className="grid grid-cols-1 gap-[24px] lg:grid-cols-[1.4fr_1fr]">
         <div className="flex flex-col gap-[12px]">
-          <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() =>
+              setAvailableExpanded((v) => {
+                if (v) setShowingAll(false);
+                return !v;
+              })
+            }
+            aria-expanded={availableExpanded}
+            aria-controls="available-programs-panel"
+            className="flex w-full items-center justify-between gap-[12px] border-[0.91px] border-lrfap-ghost bg-white px-[14px] py-[12px] text-left transition-colors hover:border-lrfap-navy/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
+          >
             <h3 className="font-sans text-[14px] font-semibold uppercase tracking-wide text-lrfap-navy">
               Available Programs
             </h3>
-            <span className="font-sans text-[12px] text-slate-500">
-              {filteredPrograms.length} result
-              {filteredPrograms.length === 1 ? '' : 's'}
+            <span className="flex items-center gap-[10px]">
+              <span className="font-sans text-[12px] text-slate-500">
+                {filteredPrograms.length} result
+                {filteredPrograms.length === 1 ? '' : 's'}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                className={`h-4 w-4 text-lrfap-navy transition-transform duration-200 ${
+                  availableExpanded ? 'rotate-180' : ''
+                }`}
+              />
             </span>
-          </div>
+          </button>
 
-          {programs.length === 0 ? (
-            <EmptyPanel
-              title="No programs available"
-              body="No programs have been published for this cycle yet. Check back later or contact your program coordinator."
-            />
-          ) : filteredPrograms.length === 0 ? (
-            <EmptyPanel
-              title="No programs match your filters"
-              body="Try clearing one of the filters or the search to see more results."
-              action={
-                anyFiltersActive ? (
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="mt-[12px] font-sans text-[13px] font-medium text-lrfap-sky underline-offset-4 hover:underline"
-                  >
-                    Clear filters
-                  </button>
-                ) : null
-              }
-            />
-          ) : (
-            <ul role="list" className="flex flex-col gap-[16px]">
-              {filteredPrograms.map((p) => (
-                <li key={p._id}>
-                  <AvailableProgramCard
-                    program={p}
-                    isSelected={selectedIds.has(p._id)}
-                    onAdd={() => addProgramSelection(p._id)}
-                    onRemove={() => removeProgramSelection(p._id)}
+          <AnimatePresence initial={false}>
+            {availableExpanded ? (
+              <motion.div
+                id="available-programs-panel"
+                key="available-programs-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{ overflow: 'hidden' }}
+              >
+                {programs.length === 0 ? (
+                  <EmptyPanel
+                    title="No programs available"
+                    body="No programs have been published for this cycle yet. Check back later or contact your program coordinator."
                   />
-                </li>
-              ))}
-            </ul>
-          )}
+                ) : filteredPrograms.length === 0 ? (
+                  <EmptyPanel
+                    title="No programs match your filters"
+                    body="Try clearing one of the filters or the search to see more results."
+                    action={
+                      anyFiltersActive ? (
+                        <button
+                          type="button"
+                          onClick={clearFilters}
+                          className="mt-[12px] font-sans text-[13px] font-medium text-lrfap-sky underline-offset-4 hover:underline"
+                        >
+                          Clear filters
+                        </button>
+                      ) : null
+                    }
+                  />
+                ) : (
+                  <>
+                    <ul role="list" className="flex flex-col gap-[16px]">
+                      {(showingAll
+                        ? filteredPrograms
+                        : filteredPrograms.slice(0, 8)
+                      ).map((p) => (
+                        <li key={p._id}>
+                          <AvailableProgramCard
+                            program={p}
+                            isSelected={selectedIds.has(p._id)}
+                            onAdd={() => addProgramSelection(p._id)}
+                            onRemove={() => removeProgramSelection(p._id)}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                    {!showingAll && filteredPrograms.length > 8 ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowingAll(true)}
+                        className="mt-[16px] inline-flex h-[40px] w-full items-center justify-center gap-[8px] border-[0.91px] border-lrfap-navy bg-white px-[20px] font-sans text-[13px] font-medium uppercase tracking-wide text-lrfap-navy transition-colors hover:bg-lrfap-navy/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-navy"
+                      >
+                        Show all {filteredPrograms.length} results
+                      </button>
+                    ) : null}
+                  </>
+                )}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </div>
 
         <aside className="flex flex-col gap-[12px]">

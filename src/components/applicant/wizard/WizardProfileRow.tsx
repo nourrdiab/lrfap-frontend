@@ -3,10 +3,10 @@ import { useWizard } from './WizardContext';
 
 /**
  * Quick-read row of the applicant's core profile fields: FULL NAME,
- * APPLICANT ID, DATE OF BIRTH, CURRENT INSTITUTION. The EDIT button
- * navigates to /applicant/profile (the standalone Profile & Documents
- * page), NOT back to step 1 — profile management is orthogonal to
- * application creation, per earlier architecture decision.
+ * APPLICANT ID, DATE OF BIRTH. The EDIT button navigates to
+ * /applicant/profile (the standalone Profile & Documents page), NOT
+ * back to step 1 — profile management is orthogonal to application
+ * creation, per earlier architecture decision.
  */
 export function WizardProfileRow() {
   const { profileSummary } = useWizard();
@@ -17,10 +17,6 @@ export function WizardProfileRow() {
           <ProfileCell label="Full Name" value={profileSummary.fullName} />
           <ProfileCell label="Applicant ID" value={profileSummary.applicantId} />
           <ProfileCell label="Date of Birth" value={profileSummary.dob} />
-          <ProfileCell
-            label="Current Institution"
-            value={profileSummary.institution}
-          />
         </dl>
 
         <Link
