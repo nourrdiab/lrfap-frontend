@@ -38,6 +38,7 @@ const COLUMN_1: FooterLink[] = [
 const COLUMN_2: FooterLink[] = [
   { label: 'SUPPORT', href: '/support' },
   { label: 'FAQs', href: '/faqs' },
+  { label: 'REQUIRED DOCUMENTS', href: '/required-documents' },
 ];
 
 function LinkColumn({ items }: { items: FooterLink[] }) {

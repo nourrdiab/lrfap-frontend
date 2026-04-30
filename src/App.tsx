@@ -18,6 +18,7 @@ import TermsPage from './pages/public/TermsPage';
 import FAQsPage from './pages/public/FAQsPage';
 import SupportPage from './pages/public/SupportPage';
 import PrivacyPolicyPage from './pages/public/PrivacyPolicyPage';
+import RequiredDocumentsPage from './pages/public/RequiredDocumentsPage';
 
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -70,6 +71,7 @@ export default function App() {
             <Route path="faqs" element={<FAQsPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="privacy" element={<PrivacyPolicyPage />} />
+            <Route path="required-documents" element={<RequiredDocumentsPage />} />
           </Route>
 
           {/* /programs is public-or-private — ProgramsRoute picks the

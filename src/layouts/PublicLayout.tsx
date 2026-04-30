@@ -3,7 +3,7 @@ import { PublicNavBar } from '../components/public/PublicNavBar';
 import { PublicFooter } from '../components/public/PublicFooter';
 import { ChatbotWidget } from '../components/chatbot/ChatbotWidget';
 
-const WHITE_NAV_ROUTES = ['/programs', '/terms', '/faqs', '/support', '/privacy'];
+const WHITE_NAV_ROUTES = ['/programs', '/terms', '/faqs', '/support', '/privacy', '/required-documents'];
 
 export function PublicLayout() {
   const { pathname } = useLocation();
