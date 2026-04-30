@@ -37,7 +37,6 @@ import PreferenceRankingStep from './components/applicant/wizard/steps/Preferenc
 import ReviewSubmitStep from './components/applicant/wizard/steps/ReviewSubmitStep';
 
 import UniversityDashboardPage from './pages/university/DashboardPage';
-import UniversityProgramsListPage from './pages/university/ProgramsListPage';
 import UniversityProgramApplicationsPage from './pages/university/ProgramApplicationsPage';
 import UniversityApplicationDetailPage from './pages/university/ApplicationDetailPage';
 import UniversityRankingPage from './pages/university/RankingPage';
@@ -131,7 +130,6 @@ export default function App() {
           <Route element={<ProtectedRoute allow={['university']} />}>
             <Route path="university" element={<UniversityLayout />}>
               <Route index element={<UniversityDashboardPage />} />
-              <Route path="programs" element={<UniversityProgramsListPage />} />
               <Route
                 path="programs/:programId"
                 element={<UniversityProgramApplicationsPage />}
