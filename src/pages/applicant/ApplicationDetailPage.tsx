@@ -3,6 +3,7 @@ import { AxiosError } from 'axios';
 import { AlertCircle, ArrowLeft, CheckCircle, Copy, Loader2 } from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
+import { useAuth } from '../../hooks/useAuth';
 import { applicationsApi } from '../../api/applications';
 import { documentsApi } from '../../api/documents';
 import { SelectedProgramsList } from '../../components/applicant/applicationView/SelectedProgramsList';
@@ -41,10 +42,11 @@ function formatInvoiceNumber(applicationId: string): string {
   return `INV${applicationId.slice(-8).toUpperCase()}`;
 }
 function formatInvoiceDate(iso: string | null | undefined): string {
-  const d = iso ? new Date(iso) : new Date();
+  if (!iso) return '—';
+  const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-GB', {
-    day: '2-digit',
+    day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
@@ -93,6 +95,7 @@ function presentStatus(status: ApplicationStatus): StatusPresentation {
 export default function ApplicantApplicationDetailPage() {
   useDocumentTitle('Application details');
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
 
   const [application, setApplication] = useState<Application | null>(null);
   const [appStatus, setAppStatus] = useState<FetchStatus>('idle');
@@ -397,7 +400,9 @@ export default function ApplicantApplicationDetailPage() {
             <dl className="grid grid-cols-[auto_1fr] gap-x-[16px] gap-y-[8px]">
               <dt className="font-sans text-[13px] text-slate-500">Billed to:</dt>
               <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">
-                Applicant
+                {user?.firstName && user?.lastName
+                  ? `${user.firstName} ${user.lastName}`
+                  : 'Applicant'}
               </dd>
               <dt className="font-sans text-[13px] text-slate-500">Summary:</dt>
               <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">
@@ -417,7 +422,7 @@ export default function ApplicantApplicationDetailPage() {
               <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">USD</dd>
               <dt className="font-sans text-[13px] text-slate-500">Date:</dt>
               <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">
-                {formatInvoiceDate(application.createdAt)}
+                {formatInvoiceDate(application.submittedAt)}
               </dd>
             </dl>
           </div>
