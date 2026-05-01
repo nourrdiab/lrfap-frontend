@@ -112,9 +112,6 @@ export default function ApplicantDashboardPage() {
   }, [notifications]);
 
   const firstName = user?.firstName?.trim() || '';
-  // TEMP DIAGNOSTIC
-  console.log('[DIAG dashboard render] user =', user ? JSON.stringify(user) : 'null', 'isFirstLogin =', user?.isFirstLogin);
-  // END TEMP
 
   // ---- Loading ---------------------------------------------------------
 
