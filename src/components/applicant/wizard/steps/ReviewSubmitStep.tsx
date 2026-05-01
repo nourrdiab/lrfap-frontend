@@ -11,6 +11,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { applicationsApi } from '../../../../api/applications';
 import { getApiErrorMessage } from '../../../../utils/apiError';
+import { useAuth } from '../../../../hooks/useAuth';
 import type {
   Application,
   ApplicationDocument,
@@ -65,10 +66,11 @@ function formatInvoiceNumber(applicationId: string): string {
 }
 
 function formatInvoiceDate(iso: string | null | undefined): string {
-  const d = iso ? new Date(iso) : new Date();
+  if (!iso) return '—';
+  const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-GB', {
-    day: '2-digit',
+    day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
@@ -666,8 +668,13 @@ function ReviewRankRow({
 }
 
 function PaymentSummary({ application }: { application: Application | null }) {
+  const { user } = useAuth();
   const invoiceNumber = application ? formatInvoiceNumber(application._id) : '—';
-  const invoiceDate = formatInvoiceDate(application?.createdAt);
+  const invoiceDate = formatInvoiceDate(new Date().toISOString());
+  const billedTo =
+    user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : 'Applicant';
   return (
     <section
       aria-labelledby="review-payment-heading"
@@ -684,7 +691,7 @@ function PaymentSummary({ application }: { application: Application | null }) {
           <dl className="grid grid-cols-[auto_1fr] gap-x-[16px] gap-y-[8px]">
             <dt className="font-sans text-[13px] text-slate-500">Billed to:</dt>
             <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">
-              {application ? 'Applicant' : '—'}
+              {billedTo}
             </dd>
             <dt className="font-sans text-[13px] text-slate-500">Summary:</dt>
             <dd className="font-sans text-[13px] font-semibold text-lrfap-navy">
