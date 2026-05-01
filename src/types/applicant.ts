@@ -1,4 +1,5 @@
 import type { ID, ISODateString } from './common';
+import type { University } from './catalog';
 
 /**
  * Mirrors backend `models/ApplicantProfile.js`. All fields are flat except
@@ -26,8 +27,11 @@ export interface ApplicantProfile {
   address?: string;
   city?: string;
 
-  /** University._id, or undefined if using medicalSchoolOther. */
-  medicalSchool?: ID;
+  /**
+   * University._id, populated University, or undefined if using
+   * medicalSchoolOther. University-review responses populate the ref.
+   */
+  medicalSchool?: ID | University;
   medicalSchoolOther?: string;
   graduationYear?: number;
   gpa?: number; // 0-4

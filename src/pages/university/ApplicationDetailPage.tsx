@@ -13,11 +13,15 @@ import { universityReviewApi } from '../../api/universityReview';
 import { documentsApi } from '../../api/documents';
 import { DocumentsList } from '../../components/applicant/applicationView/DocumentsList';
 import type {
+  ApplicantLanguages,
+  ApplicantProfile,
   Application,
   ApplicationDocument,
   ApplicationReviewState,
   Cycle,
   ID,
+  LanguageCode,
+  LanguageLevel,
   Program,
   Specialty,
   University,
@@ -69,6 +73,58 @@ function formatSubmittedAt(iso: string | null | undefined): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function formatDateOnly(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+const GENDER_LABEL: Record<string, string> = {
+  male: 'Male',
+  female: 'Female',
+  other: 'Other',
+  prefer_not_to_say: 'Prefer not to say',
+};
+
+const LANGUAGE_LABEL: Record<LanguageCode, string> = {
+  english: 'English',
+  french: 'French',
+  arabic: 'Arabic',
+};
+
+const LANGUAGE_LEVEL_LABEL: Record<LanguageLevel, string> = {
+  none: 'None',
+  basic: 'Basic',
+  intermediate: 'Intermediate',
+  fluent: 'Fluent',
+  native: 'Native',
+};
+
+function medicalSchoolName(profile: ApplicantProfile): string | null {
+  if (profile.medicalSchool && typeof profile.medicalSchool === 'object') {
+    return (profile.medicalSchool as University).name ?? null;
+  }
+  if (profile.medicalSchoolOther?.trim()) {
+    return profile.medicalSchoolOther.trim();
+  }
+  return null;
+}
+
+function spokenLanguages(
+  langs: ApplicantLanguages | undefined,
+): Array<{ code: LanguageCode; level: LanguageLevel }> {
+  if (!langs) return [];
+  const codes: LanguageCode[] = ['english', 'french', 'arabic'];
+  return codes
+    .map((code) => ({ code, level: langs[code] ?? 'none' }))
+    .filter((entry) => entry.level !== 'none');
 }
 
 interface StatusPresentation {
@@ -351,6 +407,8 @@ export default function UniversityApplicationDetailPage() {
         </p>
       </section>
 
+      <ApplicantProfileSection name={name} profile={application.applicantProfile ?? null} />
+
       {/* Match result summary — read-only mini card, no accept/decline
           (those belong to the applicant). */}
       {application.status === 'matched' && matchedProgram ? (
@@ -401,6 +459,165 @@ export default function UniversityApplicationDetailPage() {
         )}
       </section>
     </PageShell>
+  );
+}
+
+interface ApplicantProfileSectionProps {
+  name: string;
+  profile: ApplicantProfile | null;
+}
+
+function ApplicantProfileSection({ name, profile }: ApplicantProfileSectionProps) {
+  if (!profile) {
+    return (
+      <section
+        aria-labelledby="applicant-profile-heading"
+        className="flex flex-col gap-[12px]"
+      >
+        <h2
+          id="applicant-profile-heading"
+          className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
+        >
+          Applicant Profile
+        </h2>
+        <div className="border-[0.91px] border-dashed border-lrfap-ghost bg-white/60 px-[24px] py-[20px] font-sans text-[13px] text-slate-500">
+          This applicant hasn&apos;t completed their profile yet.
+        </div>
+      </section>
+    );
+  }
+
+  const schoolName = medicalSchoolName(profile);
+  const languages = spokenLanguages(profile.languages);
+  const freeText: Array<{ label: string; value: string | undefined }> = [
+    { label: 'Research', value: profile.research },
+    { label: 'Publications', value: profile.publications },
+    { label: 'Work experience', value: profile.workExperience },
+    { label: 'Extracurriculars', value: profile.extracurriculars },
+  ].filter((e) => e.value && e.value.trim().length > 0);
+
+  return (
+    <section
+      aria-labelledby="applicant-profile-heading"
+      className="flex flex-col gap-[12px]"
+    >
+      <h2
+        id="applicant-profile-heading"
+        className="font-display text-[16px] font-bold uppercase tracking-wide text-lrfap-navy"
+      >
+        Applicant Profile
+      </h2>
+      <div className="flex flex-col gap-[24px] border-[0.91px] border-lrfap-ghost bg-white p-[24px] shadow-[0_4px_24px_-12px_rgba(38,43,102,0.08)]">
+        <ProfileGroup label="Personal">
+          <ProfileRow label="Full name" value={name} />
+          <ProfileRow label="Date of birth" value={formatDateOnly(profile.dateOfBirth)} />
+          <ProfileRow
+            label="Gender"
+            value={profile.gender ? GENDER_LABEL[profile.gender] : null}
+          />
+          <ProfileRow label="Nationality" value={profile.nationality} />
+          <ProfileRow label="National ID" value={profile.nationalId} />
+          <ProfileRow label="Phone" value={profile.phone} />
+          <ProfileRow label="Address" value={profile.address} />
+          <ProfileRow label="City" value={profile.city} />
+        </ProfileGroup>
+
+        <ProfileGroup label="Education">
+          <ProfileRow label="Medical school" value={schoolName} />
+          <ProfileRow label="Graduation year" value={profile.graduationYear ?? null} />
+          <ProfileRow label="Class rank" value={profile.classRank} />
+        </ProfileGroup>
+
+        <ProfileGroup label="Languages" asList={false}>
+          {languages.length === 0 ? (
+            <p className="font-sans text-[13px] text-slate-500">
+              No language proficiencies recorded.
+            </p>
+          ) : (
+            <ul role="list" className="flex flex-wrap gap-[8px]">
+              {languages.map((entry) => (
+                <li
+                  key={entry.code}
+                  className="inline-flex items-center gap-[6px] border-[0.91px] border-lrfap-ghost bg-lrfap-ghost/40 px-[10px] py-[3px] font-sans text-[12px] text-lrfap-navy"
+                >
+                  <span className="font-semibold">{LANGUAGE_LABEL[entry.code]}</span>
+                  <span className="text-slate-500">·</span>
+                  <span>{LANGUAGE_LEVEL_LABEL[entry.level]}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ProfileGroup>
+
+        <ProfileGroup label="Standardised scores">
+          <ProfileRow label="IFOM 1" value={profile.usmleStep1 ?? null} />
+          <ProfileRow label="IFOM 2" value={profile.usmleStep2 ?? null} />
+        </ProfileGroup>
+
+        {freeText.length > 0 ? (
+          <ProfileGroup label="Background" asList={false}>
+            {freeText.map((entry) => (
+              <div key={entry.label} className="flex flex-col gap-[4px]">
+                <p className="font-sans text-[12px] font-medium uppercase tracking-wide text-slate-500">
+                  {entry.label}
+                </p>
+                <p className="whitespace-pre-line font-sans text-[13px] leading-relaxed text-slate-700">
+                  {entry.value}
+                </p>
+              </div>
+            ))}
+          </ProfileGroup>
+        ) : null}
+
+        <ProfileGroup label="Emergency contact">
+          <ProfileRow label="Name" value={profile.emergencyContactName} />
+          <ProfileRow label="Phone" value={profile.emergencyContactPhone} />
+          <ProfileRow label="Relationship" value={profile.emergencyContactRelation} />
+        </ProfileGroup>
+      </div>
+    </section>
+  );
+}
+
+function ProfileGroup({
+  label,
+  children,
+  asList = true,
+}: {
+  label: string;
+  children: React.ReactNode;
+  asList?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-[10px]">
+      <p className="font-sans text-[12px] font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
+      {asList ? (
+        <dl className="grid grid-cols-1 gap-x-[24px] gap-y-[8px] sm:grid-cols-2">
+          {children}
+        </dl>
+      ) : (
+        <div className="flex flex-col gap-[8px]">{children}</div>
+      )}
+    </div>
+  );
+}
+
+function ProfileRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number | null | undefined;
+}) {
+  const display =
+    value === null || value === undefined || value === '' ? '—' : String(value);
+  return (
+    <div className="grid grid-cols-[160px_1fr] items-baseline gap-x-[12px]">
+      <dt className="font-sans text-[12px] text-slate-500">{label}</dt>
+      <dd className="font-sans text-[13px] text-lrfap-navy">{display}</dd>
+    </div>
   );
 }
 

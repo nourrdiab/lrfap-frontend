@@ -13,7 +13,6 @@ import { universityReviewApi } from '../../api/universityReview';
 import { cyclesApi } from '../../api/cycles';
 import { dashboardApi } from '../../api/dashboard';
 import type {
-  ApplicationStatus,
   Cycle,
   CycleStatus,
   ID,
@@ -36,9 +35,12 @@ import type {
  *      cycle. Replaces the old N+1 fetch that pulled one applications
  *      list per program.
  *
- * Status categories shown are the real backend enum values only
- * (submitted / under_review / matched / unmatched / withdrawn). Drafts
- * are never shown — backend aggregation already excludes them.
+ * Per-program cards show the total applicant count only — no per-status
+ * pills. The legacy pills mirrored Application.status (submitted/under_review/
+ * matched/...) but the per-program detail page categorises applicants by
+ * ApplicationReviewState (new/under_review/reviewed/matched). Showing both
+ * gave inconsistent numbers for the same record (e.g. dashboard "Submitted: 1"
+ * vs detail "New: 1"); reviewers click into the program for the breakdown.
  *
  * There is no university name in the welcome strip: backend auth responses
  * omit the populated university on the user object and getMyPrograms
@@ -52,32 +54,6 @@ interface ProgramWithCounts {
   program: Program;
   counts: UniversityProgramStatusCounts;
 }
-
-const STATUS_VISIBLE: ApplicationStatus[] = [
-  'submitted',
-  'under_review',
-  'matched',
-  'unmatched',
-  'withdrawn',
-];
-
-const STATUS_LABEL: Record<ApplicationStatus, string> = {
-  draft: 'Draft',
-  submitted: 'Submitted',
-  under_review: 'Under review',
-  matched: 'Matched',
-  unmatched: 'Unmatched',
-  withdrawn: 'Withdrawn',
-};
-
-const STATUS_TONE: Record<ApplicationStatus, string> = {
-  draft: 'border-slate-200 bg-slate-50 text-slate-600',
-  submitted: 'border-lrfap-sky/40 bg-lrfap-sky/10 text-lrfap-navy',
-  under_review: 'border-amber-200 bg-amber-50 text-amber-800',
-  matched: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  unmatched: 'border-rose-200 bg-rose-50 text-rose-800',
-  withdrawn: 'border-slate-200 bg-slate-50 text-slate-500',
-};
 
 // Mirror the backend's LGC dashboard picker — "non-draft, non-closed"
 // is the definition of an active cycle across the app.
@@ -392,26 +368,11 @@ function ProgramCard({ program, counts }: ProgramCardProps) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-[6px]">
-        {STATUS_VISIBLE.map((status) => {
-          const n = counts[status as keyof UniversityProgramStatusCounts] ?? 0;
-          if (n === 0) return null;
-          return (
-            <span
-              key={status}
-              className={`inline-flex items-center gap-[6px] border-[0.91px] px-[10px] py-[3px] font-sans text-[11px] font-medium ${STATUS_TONE[status]}`}
-            >
-              {STATUS_LABEL[status]}
-              <span className="font-semibold">{n}</span>
-            </span>
-          );
-        })}
-        {counts.total === 0 ? (
-          <span className="font-sans text-[11px] text-slate-400">
-            No applicants yet
-          </span>
-        ) : null}
-      </div>
+      {counts.total === 0 ? (
+        <span className="font-sans text-[11px] text-slate-400">
+          No applicants yet
+        </span>
+      ) : null}
 
       <ArrowUpRight
         aria-hidden="true"

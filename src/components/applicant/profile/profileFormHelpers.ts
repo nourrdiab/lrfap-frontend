@@ -79,7 +79,10 @@ export function hydrateProfileForm(profile: ApplicantProfile): ProfileForm {
     address: profile.address ?? '',
     city: profile.city ?? '',
     nationalId: profile.nationalId ?? '',
-    medicalSchool: profile.medicalSchool ?? '',
+    medicalSchool:
+      typeof profile.medicalSchool === 'object' && profile.medicalSchool
+        ? profile.medicalSchool._id
+        : (profile.medicalSchool ?? ''),
     medicalSchoolOther: profile.medicalSchoolOther ?? '',
     graduationYear: profile.graduationYear?.toString() ?? '',
     classRank: profile.classRank ?? '',

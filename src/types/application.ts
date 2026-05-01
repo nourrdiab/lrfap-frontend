@@ -1,4 +1,5 @@
 import type { ID, ISODateString } from './common';
+import type { ApplicantProfile } from './applicant';
 import type { Cycle, Program, Track } from './catalog';
 import type { User } from './user';
 
@@ -56,4 +57,11 @@ export interface Application {
    * applicant-side responses.
    */
   reviewState?: ApplicationReviewState;
+  /**
+   * Applicant's reusable profile, attached by /university-review and LGC
+   * application-detail endpoints. `null` when the applicant hasn't yet
+   * filled out their profile; undefined on applicant-side responses.
+   * `medicalSchool` is populated to a University when present.
+   */
+  applicantProfile?: ApplicantProfile | null;
 }
