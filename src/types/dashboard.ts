@@ -207,5 +207,6 @@ export interface UniversityProgramCounts {
   universityId: ID;
   cycleId: ID;
   totalUniqueApplicants: number;
+  pendingReview: number;
   programs: UniversityProgramCountsEntry[];
 }

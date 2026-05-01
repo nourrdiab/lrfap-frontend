@@ -111,6 +111,7 @@ export default function UniversityDashboardPage() {
 
   const [entries, setEntries] = useState<ProgramWithCounts[]>([]);
   const [totalUniqueApplicants, setTotalUniqueApplicants] = useState(0);
+  const [pendingReview, setPendingReview] = useState(0);
   const [programsStatus, setProgramsStatus] = useState<FetchStatus>('idle');
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function UniversityDashboardPage() {
         if (!activeCycle || cycleScopedPrograms.length === 0) {
           setEntries(cycleScopedPrograms.map((p) => ({ program: p, counts: emptyCounts() })));
           setTotalUniqueApplicants(0);
+          setPendingReview(0);
           setProgramsStatus('loaded');
           return;
         }
@@ -161,6 +163,7 @@ export default function UniversityDashboardPage() {
           })),
         );
         setTotalUniqueApplicants(summary.totalUniqueApplicants);
+        setPendingReview(summary.pendingReview);
         setProgramsStatus('loaded');
       } catch {
         if (!cancelled) setProgramsStatus('error');
@@ -172,17 +175,14 @@ export default function UniversityDashboardPage() {
     };
   }, []);
 
-  const summary = useMemo(() => {
-    let pendingReview = 0;
-    for (const { counts } of entries) {
-      pendingReview += counts.submitted + counts.under_review;
-    }
-    return {
+  const summary = useMemo(
+    () => ({
       totalPrograms: entries.length,
       totalApplicants: totalUniqueApplicants,
       pendingReview,
-    };
-  }, [entries, totalUniqueApplicants]);
+    }),
+    [entries.length, totalUniqueApplicants, pendingReview],
+  );
 
   const firstName = user?.firstName?.trim() || '';
 
@@ -292,7 +292,7 @@ function SummaryRow({ totalPrograms, totalApplicants, pendingReview }: SummaryRo
           icon={<ClipboardList aria-hidden="true" className="h-5 w-5" />}
           label="Pending review"
           value={pendingReview}
-          hint="Submitted + under review"
+          hint="Awaiting your committee's review"
         />
       </div>
     </section>
