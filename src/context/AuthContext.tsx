@@ -85,7 +85,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const res = await authApi.refresh();
         applyToken(res.accessToken);
         const maybeUser = (res as unknown as { user?: User }).user;
-        if (maybeUser) setUser(maybeUser);
+        if (maybeUser) {
+          // TEMP DIAGNOSTIC
+          console.log('[DIAG bootstrap] setUser from refresh response =', JSON.stringify(maybeUser));
+          // END TEMP
+          setUser(maybeUser);
+        }
         devLog('[auth/context] bootstrap SUCCESS — session hydrated');
       } catch {
         // Intentionally no clearSession(): if an in-memory token exists
@@ -98,6 +103,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     })();
   }, [applyToken]);
+
+  // TEMP DIAGNOSTIC: trace every user state change
+  useEffect(() => {
+    console.log('[DIAG user-state]', user ? JSON.stringify(user) : 'null');
+  }, [user]);
+  // END TEMP
 
   useEffect(() => {
     registerUnauthorizedHandler(() => {
@@ -123,8 +134,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       lastName: string;
     }) => {
       const res = await authApi.register(payload);
+      // TEMP DIAGNOSTIC
+      console.log('[DIAG register] response.user =', JSON.stringify(res.user));
+      console.log('[DIAG register] isFirstLogin field type =', typeof (res.user as { isFirstLogin?: boolean })?.isFirstLogin);
+      // END TEMP
       applyToken(res.accessToken);
       setUser(res.user);
+      // TEMP DIAGNOSTIC
+      console.log('[DIAG register] setUser called with', JSON.stringify(res.user));
+      // END TEMP
       return res.user;
     },
     [applyToken],
