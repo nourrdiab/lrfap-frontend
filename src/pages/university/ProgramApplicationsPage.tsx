@@ -224,6 +224,14 @@ export default function UniversityProgramApplicationsPage() {
             <Users aria-hidden="true" className="h-3.5 w-3.5" />
             {sorted.length} {sorted.length === 1 ? 'applicant' : 'applicants'}
           </span>
+          {validId ? (
+            <Link
+              to={`/university/programs/${programId}/ranking`}
+              className="ml-auto inline-flex h-[40px] items-center justify-center border-[0.91px] border-lrfap-navy bg-lrfap-navy px-[20px] font-sans text-[13px] font-medium uppercase tracking-wide text-white transition-colors hover:bg-lrfap-navy/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lrfap-sky"
+            >
+              Rank Applicants
+            </Link>
+          ) : null}
         </div>
       </header>
 
