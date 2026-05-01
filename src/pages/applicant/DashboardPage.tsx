@@ -158,7 +158,9 @@ export default function ApplicantDashboardPage() {
     <PageShell>
       <header>
         <h1 className="font-display text-[36px] font-extrabold leading-[1.1] text-lrfap-navy md:text-[40px]">
-          {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
+          {user?.isFirstLogin
+            ? firstName ? `Welcome, ${firstName}` : 'Welcome'
+            : firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
         </h1>
         <p className="mt-[8px] font-sans text-[14px] text-slate-600">
           Here&apos;s a quick look at your application status and recent

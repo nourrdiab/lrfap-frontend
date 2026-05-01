@@ -12,6 +12,7 @@ export interface User {
   universityId?: ID;
   createdAt?: ISODateString;
   updatedAt?: ISODateString;
+  isFirstLogin?: boolean;
 }
 
 export interface AuthResponse {
