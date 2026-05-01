@@ -136,24 +136,6 @@ export function ProgramCard({
           <strong className="font-semibold text-lrfap-navy">{seatsLabel}</strong>
         </span>
       </p>
-
-      {hasDescription ? (
-        <div className="relative">
-          <p
-            className={`font-sans text-[13px] leading-[1.5] text-lrfap-navy ${
-              expanded ? '' : 'line-clamp-2'
-            }`}
-          >
-            {program.description}
-          </p>
-          {!expanded ? (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-[18px] bg-gradient-to-t from-white to-transparent"
-            />
-          ) : null}
-        </div>
-      ) : null}
     </>
   );
 
@@ -203,8 +185,13 @@ export function ProgramCard({
             className="overflow-hidden"
           >
             <div className="border-t border-lrfap-navy/10 px-[20px] py-[16px]">
+              {hasDescription ? (
+                <p className="font-sans text-[13px] leading-relaxed text-slate-600">
+                  {program.description}
+                </p>
+              ) : null}
               {hasExtras ? (
-                <>
+                <div className={hasDescription ? 'mt-[14px]' : ''}>
                   <h4 className="font-sans text-[11px] font-semibold uppercase tracking-wide text-lrfap-navy/70">
                     Additional requirements
                   </h4>
@@ -222,7 +209,7 @@ export function ProgramCard({
                       </li>
                     ))}
                   </ul>
-                </>
+                </div>
               ) : null}
               {showCTA ? (
                 <div

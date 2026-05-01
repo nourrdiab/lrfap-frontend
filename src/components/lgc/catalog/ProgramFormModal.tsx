@@ -538,13 +538,13 @@ export function ProgramFormModal({
                         value={state.description}
                         onChange={(e) => update('description', e.target.value)}
                         maxLength={1000}
-                        rows={3}
+                        rows={5}
                         className={`min-h-[80px] w-full resize-y border-2 bg-white px-[14px] py-[10px] font-sans text-[15px] text-slate-900 transition-colors duration-150 placeholder:text-slate-400 focus:outline-none ${
                           mergedErrors.description
                             ? 'border-red-500'
                             : 'border-lrfap-ghost hover:border-slate-300 focus-within:border-lrfap-sky'
                         }`}
-                        placeholder="Optional summary shown to applicants."
+                        placeholder="Describe the program for applicants. Include accreditation, training structure, and what makes this program distinctive."
                       />
                       <p className="font-sans text-[12px] text-slate-500">
                         {state.description.length}/1000 characters.
