@@ -198,7 +198,16 @@ export default function UniversityDashboardPage() {
         <h1 className="font-display text-[36px] font-extrabold leading-[1.1] text-lrfap-navy md:text-[40px]">
           {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
         </h1>
-        <p className="mt-[8px] font-sans text-[14px] uppercase tracking-wide text-slate-500">
+        {(() => {
+          const uni = entries[0]?.program?.university;
+          const name = uni && typeof uni === 'object' && 'name' in uni ? (uni as { name: string }).name : null;
+          return name ? (
+            <p className="mt-[8px] font-sans text-[14px] font-semibold uppercase tracking-wide text-lrfap-navy">
+              {name}
+            </p>
+          ) : null;
+        })()}
+        <p className="mt-[4px] font-sans text-[14px] uppercase tracking-wide text-slate-500">
           Review Committee
         </p>
       </header>
