@@ -35,8 +35,8 @@ export interface ApplicantProfile {
 
   languages?: ApplicantLanguages;
 
-  usmleStep1?: number; // 0-300
-  usmleStep2?: number; // 0-300
+  usmleStep1?: number; // 0-100
+  usmleStep2?: number; // 0-100
 
   research?: string;
   publications?: string;

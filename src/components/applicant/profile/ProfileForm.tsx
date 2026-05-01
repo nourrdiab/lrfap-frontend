@@ -517,7 +517,7 @@ export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps)
             readOnly={locked}
             value={form.usmleStep1}
             onChange={(e) => setField('usmleStep1', e.target.value)}
-            placeholder="0 – 300"
+            placeholder="0 – 100"
             hint="Optional"
           />
           <FormField
@@ -527,7 +527,7 @@ export function ProfileForm({ locked = false, onDirtyChange }: ProfileFormProps)
             readOnly={locked}
             value={form.usmleStep2}
             onChange={(e) => setField('usmleStep2', e.target.value)}
-            placeholder="0 – 300"
+            placeholder="0 – 100"
             hint="Optional"
           />
         </div>
